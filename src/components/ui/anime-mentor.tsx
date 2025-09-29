@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Image } from '@/components/ui/image';
+import { AnimeCharacterGenerator } from '@/components/ui/anime-character-generator';
 import { 
   Mic, 
   MicOff, 
@@ -49,25 +50,53 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isMentorSpeaking, setIsMentorSpeaking] = useState(false);
   const [currentMessage, setCurrentMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<Array<{id: string, sender: 'user' | 'mentor', message: string, timestamp: Date}>>([]);
   const [isListening, setIsListening] = useState(false);
+  const [showCharacterGenerator, setShowCharacterGenerator] = useState(false);
+  const [selectedMentor, setSelectedMentor] = useState<any>(null);
+  const recognitionRef = useRef<any>(null);
+  const [chatHistory, setChatHistory] = useState<Array<{
+    id: string;
+    sender: 'user' | 'mentor';
+    message: string;
+    timestamp: Date;
+  }>>([]);
   
   const videoRef = useRef<HTMLVideoElement>(null);
-  const recognitionRef = useRef<any>(null);
 
   // Mock mentor data
-  const [mentor, setMentor] = useState<MentorPersonality>({
-    name: 'Akira Sensei',
-    personality: 'Wise and encouraging, with a touch of humor',
-    expertise: ['Programming', 'Mathematics', 'Physics', 'Study Techniques'],
-    voiceType: 'wise',
-    appearance: {
-      hairColor: '#4A90E2',
-      eyeColor: '#00FFFF',
-      outfit: 'Cyberpunk Teacher',
-      accessories: ['Digital Glasses', 'Holographic Badge']
+  const [mentor, setMentor] = useState<MentorPersonality>(
+    selectedMentor || {
+      name: 'Akira Sensei',
+      personality: 'Wise and encouraging, with a touch of humor',
+      expertise: ['Programming', 'Mathematics', 'Physics', 'Study Techniques'],
+      voiceType: 'wise',
+      appearance: {
+        hairColor: '#4A90E2',
+        eyeColor: '#00FFFF',
+        outfit: 'Cyberpunk Teacher',
+        accessories: ['Digital Glasses', 'Holographic Badge']
+      }
     }
-  });
+  );
+
+  const handleCharacterGenerated = (character: any) => {
+    // Convert generated character to mentor format
+    const newMentor: MentorPersonality = {
+      name: character.name,
+      personality: character.personality.description,
+      expertise: character.abilities ? [character.abilities.element, 'General Studies'] : ['General Studies'],
+      voiceType: character.voiceSettings?.tone || 'wise',
+      appearance: {
+        hairColor: character.appearance?.hairColor || '#4A90E2',
+        eyeColor: character.appearance?.eyeColor || '#00FFFF',
+        outfit: character.appearance?.outfit || 'Cyberpunk Teacher',
+        accessories: character.appearance?.accessories || ['Digital Glasses']
+      }
+    };
+    setMentor(newMentor);
+    setSelectedMentor(character);
+    setShowCharacterGenerator(false);
+  };
 
   useEffect(() => {
     // Initialize speech recognition with error handling

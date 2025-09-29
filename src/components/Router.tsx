@@ -7,6 +7,8 @@ import HomePage from '@/components/pages/HomePage';
 import ProfilePage from '@/components/pages/ProfilePage';
 import DashboardPage from '@/components/pages/DashboardPage';
 import LearnPage from '@/components/pages/LearnPage';
+import BattleArenaPage from '@/components/pages/BattleArenaPage';
+import StudyGuildsPage from '@/components/pages/StudyGuildsPage';
 
 const router = createBrowserRouter([
   {
@@ -50,12 +52,7 @@ const router = createBrowserRouter([
         path: "battle",
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to enter the battle arena">
-            <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-4xl font-heading font-black text-primary mb-4">Battle Arena</h1>
-                <p className="text-xl font-paragraph text-light-gray">Coming Soon - Epic boss battles await!</p>
-              </div>
-            </div>
+            <BattleArenaPage />
           </MemberProtectedRoute>
         ),
       },
@@ -63,12 +60,7 @@ const router = createBrowserRouter([
         path: "guilds",
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to join guilds">
-            <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-4xl font-heading font-black text-primary mb-4">Study Guilds</h1>
-                <p className="text-xl font-paragraph text-light-gray">Coming Soon - Form alliances with fellow learners!</p>
-              </div>
-            </div>
+            <StudyGuildsPage />
           </MemberProtectedRoute>
         ),
       },
