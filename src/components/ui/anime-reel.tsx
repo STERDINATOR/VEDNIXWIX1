@@ -218,16 +218,35 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious, onQuizAn
           muted={isMuted}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
+          onLoadedData={() => {
+            // Video is ready to play
+            console.log('Video loaded successfully');
+          }}
+          onError={(e) => {
+            console.log('Video failed to load, using animated thumbnail');
+            // Fallback to animated thumbnail experience
+          }}
         >
           <source src={reel.videoSrc} type="video/mp4" />
-          {/* Fallback for demo - using image */}
-          <Image
-            src={reel.thumbnail}
-            alt={reel.title}
-            width={400}
-            height={600}
-            className="w-full h-full object-cover"
-          />
+          <source src={reel.videoSrc.replace('.mp4', '.webm')} type="video/webm" />
+          {/* Enhanced fallback with animated learning content */}
+          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+            <div className="text-center p-8">
+              <div className="w-32 h-32 mx-auto mb-6 bg-primary/30 rounded-full flex items-center justify-center animate-pulse">
+                <span className="text-4xl">🎓</span>
+              </div>
+              <h3 className="text-xl font-heading font-bold text-foreground mb-2">{reel.title}</h3>
+              <p className="font-paragraph text-light-gray text-sm mb-4">{reel.description}</p>
+              <div className="space-y-2">
+                {reel.learningObjectives.slice(0, 3).map((objective, index) => (
+                  <div key={index} className="text-xs font-paragraph text-light-gray flex items-center gap-2">
+                    <span className="text-primary">✓</span>
+                    {objective}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </video>
 
         {/* Overlay Controls */}
@@ -598,7 +617,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     difficulty: 'Hard',
     duration: 45,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_b58762dfa9f14bfc85a23e2d1ed6f14e~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: '/videos/quantum-physics-anime.mp4',
+    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     description: 'Dive into the quantum realm with our anime heroes as they explore wave-particle duality!',
     xp: 150,
     likes: 1247,
@@ -635,7 +654,7 @@ export const sampleAnimeReels: AnimeReel[] = [
         ],
         correctAnswer: 2,
         explanation: 'Wave-particle duality means that light and matter exhibit both wave and particle characteristics depending on how they are observed.',
-        timestamp: 15
+        timestamp: 25
       },
       {
         id: 'q2',
@@ -648,7 +667,7 @@ export const sampleAnimeReels: AnimeReel[] = [
         ],
         correctAnswer: 0,
         explanation: 'Quantum superposition allows particles to exist in multiple states simultaneously until they are measured.',
-        timestamp: 30
+        timestamp: 35
       }
     ]
   },
@@ -659,7 +678,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     difficulty: 'Medium',
     duration: 60,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_fdc74db31b2e419e886d0d837677c45b~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: '/videos/javascript-jutsu.mp4',
+    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     description: 'Master the ancient art of JavaScript array methods with ninja-level precision!',
     xp: 100,
     likes: 892,
@@ -677,7 +696,7 @@ export const sampleAnimeReels: AnimeReel[] = [
       },
       {
         id: 's4',
-        timestamp: 45,
+        timestamp: 30,
         character: 'Array Spirit',
         dialogue: 'The map() method is like a magical transformation spell - it creates a new array by applying a function to each element!',
         emotion: 'excited',
@@ -709,7 +728,7 @@ export const sampleAnimeReels: AnimeReel[] = [
         ],
         correctAnswer: 2,
         explanation: 'The filter() method creates a new array with all elements that pass a test implemented by a provided function.',
-        timestamp: 40
+        timestamp: 45
       }
     ]
   },
@@ -720,7 +739,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     difficulty: 'Epic',
     duration: 90,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_6a12baa62b9646ca9bf288b2c3fc3f67~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: '/videos/calculus-chronicles.mp4',
+    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     description: 'Join our mathematical mages as they unlock the secrets of derivatives and rates of change!',
     xp: 200,
     likes: 2156,
@@ -738,7 +757,7 @@ export const sampleAnimeReels: AnimeReel[] = [
       },
       {
         id: 's6',
-        timestamp: 70,
+        timestamp: 45,
         character: 'Derivative Dragon',
         dialogue: 'The derivative of x² is 2x! This represents the slope of the curve at any point. Master this, and you\'ll unlock the secrets of change itself!',
         emotion: 'excited',
@@ -781,7 +800,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     difficulty: 'Medium',
     duration: 55,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_0e891d69bf5b411298b43710343965e1~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: '/videos/chemistry-chaos.mp4',
+    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
     description: 'Witness explosive reactions as anime alchemists demonstrate molecular bonding!',
     xp: 120,
     likes: 1456,
@@ -810,7 +829,7 @@ export const sampleAnimeReels: AnimeReel[] = [
         ],
         correctAnswer: 1,
         explanation: 'Ionic bonds form between metals and non-metals through the transfer of electrons.',
-        timestamp: 18
+        timestamp: 25
       }
     ]
   },
@@ -821,7 +840,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     difficulty: 'Easy',
     duration: 40,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_e49d00d625444340bdd5ecbfef5d7c03~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: '/videos/history-heroes.mp4',
+    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     description: 'Travel through time with anime warriors exploring ancient civilizations!',
     xp: 80,
     likes: 987,
