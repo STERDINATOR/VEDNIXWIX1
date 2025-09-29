@@ -33,6 +33,15 @@ export default function DashboardPage() {
   const [showCharacterGenerator, setShowCharacterGenerator] = useState(false);
   const [showMentorCall, setShowMentorCall] = useState(false);
   const [userCharacter, setUserCharacter] = useState<any>(null);
+  const [petInteractionCount, setPetInteractionCount] = useState(0);
+  const [questProgress, setQuestProgress] = useState<{[key: number]: number}>({
+    1: 75,
+    2: 30,
+    3: 90
+  });
+  const [weeklyProgress, setWeeklyProgress] = useState(1250);
+  const [todayXP, setTodayXP] = useState(450);
+  const [dailyStreak, setDailyStreak] = useState(15);
 
   // Load user character from localStorage on component mount
   useEffect(() => {
@@ -44,7 +53,34 @@ export default function DashboardPage() {
         console.error('Error loading user character:', error);
       }
     }
+
+    // Load saved progress data
+    const savedProgress = localStorage.getItem('dashboardProgress');
+    if (savedProgress) {
+      try {
+        const progress = JSON.parse(savedProgress);
+        setQuestProgress(progress.questProgress || { 1: 75, 2: 30, 3: 90 });
+        setWeeklyProgress(progress.weeklyProgress || 1250);
+        setTodayXP(progress.todayXP || 450);
+        setDailyStreak(progress.dailyStreak || 15);
+        setPetInteractionCount(progress.petInteractionCount || 0);
+      } catch (error) {
+        console.error('Error loading progress data:', error);
+      }
+    }
   }, []);
+
+  // Save progress data to localStorage
+  const saveProgress = () => {
+    const progressData = {
+      questProgress,
+      weeklyProgress,
+      todayXP,
+      dailyStreak,
+      petInteractionCount
+    };
+    localStorage.setItem('dashboardProgress', JSON.stringify(progressData));
+  };
 
   // Save character to localStorage when it changes
   const handleCharacterGenerated = (character: any) => {
@@ -53,16 +89,46 @@ export default function DashboardPage() {
     setShowCharacterGenerator(false);
   };
 
-  // Mock data - in real app this would come from database
+  // Handle quest continuation
+  const handleContinueQuest = (questId: number) => {
+    setQuestProgress(prev => {
+      const newProgress = { ...prev };
+      if (newProgress[questId] < 100) {
+        newProgress[questId] = Math.min(100, newProgress[questId] + 10);
+        setTodayXP(prevXP => prevXP + 50);
+        setWeeklyProgress(prevWeekly => prevWeekly + 50);
+      }
+      return newProgress;
+    });
+    saveProgress();
+  };
+
+  // Handle pet interaction
+  const handlePetInteraction = () => {
+    setPetInteractionCount(prev => prev + 1);
+    setTodayXP(prevXP => prevXP + 25);
+    setWeeklyProgress(prevWeekly => prevWeekly + 25);
+    saveProgress();
+  };
+
+  // Handle daily streak extension
+  const handleStreakBonus = () => {
+    setDailyStreak(prev => prev + 1);
+    setTodayXP(prevXP => prevXP + 100);
+    setWeeklyProgress(prevWeekly => prevWeekly + 100);
+    saveProgress();
+  };
+
+  // Dynamic data that updates based on user interactions
   const dashboardData = {
-    dailyStreak: 15,
-    todayXP: 450,
+    dailyStreak,
+    todayXP,
     weeklyGoal: 2000,
-    weeklyProgress: 1250,
+    weeklyProgress,
     currentQuests: [
-      { id: 1, title: 'Master Quantum Physics', progress: 75, difficulty: 'Hard', xp: 500 },
-      { id: 2, title: 'Algebra Boss Battle', progress: 30, difficulty: 'Epic', xp: 750 },
-      { id: 3, title: 'Code the Matrix', progress: 90, difficulty: 'Medium', xp: 300 }
+      { id: 1, title: 'Master Quantum Physics', progress: questProgress[1], difficulty: 'Hard', xp: 500 },
+      { id: 2, title: 'Algebra Boss Battle', progress: questProgress[2], difficulty: 'Epic', xp: 750 },
+      { id: 3, title: 'Code the Matrix', progress: questProgress[3], difficulty: 'Medium', xp: 300 }
     ],
     upcomingEvents: [
       { title: 'Guild War: Math Masters vs Code Ninjas', time: '2 hours', type: 'battle' },
@@ -73,14 +139,14 @@ export default function DashboardPage() {
       { rank: 1, name: 'CyberSamurai99', xp: 25000, avatar: '🥷' },
       { rank: 2, name: 'QuantumQueen', xp: 23500, avatar: '👑' },
       { rank: 3, name: 'CodeNinja42', xp: 22100, avatar: '🥋' },
-      { rank: 4, name: member?.profile?.nickname || 'You', xp: 15750, avatar: '⚡', isUser: true },
+      { rank: 4, name: member?.profile?.nickname || 'You', xp: 15750 + weeklyProgress, avatar: '⚡', isUser: true },
       { rank: 5, name: 'MathMaster', xp: 15200, avatar: '🧮' }
     ],
     petStatus: {
       name: 'Neko-chan',
-      mood: 'Happy',
-      energy: 85,
-      level: 38,
+      mood: petInteractionCount > 5 ? 'Ecstatic' : petInteractionCount > 2 ? 'Happy' : 'Content',
+      energy: Math.min(100, 85 + (petInteractionCount * 3)),
+      level: 38 + Math.floor(petInteractionCount / 3),
       nextEvolution: 40
     }
   };
@@ -192,7 +258,7 @@ export default function DashboardPage() {
               <Card className="bg-dark-gray border-primary/20 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-heading font-bold text-foreground">Active Quests</h3>
-                  <Link to="/quests">
+                  <Link to="/learn">
                     <Button variant="outline" className="border-primary text-primary">
                       View All Quests
                     </Button>
@@ -218,9 +284,14 @@ export default function DashboardPage() {
                             <span className="text-sm font-paragraph text-light-gray">+{quest.xp} XP</span>
                           </div>
                         </div>
-                        <Button size="sm" className="bg-primary text-primary-foreground">
+                        <Button 
+                          size="sm" 
+                          className="bg-primary text-primary-foreground hover:bg-primary/90"
+                          onClick={() => handleContinueQuest(quest.id)}
+                          disabled={quest.progress >= 100}
+                        >
                           <Play className="h-4 w-4 mr-1" />
-                          Continue
+                          {quest.progress >= 100 ? 'Complete!' : 'Continue'}
                         </Button>
                       </div>
                       <div className="flex items-center gap-2">
@@ -330,11 +401,17 @@ export default function DashboardPage() {
                   {dashboardData.petStatus.nextEvolution - dashboardData.petStatus.level} levels to evolution
                 </p>
                 <div className="space-y-2">
-                  <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full">
-                    Interact
+                  <Button 
+                    size="sm" 
+                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full"
+                    onClick={handlePetInteraction}
+                  >
+                    Interact (+25 XP)
                   </Button>
                   <div className="text-xs font-paragraph text-neon-green">
-                    💧 "Remember to drink water!"
+                    💧 "{petInteractionCount > 5 ? 'You\'re the best trainer ever!' : 
+                         petInteractionCount > 2 ? 'Thanks for playing with me!' : 
+                         'Remember to drink water!'}"
                   </div>
                 </div>
               </Card>
@@ -404,7 +481,7 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
-                <Link to="/events">
+                <Link to="/achievements">
                   <Button variant="outline" className="w-full mt-4 border-primary text-primary">
                     <Calendar className="h-4 w-4 mr-2" />
                     View All Events
