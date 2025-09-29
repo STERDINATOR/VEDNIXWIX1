@@ -118,6 +118,15 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
     return () => clearInterval(interval);
   }, []);
 
+  // Request notification permission on component mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {
+        console.log('Notification permission denied');
+      });
+    }
+  }, []);
+
   useEffect(() => {
     // Auto-generate reminders based on study patterns
     const reminderInterval = setInterval(() => {
@@ -139,10 +148,22 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
       };
 
       setReminders(prev => [newReminder, ...prev.slice(0, 9)]); // Keep only 10 most recent
+      
+      // Show browser notification if supported
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(`${pet.name} says:`, {
+            body: randomReminder.message,
+            icon: '🐱'
+          });
+        } catch (error) {
+          console.log('Notification failed');
+        }
+      }
     }, 15 * 60 * 1000); // Every 15 minutes
 
     return () => clearInterval(reminderInterval);
-  }, []);
+  }, [pet.name]);
 
   const handleSendMessage = (message: string) => {
     if (!message.trim()) return;

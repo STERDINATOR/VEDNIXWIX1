@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AnimeReelFeed } from '@/components/ui/anime-reel';
+import { QuestSystem, sampleQuests } from '@/components/ui/quest-system';
 import { 
   BookOpen, 
   Play, 
@@ -20,13 +21,14 @@ import {
   Atom,
   Globe,
   Palette,
-  Film
+  Film,
+  Sword
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function LearnPage() {
-  const [viewMode, setViewMode] = useState<'grid' | 'reels'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'reels' | 'quests'>('grid');
   // Mock learning data
   const subjects = [
     {
@@ -191,6 +193,15 @@ export default function LearnPage() {
                 <Film className="h-4 w-4 mr-2" />
                 Anime Reels
               </Button>
+              <Button
+                variant={viewMode === 'quests' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('quests')}
+                className={viewMode === 'quests' ? 'bg-neon-green text-black' : 'text-light-gray'}
+              >
+                <Sword className="h-4 w-4 mr-2" />
+                Quests
+              </Button>
             </div>
           </div>
         </motion.div>
@@ -336,7 +347,7 @@ export default function LearnPage() {
                   </div>
                 </motion.div>
               </>
-            ) : (
+            ) : viewMode === 'reels' ? (
               /* Anime Reels View */
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -352,7 +363,59 @@ export default function LearnPage() {
                     </p>
                   </div>
                   <AnimeReelFeed />
+                  
+                  {/* Additional Anime Reel Features */}
+                  <div className="mt-8 text-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                      <Card className="bg-dark-gray border-primary/20 p-4">
+                        <h4 className="font-heading font-bold text-primary mb-2">Interactive Learning</h4>
+                        <p className="text-sm font-paragraph text-light-gray">
+                          Answer questions during reels to earn bonus XP
+                        </p>
+                      </Card>
+                      <Card className="bg-dark-gray border-secondary/20 p-4">
+                        <h4 className="font-heading font-bold text-secondary mb-2">Story Mode</h4>
+                        <p className="text-sm font-paragraph text-light-gray">
+                          Follow anime characters through learning adventures
+                        </p>
+                      </Card>
+                      <Card className="bg-dark-gray border-neon-green/20 p-4">
+                        <h4 className="font-heading font-bold text-neon-green mb-2">Social Features</h4>
+                        <p className="text-sm font-paragraph text-light-gray">
+                          Share reels and compete with friends
+                        </p>
+                      </Card>
+                    </div>
+                    
+                    <Button 
+                      onClick={() => setViewMode('grid')} 
+                      variant="outline" 
+                      className="border-primary text-primary"
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Switch to Course View
+                    </Button>
+                  </div>
                 </div>
+              </motion.div>
+            ) : (
+              /* Quest System View */
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="text-center mb-6">
+                  <h2 className="text-3xl font-heading font-bold text-neon-green mb-2">Quest System</h2>
+                  <p className="font-paragraph text-light-gray">
+                    Embark on epic learning adventures and defeat knowledge bosses
+                  </p>
+                </div>
+                <QuestSystem 
+                  quests={sampleQuests}
+                  onStartQuest={(questId) => console.log('Starting quest:', questId)}
+                  onCompleteQuest={(questId) => console.log('Completing quest:', questId)}
+                />
               </motion.div>
             )}
           </div>

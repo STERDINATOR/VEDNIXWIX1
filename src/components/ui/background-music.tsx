@@ -17,29 +17,36 @@ const cyberpunkTracks: Track[] = [
     id: '1',
     title: 'Neon Dreams',
     artist: 'Cyber Synthwave',
-    src: '/audio/neon-dreams.mp3', // Placeholder - would be actual audio files
+    src: 'https://static.wixstatic.com/media/c5b305_a8e8eaaf30c946438dc8ab143219c3e1~mv2.png?originWidth=128&originHeight=128', // Placeholder for audio
     duration: 180
   },
   {
     id: '2',
     title: 'Digital Awakening',
     artist: 'Future Bass Collective',
-    src: '/audio/digital-awakening.mp3',
+    src: 'https://static.wixstatic.com/media/c5b305_571b8e3186a043da9711d6676a3f2f0b~mv2.png?originWidth=128&originHeight=128',
     duration: 210
   },
   {
     id: '3',
     title: 'Matrix Code',
     artist: 'Synthwave Academy',
-    src: '/audio/matrix-code.mp3',
+    src: 'https://static.wixstatic.com/media/c5b305_9aebcb3b80014b9db50adfde3e3069a6~mv2.png?originWidth=128&originHeight=128',
     duration: 195
   },
   {
     id: '4',
     title: 'Anime Nights',
     artist: 'Lo-Fi Cyberpunk',
-    src: '/audio/anime-nights.mp3',
+    src: 'https://static.wixstatic.com/media/c5b305_1c18bbb766c846e1a8df0a97d582eded~mv2.png?originWidth=128&originHeight=128',
     duration: 165
+  },
+  {
+    id: '5',
+    title: 'Cyber Academy',
+    artist: 'VEDNIX Soundtrack',
+    src: 'https://static.wixstatic.com/media/c5b305_4d0e8d73a89d4bbd9e80d50ff54bc895~mv2.png?originWidth=128&originHeight=128',
+    duration: 220
   }
 ];
 
@@ -117,6 +124,10 @@ export function BackgroundMusic() {
         loop={false}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onError={() => {
+          console.log('Audio failed to load, using silent mode');
+          setIsPlaying(false);
+        }}
       />
 
       {/* Floating Music Control */}

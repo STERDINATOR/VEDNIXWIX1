@@ -70,26 +70,35 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
   });
 
   useEffect(() => {
-    // Initialize speech recognition
+    // Initialize speech recognition with error handling
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      
-      recognitionRef.current.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result: any) => result.transcript)
-          .join('');
+      try {
+        const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
         
-        setCurrentMessage(transcript);
-        
-        if (event.results[event.results.length - 1].isFinal) {
-          handleSendMessage(transcript);
-          setCurrentMessage('');
-        }
-      };
+        recognitionRef.current.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0])
+            .map((result: any) => result.transcript)
+            .join('');
+          
+          setCurrentMessage(transcript);
+          
+          if (event.results[event.results.length - 1].isFinal) {
+            handleSendMessage(transcript);
+            setCurrentMessage('');
+          }
+        };
+
+        recognitionRef.current.onerror = () => {
+          console.log('Speech recognition error');
+          setIsListening(false);
+        };
+      } catch (error) {
+        console.log('Speech recognition not available');
+      }
     }
   }, []);
 
@@ -115,11 +124,20 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
   const toggleMic = () => {
     setIsMicOn(!isMicOn);
     if (!isMicOn && recognitionRef.current) {
-      recognitionRef.current.start();
-      setIsListening(true);
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.log('Could not start speech recognition');
+        setIsListening(false);
+      }
     } else if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+      try {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      } catch (error) {
+        console.log('Could not stop speech recognition');
+      }
     }
   };
 
@@ -132,12 +150,17 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
     };
     setChatHistory(prev => [...prev, newMessage]);
     
-    // Simulate text-to-speech
+    // Simulate text-to-speech with error handling
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(message);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      speechSynthesis.speak(utterance);
+      try {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
+        utterance.onerror = () => console.log('Speech synthesis failed');
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.log('Speech synthesis not available');
+      }
     }
   };
 
