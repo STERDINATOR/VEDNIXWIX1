@@ -158,26 +158,214 @@ export function AnimeCharacterGenerator({
     }
   };
 
-  // Simulate AI character generation (in real app, this would call Gemini AI)
+  // Enhanced AI character generation with Gemini AI integration
   const generateCharacter = async () => {
     setIsGenerating(true);
     setGenerationStep(0);
 
-    // Simulate generation steps
-    const steps = [
-      'Analyzing your preferences...',
-      'Designing character appearance...',
-      'Crafting personality traits...',
-      'Generating backstory...',
-      'Finalizing character details...'
-    ];
-
-    for (let i = 0; i < steps.length; i++) {
-      setGenerationStep(i);
+    try {
+      // Step 1: Analyze preferences
+      setGenerationStep(0);
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Step 2: Generate character concept with AI
+      setGenerationStep(1);
+      const characterConcept = await generateCharacterWithAI();
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // Step 3: Create personality and traits
+      setGenerationStep(2);
+      const personality = await generatePersonalityTraits(characterConcept);
       await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+      
+      // Step 4: Generate backstory
+      setGenerationStep(3);
+      const backstory = await generateDetailedBackstory(characterConcept, personality);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Step 5: Finalize character
+      setGenerationStep(4);
+      const finalCharacter = await finalizeCharacterDetails(characterConcept, personality, backstory);
+      await new Promise(resolve => setTimeout(resolve, 800));
 
-    // Generate character based on preferences and style
+      setCurrentCharacter(finalCharacter);
+      setIsGenerating(false);
+      onCharacterGenerated?.(finalCharacter);
+      
+    } catch (error) {
+      console.error('Character generation failed:', error);
+      // Fallback to basic generation
+      await generateBasicCharacter();
+    }
+  };
+
+  // Simulate Gemini AI character generation
+  const generateCharacterWithAI = async (): Promise<any> => {
+    const subject = userPreferences?.subject || 'default';
+    const style = selectedStyle;
+    const prompt = customPrompt;
+    
+    // Simulate AI processing with Japanese anime character focus
+    const japaneseNames = {
+      male: ['Akira', 'Hiroshi', 'Kenji', 'Takeshi', 'Ryuu', 'Satoshi', 'Kaito', 'Yuki', 'Ren', 'Sora'],
+      female: ['Yuki', 'Sakura', 'Rei', 'Akane', 'Misaki', 'Ayame', 'Kira', 'Luna', 'Nana', 'Miku'],
+      surnames: ['Yamamoto', 'Tanaka', 'Watanabe', 'Sato', 'Suzuki', 'Takahashi', 'Nakamura', 'Ito', 'Kobayashi', 'Saito']
+    };
+    
+    const gender = Math.random() > 0.5 ? 'male' : 'female';
+    const firstName = getRandomElement(japaneseNames[gender]);
+    const lastName = getRandomElement(japaneseNames.surnames);
+    
+    // Generate character based on Japanese anime aesthetics
+    return {
+      name: `${firstName} ${lastName}`,
+      gender,
+      style: style,
+      subject: subject,
+      customRequirements: prompt,
+      japaneseAesthetic: true,
+      image: generateCharacterImage(style, gender, subject)
+    };
+  };
+
+  const generateCharacterImage = (style: string, gender: string, subject: string): string => {
+    // Generate different character images based on style and preferences
+    const imageVariants = {
+      'modern-anime': [
+        'https://static.wixstatic.com/media/c5b305_8fcc61039e1f47c0924465599bdd05f9~mv2.png?originWidth=384&originHeight=448',
+        'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192',
+        'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192'
+      ],
+      'cyberpunk-anime': [
+        'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192',
+        'https://static.wixstatic.com/media/c5b305_5a947d28a52444b598e8040ddd72d2ea~mv2.png?originWidth=128&originHeight=128',
+        'https://static.wixstatic.com/media/c5b305_07cbf53fdac9403280c3dd139e4cf584~mv2.png?originWidth=128&originHeight=128'
+      ],
+      'kawaii-anime': [
+        'https://static.wixstatic.com/media/c5b305_26d41712ff724ce9896152371682ddf1~mv2.png?originWidth=192&originHeight=192',
+        'https://static.wixstatic.com/media/c5b305_fd90950c93814acd814f3a7c5ab01769~mv2.png?originWidth=192&originHeight=192'
+      ],
+      'shounen-anime': [
+        'https://static.wixstatic.com/media/c5b305_7f10be46f72c4d52988a64fe89ea9bbb~mv2.png?originWidth=192&originHeight=192',
+        'https://static.wixstatic.com/media/c5b305_44824461597f42c9a5bbf4d6c15f39af~mv2.png?originWidth=192&originHeight=192'
+      ],
+      'mystical-anime': [
+        'https://static.wixstatic.com/media/c5b305_ac8ba358564946fe938fd010cbc95f09~mv2.png?originWidth=192&originHeight=192',
+        'https://static.wixstatic.com/media/c5b305_8fcc61039e1f47c0924465599bdd05f9~mv2.png?originWidth=384&originHeight=448'
+      ]
+    };
+    
+    const styleImages = imageVariants[style as keyof typeof imageVariants] || imageVariants['modern-anime'];
+    return getRandomElement(styleImages);
+  };
+
+  const generatePersonalityTraits = async (concept: any): Promise<CharacterPersonality> => {
+    const subject = concept.subject || 'default';
+    const basePersonality = personalityTemplates[subject as keyof typeof personalityTemplates] || personalityTemplates.default;
+    
+    // Enhanced Japanese anime personality traits
+    const japaneseTraits = {
+      programming: {
+        trait: 'Digital Samurai (デジタル侍)',
+        description: 'A disciplined coder who approaches programming with the precision of a samurai. Believes in clean code and elegant solutions.',
+        voiceType: 'confident and precise with Japanese honorifics',
+        catchphrase: 'コードは心の鏡です (Code is the mirror of the soul!)'
+      },
+      mathematics: {
+        trait: 'Number Sage (数の賢者)',
+        description: 'A wise mathematician who sees beauty in equations and finds harmony in numerical patterns.',
+        voiceType: 'calm and thoughtful with gentle wisdom',
+        catchphrase: '数学は宇宙の言語です (Mathematics is the language of the universe!)'
+      },
+      physics: {
+        trait: 'Quantum Sensei (量子先生)',
+        description: 'An enthusiastic physicist who makes complex concepts accessible through creative explanations.',
+        voiceType: 'energetic and wonder-filled',
+        catchphrase: '物理学で世界を変えましょう (Let\'s change the world with physics!)'
+      },
+      default: {
+        trait: 'Knowledge Guardian (知識の守護者)',
+        description: 'A dedicated mentor who guides students with patience and wisdom, embodying the spirit of lifelong learning.',
+        voiceType: 'warm and encouraging',
+        catchphrase: '学ぶことは生きること (To learn is to live!)'
+      }
+    };
+    
+    return japaneseTraits[subject as keyof typeof japaneseTraits] || japaneseTraits.default;
+  };
+
+  const generateDetailedBackstory = async (concept: any, personality: CharacterPersonality): Promise<string> => {
+    const subject = concept.subject || 'default';
+    
+    const japaneseBackstories = {
+      programming: `Born in Neo-Tokyo's digital district, ${concept.name} discovered their gift for code at the prestigious Cyber Academy. After mastering ancient programming techniques passed down through generations of digital masters, they now dedicate their life to teaching others the way of the code. Their dojo is a place where tradition meets innovation.`,
+      
+      mathematics: `Raised in the mountain temples of Kyoto, ${concept.name} learned mathematics from the ancient scrolls of the Number Monks. They believe that mathematical harmony can bring peace to the world and now travel the digital realm, sharing the sacred knowledge of numbers with eager students.`,
+      
+      physics: `A former researcher at Tokyo University's Quantum Lab, ${concept.name} gained extraordinary abilities after an experiment with parallel dimensions. Now they use their unique perspective to help students understand the mysteries of the physical universe, bridging the gap between science and wonder.`,
+      
+      default: `${concept.name} is a guardian spirit awakened in the digital age, tasked with preserving and sharing knowledge across all disciplines. With memories spanning centuries of human learning, they guide students with ancient wisdom adapted for the modern world.`
+    };
+    
+    return japaneseBackstories[subject as keyof typeof japaneseBackstories] || japaneseBackstories.default;
+  };
+
+  const finalizeCharacterDetails = async (concept: any, personality: CharacterPersonality, backstory: string): Promise<GeneratedCharacter> => {
+    // Enhanced Japanese anime appearance options
+    const japaneseAppearance = {
+      hairColors: ['Raven Black (烏黒)', 'Sakura Pink (桜色)', 'Ocean Blue (海色)', 'Silver Moon (銀月)', 'Autumn Red (紅葉)', 'Forest Green (森緑)'],
+      eyeColors: ['Amber Gold (琥珀)', 'Sapphire Blue (青玉)', 'Emerald Green (翠玉)', 'Ruby Red (紅玉)', 'Violet Storm (紫嵐)', 'Crystal Clear (水晶)'],
+      outfits: ['Traditional Hakama', 'Modern School Uniform', 'Cyber Kimono', 'Battle Gi', 'Scholar Robes', 'Casual Streetwear'],
+      accessories: ['Katana Stylus', 'Digital Scroll', 'Wisdom Beads', 'Tech Headband', 'Ancient Charm', 'Neural Interface']
+    };
+    
+    const character: GeneratedCharacter = {
+      id: Date.now().toString(),
+      name: concept.name,
+      image: concept.image,
+      personality,
+      appearance: {
+        hairColor: getRandomElement(japaneseAppearance.hairColors),
+        eyeColor: getRandomElement(japaneseAppearance.eyeColors),
+        outfit: getRandomElement(japaneseAppearance.outfits),
+        accessories: getRandomElements(japaneseAppearance.accessories, 2),
+        bodyType: getRandomElement(['Slender', 'Athletic', 'Graceful', 'Sturdy']),
+        height: getRandomElement(['Petite (小柄)', 'Average (普通)', 'Tall (高身長)', 'Elegant (優雅)'])
+      },
+      abilities: {
+        specialMove: generateJapaneseSpecialMove(concept.subject),
+        element: getRandomElement(['Lightning (雷)', 'Fire (火)', 'Water (水)', 'Earth (土)', 'Wind (風)', 'Light (光)', 'Shadow (影)', 'Void (虚)']),
+        weapon: getRandomElement(['Wisdom Katana', 'Knowledge Staff', 'Truth Bow', 'Logic Shuriken', 'Harmony Fans']),
+        stats: {
+          intelligence: Math.floor(Math.random() * 25) + 75,
+          creativity: Math.floor(Math.random() * 25) + 75,
+          leadership: Math.floor(Math.random() * 30) + 65,
+          empathy: Math.floor(Math.random() * 20) + 80
+        }
+      },
+      backstory,
+      voiceSettings: {
+        pitch: Math.random() * 0.3 + 0.9, // 0.9 to 1.2 for Japanese voice
+        speed: Math.random() * 0.2 + 0.95, // 0.95 to 1.15 for clear pronunciation
+        tone: personality.voiceType
+      }
+    };
+
+    return character;
+  };
+
+  const generateJapaneseSpecialMove = (subject: string): string => {
+    const moves = {
+      programming: ['Code Tsunami (コード津波)', 'Algorithm Strike (アルゴリズム斬)', 'Debug Lightning (デバッグ雷)', 'Syntax Storm (構文嵐)', 'Binary Blade (バイナリ刃)'],
+      mathematics: ['Equation Burst (方程式爆発)', 'Calculus Wave (微積分波)', 'Geometry Shield (幾何学盾)', 'Number Spiral (数字螺旋)', 'Proof Thunder (証明雷)'],
+      physics: ['Quantum Leap (量子跳躍)', 'Gravity Well (重力井戸)', 'Energy Burst (エネルギー爆発)', 'Particle Beam (粒子線)', 'Force Field (力場)'],
+      default: ['Knowledge Blast (知識爆発)', 'Wisdom Wave (知恵波)', 'Truth Strike (真実撃)', 'Learning Light (学習光)', 'Insight Beam (洞察線)']
+    };
+    return getRandomElement(moves[subject as keyof typeof moves] || moves.default);
+  };
+
+  // Fallback basic generation
+  const generateBasicCharacter = async () => {
     const subject = userPreferences?.subject || 'default';
     const personality = personalityTemplates[subject as keyof typeof personalityTemplates] || personalityTemplates.default;
     
@@ -207,8 +395,8 @@ export function AnimeCharacterGenerator({
       },
       backstory: generateBackstory(subject),
       voiceSettings: {
-        pitch: Math.random() * 0.4 + 0.8, // 0.8 to 1.2
-        speed: Math.random() * 0.3 + 0.9, // 0.9 to 1.2
+        pitch: Math.random() * 0.4 + 0.8,
+        speed: Math.random() * 0.3 + 0.9,
         tone: personality.voiceType
       }
     };
@@ -219,9 +407,23 @@ export function AnimeCharacterGenerator({
   };
 
   const generateRandomName = () => {
-    const firstNames = ['Akira', 'Yuki', 'Rei', 'Kaito', 'Sora', 'Luna', 'Zen', 'Nova', 'Kira', 'Sage'];
-    const lastNames = ['Shadowblade', 'Stormcaster', 'Mindweaver', 'Codebreaker', 'Starseeker', 'Voidwalker', 'Lightbringer', 'Dreamforge'];
-    return `${getRandomElement(firstNames)} ${getRandomElement(lastNames)}`;
+    // Enhanced Japanese name generation
+    const japaneseNames = {
+      male: {
+        first: ['Akira (明)', 'Hiroshi (寛)', 'Kenji (健二)', 'Takeshi (武)', 'Ryuu (龍)', 'Satoshi (聡)', 'Kaito (海斗)', 'Yuki (雪)', 'Ren (廉)', 'Sora (空)'],
+        last: ['Yamamoto (山本)', 'Tanaka (田中)', 'Watanabe (渡辺)', 'Sato (佐藤)', 'Suzuki (鈴木)', 'Takahashi (高橋)', 'Nakamura (中村)', 'Ito (伊藤)', 'Kobayashi (小林)', 'Saito (斎藤)']
+      },
+      female: {
+        first: ['Yuki (雪)', 'Sakura (桜)', 'Rei (麗)', 'Akane (茜)', 'Misaki (美咲)', 'Ayame (菖蒲)', 'Kira (輝)', 'Luna (月)', 'Nana (奈々)', 'Miku (未来)'],
+        last: ['Yamamoto (山本)', 'Tanaka (田中)', 'Watanabe (渡辺)', 'Sato (佐藤)', 'Suzuki (鈴木)', 'Takahashi (高橋)', 'Nakamura (中村)', 'Ito (伊藤)', 'Kobayashi (小林)', 'Saito (斎藤)']
+      }
+    };
+    
+    const gender = Math.random() > 0.5 ? 'male' : 'female';
+    const firstName = getRandomElement(japaneseNames[gender].first);
+    const lastName = getRandomElement(japaneseNames[gender].last);
+    
+    return `${firstName} ${lastName}`;
   };
 
   const generateSpecialMove = (subject: string) => {
@@ -334,7 +536,7 @@ export function AnimeCharacterGenerator({
                 <Textarea
                   value={customPrompt}
                   onChange={(e) => setCustomPrompt(e.target.value)}
-                  placeholder="Describe your ideal study companion... (e.g., 'A wise mentor with blue hair who specializes in mathematics and has a calm personality')"
+                  placeholder="Describe your ideal Japanese anime study companion... (e.g., 'A wise sensei with blue hair who specializes in mathematics, wears traditional robes, and has a calm personality like a temple monk')"
                   className="bg-background border-primary/20 min-h-[100px]"
                 />
               </div>
@@ -342,35 +544,82 @@ export function AnimeCharacterGenerator({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-paragraph text-light-gray mb-2">Subject Focus</label>
-                  <select className="w-full p-2 bg-background border border-primary/20 rounded text-foreground">
-                    <option value="programming">Programming</option>
-                    <option value="mathematics">Mathematics</option>
-                    <option value="physics">Physics</option>
-                    <option value="chemistry">Chemistry</option>
-                    <option value="general">General Studies</option>
+                  <select 
+                    className="w-full p-2 bg-background border border-primary/20 rounded text-foreground"
+                    onChange={(e) => {
+                      if (userPreferences) {
+                        userPreferences.subject = e.target.value;
+                      }
+                    }}
+                  >
+                    <option value="programming">Programming (プログラミング)</option>
+                    <option value="mathematics">Mathematics (数学)</option>
+                    <option value="physics">Physics (物理学)</option>
+                    <option value="chemistry">Chemistry (化学)</option>
+                    <option value="general">General Studies (一般教養)</option>
                   </select>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-paragraph text-light-gray mb-2">Personality Type</label>
-                  <select className="w-full p-2 bg-background border border-primary/20 rounded text-foreground">
-                    <option value="supportive">Supportive & Encouraging</option>
-                    <option value="challenging">Challenging & Motivating</option>
-                    <option value="friendly">Friendly & Casual</option>
-                    <option value="professional">Professional & Formal</option>
-                    <option value="playful">Playful & Fun</option>
+                  <select 
+                    className="w-full p-2 bg-background border border-primary/20 rounded text-foreground"
+                    onChange={(e) => {
+                      if (userPreferences) {
+                        userPreferences.personality = e.target.value;
+                      }
+                    }}
+                  >
+                    <option value="supportive">Supportive Sensei (支援的先生)</option>
+                    <option value="challenging">Strict Master (厳格な師匠)</option>
+                    <option value="friendly">Friendly Senpai (親しい先輩)</option>
+                    <option value="professional">Formal Teacher (正式な教師)</option>
+                    <option value="playful">Playful Kouhai (遊び心のある後輩)</option>
                   </select>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-paragraph text-light-gray mb-2">Voice Type</label>
-                  <select className="w-full p-2 bg-background border border-primary/20 rounded text-foreground">
-                    <option value="gentle">Gentle & Calm</option>
-                    <option value="energetic">Energetic & Upbeat</option>
-                    <option value="wise">Wise & Thoughtful</option>
-                    <option value="confident">Confident & Strong</option>
-                    <option value="cheerful">Cheerful & Bright</option>
+                  <select 
+                    className="w-full p-2 bg-background border border-primary/20 rounded text-foreground"
+                    onChange={(e) => {
+                      if (userPreferences) {
+                        userPreferences.learningStyle = e.target.value;
+                      }
+                    }}
+                  >
+                    <option value="gentle">Gentle & Calm (優しく穏やか)</option>
+                    <option value="energetic">Energetic & Upbeat (元気で明るい)</option>
+                    <option value="wise">Wise & Thoughtful (賢明で思慮深い)</option>
+                    <option value="confident">Confident & Strong (自信に満ちた)</option>
+                    <option value="cheerful">Cheerful & Bright (陽気で明るい)</option>
                   </select>
+                </div>
+              </div>
+              
+              {/* Japanese Character Traits */}
+              <div className="mt-6">
+                <h4 className="text-lg font-heading font-bold text-foreground mb-3">Japanese Character Traits</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { trait: 'Respectful (礼儀正しい)', value: 'respectful' },
+                    { trait: 'Determined (決意)', value: 'determined' },
+                    { trait: 'Humble (謙虚)', value: 'humble' },
+                    { trait: 'Loyal (忠実)', value: 'loyal' },
+                    { trait: 'Curious (好奇心)', value: 'curious' },
+                    { trait: 'Patient (忍耐)', value: 'patient' },
+                    { trait: 'Honorable (名誉)', value: 'honorable' },
+                    { trait: 'Wise (賢明)', value: 'wise' }
+                  ].map((trait) => (
+                    <label key={trait.value} className="flex items-center gap-2 p-2 rounded border border-primary/20 hover:bg-primary/5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="accent-primary"
+                        defaultChecked={Math.random() > 0.5}
+                      />
+                      <span className="text-sm font-paragraph text-foreground">{trait.trait}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>

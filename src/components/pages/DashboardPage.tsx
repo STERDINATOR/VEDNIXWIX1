@@ -4,6 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnimeCharacterGenerator } from '@/components/ui/anime-character-generator';
+import { AnimeMentor } from '@/components/ui/anime-mentor';
 import { 
   Play, 
   Trophy, 
@@ -16,12 +18,21 @@ import {
   Sword,
   Crown,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  User,
+  MessageCircle,
+  Video
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Image } from '@/components/ui/image';
 
 export default function DashboardPage() {
   const { member } = useMember();
+  const [showCharacterGenerator, setShowCharacterGenerator] = useState(false);
+  const [showMentorCall, setShowMentorCall] = useState(false);
+  const [userCharacter, setUserCharacter] = useState<any>(null);
 
   // Mock data - in real app this would come from database
   const dashboardData = {
@@ -206,14 +217,76 @@ export default function DashboardPage() {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-8">
-            {/* Pet Status */}
+            {/* Character & AI Mentor */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
+              <Card className="bg-dark-gray border-primary/20 p-6">
+                <h3 className="text-lg font-heading font-bold text-foreground mb-4">Your AI Companion</h3>
+                
+                {userCharacter ? (
+                  <div className="text-center">
+                    <div className="w-24 h-24 mx-auto mb-4 rounded-full border-4 border-primary overflow-hidden">
+                      <Image src={userCharacter.image} alt={userCharacter.name} className="w-full h-full object-cover" />
+                    </div>
+                    <h4 className="font-heading font-bold text-primary mb-1">{userCharacter.name}</h4>
+                    <p className="text-sm font-paragraph text-light-gray mb-3">
+                      {userCharacter.personality?.trait || 'AI Study Companion'}
+                    </p>
+                    <div className="space-y-2">
+                      <Button 
+                        size="sm" 
+                        onClick={() => setShowMentorCall(true)}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                      >
+                        <Video className="h-4 w-4 mr-2" />
+                        Video Call
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => setShowCharacterGenerator(true)}
+                        className="border-secondary text-secondary w-full"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Customize
+                      </Button>
+                    </div>
+                    <div className="text-xs font-paragraph text-neon-green mt-3">
+                      "{userCharacter.personality?.catchphrase || 'Ready to learn together!'}"
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
+                      <User className="h-12 w-12 text-primary" />
+                    </div>
+                    <h4 className="font-heading font-bold text-foreground mb-2">Create Your AI Mentor</h4>
+                    <p className="text-sm font-paragraph text-light-gray mb-4">
+                      Design a personalized Japanese anime character to guide your learning journey
+                    </p>
+                    <Button 
+                      onClick={() => setShowCharacterGenerator(true)}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Create Character
+                    </Button>
+                  </div>
+                )}
+              </Card>
+            </motion.div>
+
+            {/* Pet Status */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+            >
               <Card className="bg-dark-gray border-primary/20 p-6 text-center">
-                <h3 className="text-lg font-heading font-bold text-foreground mb-4">Your Companion</h3>
+                <h3 className="text-lg font-heading font-bold text-foreground mb-4">Your Pet</h3>
                 <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center text-5xl animate-bounce">
                   🐱
                 </div>
@@ -325,24 +398,78 @@ export default function DashboardPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <h3 className="text-2xl font-heading font-bold text-foreground mb-6">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
               { label: 'Start Learning', icon: <BookOpen className="h-6 w-6" />, link: '/learn', color: 'bg-primary' },
               { label: 'Battle Arena', icon: <Sword className="h-6 w-6" />, link: '/battle', color: 'bg-secondary' },
               { label: 'Join Guild', icon: <Users className="h-6 w-6" />, link: '/guilds', color: 'bg-neon-green' },
-              { label: 'Shop', icon: <Star className="h-6 w-6" />, link: '/shop', color: 'bg-cyber-yellow' }
+              { 
+                label: 'AI Mentor', 
+                icon: <MessageCircle className="h-6 w-6" />, 
+                action: () => userCharacter ? setShowMentorCall(true) : setShowCharacterGenerator(true), 
+                color: 'bg-cyber-yellow' 
+              },
+              { label: 'Shop', icon: <Star className="h-6 w-6" />, link: '/shop', color: 'bg-primary' }
             ].map((action, index) => (
-              <Link key={index} to={action.link}>
+              action.link ? (
+                <Link key={index} to={action.link}>
+                  <Button 
+                    className={`w-full h-20 ${action.color} text-black hover:opacity-90 flex-col gap-2`}
+                  >
+                    {action.icon}
+                    <span className="font-heading font-bold">{action.label}</span>
+                  </Button>
+                </Link>
+              ) : (
                 <Button 
+                  key={index}
+                  onClick={action.action}
                   className={`w-full h-20 ${action.color} text-black hover:opacity-90 flex-col gap-2`}
                 >
                   {action.icon}
                   <span className="font-heading font-bold">{action.label}</span>
                 </Button>
-              </Link>
+              )
             ))}
           </div>
         </motion.div>
+
+        {/* Character Generator Modal */}
+        {showCharacterGenerator && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-primary/20">
+                <h3 className="text-xl font-heading font-bold text-foreground">Create Your AI Mentor</h3>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowCharacterGenerator(false)}
+                  className="text-light-gray hover:text-foreground"
+                >
+                  ✕
+                </Button>
+              </div>
+              <div className="overflow-y-auto max-h-[80vh]">
+                <AnimeCharacterGenerator 
+                  onCharacterGenerated={(character) => {
+                    setUserCharacter(character);
+                    setShowCharacterGenerator(false);
+                  }}
+                  userPreferences={{
+                    subject: 'general',
+                    learningStyle: 'supportive',
+                    personality: 'wise'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI Mentor Video Call */}
+        <AnimeMentor 
+          isOpen={showMentorCall} 
+          onClose={() => setShowMentorCall(false)} 
+        />
       </div>
     </div>
   );
