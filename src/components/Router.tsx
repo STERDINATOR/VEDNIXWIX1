@@ -12,6 +12,7 @@ import StudyGuildsPage from '@/components/pages/StudyGuildsPage';
 import ShopPage from '@/components/pages/ShopPage';
 import LeaderboardPage from '@/components/pages/LeaderboardPage';
 import AchievementsPage from '@/components/pages/AchievementsPage';
+import AnimeReelsPage from '@/components/pages/AnimeReelsPage';
 
 const router = createBrowserRouter([
   {
@@ -88,6 +89,14 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to view achievements">
             <AchievementsPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "reels",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to watch anime reels">
+            <AnimeReelsPage />
           </MemberProtectedRoute>
         ),
       },

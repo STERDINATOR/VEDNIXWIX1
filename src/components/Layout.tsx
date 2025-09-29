@@ -18,7 +18,8 @@ import {
   Menu,
   X,
   MessageCircle,
-  Heart
+  Heart,
+  Film
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -46,6 +47,7 @@ export default function Layout() {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home, authRequired: true },
     { name: 'Learn', href: '/learn', icon: BookOpen, authRequired: true },
+    { name: 'Anime Reels', href: '/reels', icon: Film, authRequired: true },
     { name: 'Battle Arena', href: '/battle', icon: Trophy, authRequired: true },
     { name: 'Guilds', href: '/guilds', icon: Users, authRequired: true },
     { name: 'Profile', href: '/profile', icon: User, authRequired: true },

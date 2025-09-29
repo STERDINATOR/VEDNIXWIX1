@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Image } from '@/components/ui/image';
-import { Play, Pause, Volume2, VolumeX, RotateCcw, Heart, Share, BookOpen } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Play, Pause, Volume2, VolumeX, RotateCcw, Heart, Share, BookOpen, CheckCircle, XCircle, Zap, Star, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AnimeReel {
@@ -19,6 +20,17 @@ interface AnimeReel {
   likes: number;
   isLiked: boolean;
   tags: string[];
+  questions?: QuizQuestion[];
+  learningObjectives: string[];
+}
+
+interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  timestamp: number; // When to show the question (in seconds)
 }
 
 interface AnimeReelPlayerProps {
@@ -34,16 +46,43 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
   const [currentTime, setCurrentTime] = useState(0);
   const [isLiked, setIsLiked] = useState(reel.isLiked);
   const [likes, setLikes] = useState(reel.likes);
+  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [earnedXP, setEarnedXP] = useState(0);
+  const [questionsAnswered, setQuestionsAnswered] = useState<string[]>([]);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const updateTime = () => setCurrentTime(video.currentTime);
+    const updateTime = () => {
+      setCurrentTime(video.currentTime);
+      
+      // Check for quiz questions at current timestamp
+      if (reel.questions && !currentQuestion) {
+        const questionToShow = reel.questions.find(
+          q => Math.abs(video.currentTime - q.timestamp) < 0.5 && 
+               !questionsAnswered.includes(q.id)
+        );
+        
+        if (questionToShow) {
+          video.pause();
+          setIsPlaying(false);
+          setCurrentQuestion(questionToShow);
+        }
+      }
+    };
+    
     const handleEnded = () => {
       setIsPlaying(false);
-      onComplete?.();
+      setShowCompletionModal(true);
+      // Calculate final XP based on questions answered correctly
+      const correctAnswers = questionsAnswered.length;
+      const bonusXP = correctAnswers * 25; // 25 XP per correct answer
+      setEarnedXP(reel.xp + bonusXP);
     };
 
     video.addEventListener('timeupdate', updateTime);
@@ -53,7 +92,7 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
       video.removeEventListener('timeupdate', updateTime);
       video.removeEventListener('ended', handleEnded);
     };
-  }, [onComplete]);
+  }, [onComplete, reel.questions, currentQuestion, questionsAnswered, reel.xp]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -81,6 +120,34 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
     
     video.currentTime = 0;
     setCurrentTime(0);
+  };
+
+  const handleAnswerSelect = (answerIndex: number) => {
+    if (selectedAnswer !== null) return;
+    
+    setSelectedAnswer(answerIndex);
+    setShowExplanation(true);
+    
+    if (currentQuestion && answerIndex === currentQuestion.correctAnswer) {
+      setQuestionsAnswered(prev => [...prev, currentQuestion.id]);
+    }
+    
+    // Continue video after 3 seconds
+    setTimeout(() => {
+      setCurrentQuestion(null);
+      setSelectedAnswer(null);
+      setShowExplanation(false);
+      const video = videoRef.current;
+      if (video) {
+        video.play();
+        setIsPlaying(true);
+      }
+    }, 3000);
+  };
+
+  const handleCompletionClose = () => {
+    setShowCompletionModal(false);
+    onComplete?.();
   };
 
   const toggleLike = () => {
@@ -237,7 +304,141 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
           </div>
         </div>
 
-        {/* Navigation Arrows */}
+        {/* Interactive Quiz Overlay */}
+        <AnimatePresence>
+          {currentQuestion && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="absolute inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
+            >
+              <Card className="bg-dark-gray border-primary/20 p-6 max-w-md w-full">
+                <div className="text-center mb-4">
+                  <Badge className="bg-primary text-primary-foreground mb-2">
+                    Quiz Time!
+                  </Badge>
+                  <h4 className="font-heading font-bold text-foreground text-lg">
+                    {currentQuestion.question}
+                  </h4>
+                </div>
+                
+                <div className="space-y-3 mb-4">
+                  {currentQuestion.options.map((option, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => handleAnswerSelect(index)}
+                      disabled={selectedAnswer !== null}
+                      className={`w-full text-left justify-start p-4 h-auto ${
+                        selectedAnswer === null
+                          ? 'bg-background border-primary/20 text-foreground hover:border-primary/50'
+                          : selectedAnswer === index
+                          ? index === currentQuestion.correctAnswer
+                            ? 'bg-neon-green text-black border-neon-green'
+                            : 'bg-destructive text-destructive-foreground border-destructive'
+                          : index === currentQuestion.correctAnswer
+                          ? 'bg-neon-green text-black border-neon-green'
+                          : 'bg-background border-primary/20 text-light-gray opacity-50'
+                      }`}
+                      variant="outline"
+                    >
+                      <span className="font-heading font-bold mr-3">
+                        {String.fromCharCode(65 + index)}.
+                      </span>
+                      {option}
+                      {selectedAnswer !== null && index === currentQuestion.correctAnswer && (
+                        <CheckCircle className="h-5 w-5 ml-auto" />
+                      )}
+                      {selectedAnswer === index && index !== currentQuestion.correctAnswer && (
+                        <XCircle className="h-5 w-5 ml-auto" />
+                      )}
+                    </Button>
+                  ))}
+                </div>
+                
+                {showExplanation && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-background p-4 rounded border border-primary/20"
+                  >
+                    <p className="font-paragraph text-light-gray text-sm">
+                      {currentQuestion.explanation}
+                    </p>
+                    {selectedAnswer === currentQuestion.correctAnswer && (
+                      <div className="flex items-center gap-2 mt-2 text-neon-green">
+                        <Zap className="h-4 w-4" />
+                        <span className="font-heading font-bold">+25 Bonus XP!</span>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Completion Modal */}
+        <AnimatePresence>
+          {showCompletionModal && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="absolute inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
+            >
+              <Card className="bg-dark-gray border-primary/20 p-8 max-w-md w-full text-center">
+                <div className="mb-6">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-primary rounded-full flex items-center justify-center">
+                    <Star className="h-8 w-8 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-2xl font-heading font-bold text-foreground mb-2">
+                    Reel Complete!
+                  </h3>
+                  <p className="font-paragraph text-light-gray">
+                    Great job learning about {reel.subject}!
+                  </p>
+                </div>
+                
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center justify-between p-3 bg-background rounded">
+                    <span className="font-paragraph text-light-gray">Base XP:</span>
+                    <span className="font-heading font-bold text-primary">{reel.xp}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-background rounded">
+                    <span className="font-paragraph text-light-gray">Quiz Bonus:</span>
+                    <span className="font-heading font-bold text-neon-green">
+                      +{questionsAnswered.length * 25}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-primary/20 rounded border border-primary">
+                    <span className="font-heading font-bold text-foreground">Total XP:</span>
+                    <span className="font-heading font-bold text-primary text-xl">{earnedXP}</span>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={handleCompletionClose}
+                    className="flex-1 bg-primary text-primary-foreground"
+                  >
+                    Continue
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      restart();
+                      setShowCompletionModal(false);
+                    }}
+                    variant="outline" 
+                    className="border-secondary text-secondary"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {onPrevious && (
           <button
             onClick={onPrevious}
@@ -256,11 +457,41 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
         )}
       </div>
 
-      {/* Description */}
+      {/* Description & Learning Objectives */}
       <div className="p-4">
         <p className="font-paragraph text-light-gray text-sm mb-3">
           {reel.description}
         </p>
+        
+        {/* Learning Objectives */}
+        {reel.learningObjectives && reel.learningObjectives.length > 0 && (
+          <div className="mb-4">
+            <h4 className="font-heading font-bold text-foreground text-sm mb-2">Learning Objectives:</h4>
+            <ul className="space-y-1">
+              {reel.learningObjectives.map((objective, index) => (
+                <li key={index} className="text-xs font-paragraph text-light-gray flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  {objective}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        {/* Progress Indicator */}
+        {reel.questions && reel.questions.length > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between text-xs font-paragraph text-light-gray mb-2">
+              <span>Quiz Progress</span>
+              <span>{questionsAnswered.length}/{reel.questions.length}</span>
+            </div>
+            <Progress 
+              value={(questionsAnswered.length / reel.questions.length) * 100} 
+              className="h-2"
+            />
+          </div>
+        )}
+        
         <div className="flex flex-wrap gap-2">
           {reel.tags.map((tag, index) => (
             <Badge key={index} variant="outline" className="border-primary/30 text-primary text-xs">
@@ -273,7 +504,7 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
   );
 }
 
-// Sample data for demo
+// Sample data for demo with interactive questions
 export const sampleAnimeReels: AnimeReel[] = [
   {
     id: '1',
@@ -287,7 +518,36 @@ export const sampleAnimeReels: AnimeReel[] = [
     xp: 150,
     likes: 1247,
     isLiked: false,
-    tags: ['quantum', 'physics', 'anime', 'science']
+    tags: ['quantum', 'physics', 'anime', 'science'],
+    learningObjectives: ['Understand wave-particle duality', 'Learn quantum superposition', 'Explore quantum entanglement'],
+    questions: [
+      {
+        id: 'q1',
+        question: 'What is wave-particle duality?',
+        options: [
+          'Light can only behave as a wave',
+          'Light can only behave as a particle',
+          'Light can behave as both a wave and a particle',
+          'Light has no defined behavior'
+        ],
+        correctAnswer: 2,
+        explanation: 'Wave-particle duality means that light and matter exhibit both wave and particle characteristics depending on how they are observed.',
+        timestamp: 15
+      },
+      {
+        id: 'q2',
+        question: 'What is quantum superposition?',
+        options: [
+          'A particle can be in multiple states simultaneously',
+          'Particles always have fixed positions',
+          'Quantum effects only work in space',
+          'Superposition is just a theory'
+        ],
+        correctAnswer: 0,
+        explanation: 'Quantum superposition allows particles to exist in multiple states simultaneously until they are measured.',
+        timestamp: 30
+      }
+    ]
   },
   {
     id: '2',
@@ -301,7 +561,36 @@ export const sampleAnimeReels: AnimeReel[] = [
     xp: 100,
     likes: 892,
     isLiked: true,
-    tags: ['javascript', 'programming', 'arrays', 'coding']
+    tags: ['javascript', 'programming', 'arrays', 'coding'],
+    learningObjectives: ['Master array.map()', 'Understand array.filter()', 'Learn array.reduce()'],
+    questions: [
+      {
+        id: 'q3',
+        question: 'What does the map() method do?',
+        options: [
+          'Removes elements from an array',
+          'Creates a new array with transformed elements',
+          'Sorts the array',
+          'Finds a specific element'
+        ],
+        correctAnswer: 1,
+        explanation: 'The map() method creates a new array with the results of calling a function for every array element.',
+        timestamp: 20
+      },
+      {
+        id: 'q4',
+        question: 'Which method would you use to find elements that meet a condition?',
+        options: [
+          'map()',
+          'reduce()',
+          'filter()',
+          'forEach()'
+        ],
+        correctAnswer: 2,
+        explanation: 'The filter() method creates a new array with all elements that pass a test implemented by a provided function.',
+        timestamp: 40
+      }
+    ]
   },
   {
     id: '3',
@@ -315,7 +604,36 @@ export const sampleAnimeReels: AnimeReel[] = [
     xp: 200,
     likes: 2156,
     isLiked: false,
-    tags: ['calculus', 'mathematics', 'derivatives', 'math']
+    tags: ['calculus', 'mathematics', 'derivatives', 'math'],
+    learningObjectives: ['Understand derivatives', 'Learn the power rule', 'Apply chain rule'],
+    questions: [
+      {
+        id: 'q5',
+        question: 'What is the derivative of x²?',
+        options: [
+          'x',
+          '2x',
+          'x²',
+          '2x²'
+        ],
+        correctAnswer: 1,
+        explanation: 'Using the power rule, the derivative of x² is 2x¹ = 2x.',
+        timestamp: 25
+      },
+      {
+        id: 'q6',
+        question: 'What does a derivative represent?',
+        options: [
+          'The area under a curve',
+          'The rate of change at a point',
+          'The maximum value of a function',
+          'The integral of a function'
+        ],
+        correctAnswer: 1,
+        explanation: 'A derivative represents the instantaneous rate of change of a function at a specific point.',
+        timestamp: 60
+      }
+    ]
   },
   {
     id: '4',
@@ -329,7 +647,23 @@ export const sampleAnimeReels: AnimeReel[] = [
     xp: 120,
     likes: 1456,
     isLiked: false,
-    tags: ['chemistry', 'molecules', 'bonds', 'science']
+    tags: ['chemistry', 'molecules', 'bonds', 'science'],
+    learningObjectives: ['Understand ionic bonds', 'Learn covalent bonds', 'Explore metallic bonds'],
+    questions: [
+      {
+        id: 'q7',
+        question: 'What type of bond forms between a metal and non-metal?',
+        options: [
+          'Covalent bond',
+          'Ionic bond',
+          'Metallic bond',
+          'Hydrogen bond'
+        ],
+        correctAnswer: 1,
+        explanation: 'Ionic bonds form between metals and non-metals through the transfer of electrons.',
+        timestamp: 18
+      }
+    ]
   },
   {
     id: '5',
@@ -343,7 +677,23 @@ export const sampleAnimeReels: AnimeReel[] = [
     xp: 80,
     likes: 987,
     isLiked: true,
-    tags: ['history', 'ancient', 'civilizations', 'time-travel']
+    tags: ['history', 'ancient', 'civilizations', 'time-travel'],
+    learningObjectives: ['Learn about ancient Egypt', 'Understand Roman Empire', 'Explore Greek philosophy'],
+    questions: [
+      {
+        id: 'q8',
+        question: 'Which ancient civilization built the pyramids?',
+        options: [
+          'Romans',
+          'Greeks',
+          'Egyptians',
+          'Babylonians'
+        ],
+        correctAnswer: 2,
+        explanation: 'The ancient Egyptians built the famous pyramids, including the Great Pyramid of Giza.',
+        timestamp: 12
+      }
+    ]
   }
 ];
 
@@ -354,6 +704,8 @@ interface AnimeReelFeedProps {
 
 export function AnimeReelFeed({ reels = sampleAnimeReels, className = '' }: AnimeReelFeedProps) {
   const [currentReel, setCurrentReel] = useState(0);
+  const [totalXPEarned, setTotalXPEarned] = useState(0);
+  const [completedReels, setCompletedReels] = useState<string[]>([]);
 
   const nextReel = () => {
     setCurrentReel((prev) => (prev + 1) % reels.length);
@@ -364,12 +716,32 @@ export function AnimeReelFeed({ reels = sampleAnimeReels, className = '' }: Anim
   };
 
   const handleComplete = () => {
+    const currentReelId = reels[currentReel].id;
+    if (!completedReels.includes(currentReelId)) {
+      setCompletedReels(prev => [...prev, currentReelId]);
+    }
     // Auto-advance to next reel after completion
     setTimeout(nextReel, 1000);
   };
 
   return (
     <div className={`w-full ${className}`}>
+      {/* Session Stats */}
+      <div className="mb-6 grid grid-cols-3 gap-4">
+        <Card className="bg-dark-gray border-primary/20 p-4 text-center">
+          <div className="text-2xl font-heading font-bold text-primary">{completedReels.length}</div>
+          <div className="text-xs font-paragraph text-light-gray">Reels Completed</div>
+        </Card>
+        <Card className="bg-dark-gray border-primary/20 p-4 text-center">
+          <div className="text-2xl font-heading font-bold text-neon-green">{totalXPEarned}</div>
+          <div className="text-xs font-paragraph text-light-gray">XP Earned</div>
+        </Card>
+        <Card className="bg-dark-gray border-primary/20 p-4 text-center">
+          <div className="text-2xl font-heading font-bold text-secondary">{reels.length}</div>
+          <div className="text-xs font-paragraph text-light-gray">Total Reels</div>
+        </Card>
+      </div>
+
       <div className="flex justify-center">
         <AnimeReelPlayer
           reel={reels[currentReel]}
@@ -381,15 +753,28 @@ export function AnimeReelFeed({ reels = sampleAnimeReels, className = '' }: Anim
       
       {/* Reel Indicators */}
       <div className="flex justify-center mt-4 gap-2">
-        {reels.map((_, index) => (
+        {reels.map((reel, index) => (
           <button
             key={index}
             onClick={() => setCurrentReel(index)}
-            className={`w-2 h-2 rounded-full transition-colors ${
+            className={`w-3 h-3 rounded-full transition-colors relative ${
               index === currentReel ? 'bg-primary' : 'bg-light-gray/30'
             }`}
-          />
+            title={reel.title}
+          >
+            {completedReels.includes(reel.id) && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full"></div>
+            )}
+          </button>
         ))}
+      </div>
+      
+      {/* Current Reel Info */}
+      <div className="mt-4 text-center">
+        <h3 className="font-heading font-bold text-foreground">{reels[currentReel].title}</h3>
+        <p className="text-sm font-paragraph text-light-gray">
+          {reels[currentReel].subject} • {currentReel + 1} of {reels.length}
+        </p>
       </div>
     </div>
   );
