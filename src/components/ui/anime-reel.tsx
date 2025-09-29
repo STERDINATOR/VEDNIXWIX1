@@ -22,6 +22,17 @@ interface AnimeReel {
   tags: string[];
   questions?: QuizQuestion[];
   learningObjectives: string[];
+  storySegments?: StorySegment[];
+}
+
+interface StorySegment {
+  id: string;
+  timestamp: number;
+  character: string;
+  dialogue: string;
+  emotion: 'happy' | 'excited' | 'serious' | 'surprised' | 'thinking';
+  characterImage: string;
+  backgroundMusic?: string;
 }
 
 interface QuizQuestion {
@@ -38,9 +49,10 @@ interface AnimeReelPlayerProps {
   onComplete?: () => void;
   onNext?: () => void;
   onPrevious?: () => void;
+  onQuizAnswer?: (isCorrect: boolean, xpEarned: number) => void;
 }
 
-export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeReelPlayerProps) {
+export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious, onQuizAnswer }: AnimeReelPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -52,6 +64,9 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
   const [earnedXP, setEarnedXP] = useState(0);
   const [questionsAnswered, setQuestionsAnswered] = useState<string[]>([]);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [storyProgress, setStoryProgress] = useState(0);
+  const [showStoryOverlay, setShowStoryOverlay] = useState(false);
+  const [currentStorySegment, setCurrentStorySegment] = useState<any>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -74,6 +89,22 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
           setCurrentQuestion(questionToShow);
         }
       }
+
+      // Check for story segments at current timestamp
+      if (reel.storySegments && !showStoryOverlay && !currentQuestion) {
+        const storyToShow = reel.storySegments.find(
+          s => Math.abs(video.currentTime - s.timestamp) < 0.5 && 
+               storyProgress < s.timestamp
+        );
+        
+        if (storyToShow) {
+          video.pause();
+          setIsPlaying(false);
+          setCurrentStorySegment(storyToShow);
+          setShowStoryOverlay(true);
+          setStoryProgress(storyToShow.timestamp);
+        }
+      }
     };
     
     const handleEnded = () => {
@@ -92,7 +123,7 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
       video.removeEventListener('timeupdate', updateTime);
       video.removeEventListener('ended', handleEnded);
     };
-  }, [onComplete, reel.questions, currentQuestion, questionsAnswered, reel.xp]);
+  }, [onComplete, reel.questions, reel.storySegments, currentQuestion, questionsAnswered, reel.xp, showStoryOverlay, storyProgress]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -130,6 +161,9 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
     
     if (currentQuestion && answerIndex === currentQuestion.correctAnswer) {
       setQuestionsAnswered(prev => [...prev, currentQuestion.id]);
+      onQuizAnswer?.(true, 25); // Notify parent of correct answer
+    } else {
+      onQuizAnswer?.(false, 0); // Notify parent of incorrect answer
     }
     
     // Continue video after 3 seconds
@@ -143,6 +177,16 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
         setIsPlaying(true);
       }
     }, 3000);
+  };
+
+  const handleStoryClose = () => {
+    setShowStoryOverlay(false);
+    setCurrentStorySegment(null);
+    const video = videoRef.current;
+    if (video) {
+      video.play();
+      setIsPlaying(true);
+    }
   };
 
   const handleCompletionClose = () => {
@@ -303,6 +347,47 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious }: AnimeR
             </div>
           </div>
         </div>
+
+        {/* Story Overlay */}
+        <AnimatePresence>
+          {showStoryOverlay && currentStorySegment && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6 z-40"
+            >
+              <div className="flex items-end gap-4">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary">
+                  <Image
+                    src={currentStorySegment.characterImage}
+                    alt={currentStorySegment.character}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="bg-dark-gray/90 backdrop-blur-sm rounded-lg p-4 border border-primary/20">
+                    <h4 className="font-heading font-bold text-primary text-sm mb-2">
+                      {currentStorySegment.character}
+                    </h4>
+                    <p className="font-paragraph text-foreground text-sm leading-relaxed">
+                      {currentStorySegment.dialogue}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleStoryClose}
+                    size="sm"
+                    className="mt-2 bg-primary/20 text-primary hover:bg-primary/30"
+                  >
+                    Continue
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Interactive Quiz Overlay */}
         <AnimatePresence>
@@ -520,6 +605,24 @@ export const sampleAnimeReels: AnimeReel[] = [
     isLiked: false,
     tags: ['quantum', 'physics', 'anime', 'science'],
     learningObjectives: ['Understand wave-particle duality', 'Learn quantum superposition', 'Explore quantum entanglement'],
+    storySegments: [
+      {
+        id: 's1',
+        timestamp: 5,
+        character: 'Professor Akira',
+        dialogue: 'Welcome to the quantum realm, young student! Today we\'ll explore the mysterious world where particles can be in multiple places at once.',
+        emotion: 'excited',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192'
+      },
+      {
+        id: 's2',
+        timestamp: 35,
+        character: 'Quantum Cat',
+        dialogue: 'Meow! Did you know that according to quantum mechanics, I can be both alive and dead at the same time? It\'s called superposition!',
+        emotion: 'thinking',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192'
+      }
+    ],
     questions: [
       {
         id: 'q1',
@@ -563,6 +666,24 @@ export const sampleAnimeReels: AnimeReel[] = [
     isLiked: true,
     tags: ['javascript', 'programming', 'arrays', 'coding'],
     learningObjectives: ['Master array.map()', 'Understand array.filter()', 'Learn array.reduce()'],
+    storySegments: [
+      {
+        id: 's3',
+        timestamp: 8,
+        character: 'Code Ninja Yuki',
+        dialogue: 'Greetings, fellow coder! Today I\'ll teach you the ancient art of JavaScript array methods. These techniques will make your code more elegant and powerful!',
+        emotion: 'serious',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192'
+      },
+      {
+        id: 's4',
+        timestamp: 45,
+        character: 'Array Spirit',
+        dialogue: 'The map() method is like a magical transformation spell - it creates a new array by applying a function to each element!',
+        emotion: 'excited',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192'
+      }
+    ],
     questions: [
       {
         id: 'q3',
@@ -606,6 +727,24 @@ export const sampleAnimeReels: AnimeReel[] = [
     isLiked: false,
     tags: ['calculus', 'mathematics', 'derivatives', 'math'],
     learningObjectives: ['Understand derivatives', 'Learn the power rule', 'Apply chain rule'],
+    storySegments: [
+      {
+        id: 's5',
+        timestamp: 10,
+        character: 'Math Mage Rei',
+        dialogue: 'Welcome to the realm of calculus! Derivatives are the key to understanding how things change. Let me show you the power of mathematical transformation!',
+        emotion: 'serious',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192'
+      },
+      {
+        id: 's6',
+        timestamp: 70,
+        character: 'Derivative Dragon',
+        dialogue: 'The derivative of x² is 2x! This represents the slope of the curve at any point. Master this, and you\'ll unlock the secrets of change itself!',
+        emotion: 'excited',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192'
+      }
+    ],
     questions: [
       {
         id: 'q5',
@@ -649,6 +788,16 @@ export const sampleAnimeReels: AnimeReel[] = [
     isLiked: false,
     tags: ['chemistry', 'molecules', 'bonds', 'science'],
     learningObjectives: ['Understand ionic bonds', 'Learn covalent bonds', 'Explore metallic bonds'],
+    storySegments: [
+      {
+        id: 's7',
+        timestamp: 12,
+        character: 'Alchemist Hana',
+        dialogue: 'Behold the power of molecular bonds! When atoms come together, they create the building blocks of our world. Let me show you the different types of bonds!',
+        emotion: 'excited',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192'
+      }
+    ],
     questions: [
       {
         id: 'q7',
@@ -679,6 +828,16 @@ export const sampleAnimeReels: AnimeReel[] = [
     isLiked: true,
     tags: ['history', 'ancient', 'civilizations', 'time-travel'],
     learningObjectives: ['Learn about ancient Egypt', 'Understand Roman Empire', 'Explore Greek philosophy'],
+    storySegments: [
+      {
+        id: 's8',
+        timestamp: 8,
+        character: 'Time Guardian Kai',
+        dialogue: 'Step into my time portal, young historian! We\'re about to journey through the greatest civilizations in human history. First stop: Ancient Egypt!',
+        emotion: 'excited',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192'
+      }
+    ],
     questions: [
       {
         id: 'q8',
@@ -706,6 +865,14 @@ export function AnimeReelFeed({ reels = sampleAnimeReels, className = '' }: Anim
   const [currentReel, setCurrentReel] = useState(0);
   const [totalXPEarned, setTotalXPEarned] = useState(0);
   const [completedReels, setCompletedReels] = useState<string[]>([]);
+  const [watchedReels, setWatchedReels] = useState<string[]>([]);
+  const [userProgress, setUserProgress] = useState({
+    reelsWatched: 0,
+    xpEarned: 0,
+    quizScore: 0,
+    totalQuestions: 0,
+    correctAnswers: 0
+  });
 
   const nextReel = () => {
     setCurrentReel((prev) => (prev + 1) % reels.length);
@@ -717,11 +884,35 @@ export function AnimeReelFeed({ reels = sampleAnimeReels, className = '' }: Anim
 
   const handleComplete = () => {
     const currentReelId = reels[currentReel].id;
+    const currentReelData = reels[currentReel];
+    
     if (!completedReels.includes(currentReelId)) {
       setCompletedReels(prev => [...prev, currentReelId]);
+      
+      // Update user progress
+      setUserProgress(prev => ({
+        ...prev,
+        reelsWatched: prev.reelsWatched + 1,
+        xpEarned: prev.xpEarned + currentReelData.xp
+      }));
     }
+    
+    if (!watchedReels.includes(currentReelId)) {
+      setWatchedReels(prev => [...prev, currentReelId]);
+    }
+    
     // Auto-advance to next reel after completion
     setTimeout(nextReel, 1000);
+  };
+
+  const handleQuizAnswer = (isCorrect: boolean, xpEarned: number) => {
+    setUserProgress(prev => ({
+      ...prev,
+      totalQuestions: prev.totalQuestions + 1,
+      correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
+      quizScore: Math.round(((prev.correctAnswers + (isCorrect ? 1 : 0)) / (prev.totalQuestions + 1)) * 100),
+      xpEarned: prev.xpEarned + (isCorrect ? xpEarned : 0)
+    }));
   };
 
   return (
@@ -729,16 +920,16 @@ export function AnimeReelFeed({ reels = sampleAnimeReels, className = '' }: Anim
       {/* Session Stats */}
       <div className="mb-6 grid grid-cols-3 gap-4">
         <Card className="bg-dark-gray border-primary/20 p-4 text-center">
-          <div className="text-2xl font-heading font-bold text-primary">{completedReels.length}</div>
-          <div className="text-xs font-paragraph text-light-gray">Reels Completed</div>
+          <div className="text-2xl font-heading font-bold text-primary">{userProgress.reelsWatched}</div>
+          <div className="text-xs font-paragraph text-light-gray">Reels Watched</div>
         </Card>
         <Card className="bg-dark-gray border-primary/20 p-4 text-center">
-          <div className="text-2xl font-heading font-bold text-neon-green">{totalXPEarned}</div>
+          <div className="text-2xl font-heading font-bold text-neon-green">{userProgress.xpEarned}</div>
           <div className="text-xs font-paragraph text-light-gray">XP Earned</div>
         </Card>
         <Card className="bg-dark-gray border-primary/20 p-4 text-center">
-          <div className="text-2xl font-heading font-bold text-secondary">{reels.length}</div>
-          <div className="text-xs font-paragraph text-light-gray">Total Reels</div>
+          <div className="text-2xl font-heading font-bold text-secondary">{userProgress.quizScore}%</div>
+          <div className="text-xs font-paragraph text-light-gray">Quiz Score</div>
         </Card>
       </div>
 
@@ -748,6 +939,7 @@ export function AnimeReelFeed({ reels = sampleAnimeReels, className = '' }: Anim
           onComplete={handleComplete}
           onNext={nextReel}
           onPrevious={prevReel}
+          onQuizAnswer={handleQuizAnswer}
         />
       </div>
       

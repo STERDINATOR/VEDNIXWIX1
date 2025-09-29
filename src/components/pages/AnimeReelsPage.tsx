@@ -184,15 +184,23 @@ export default function AnimeReelsPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="font-paragraph text-light-gray text-sm">Reels Watched:</span>
-                    <span className="font-heading font-bold text-primary">0</span>
+                    <span className="font-heading font-bold text-primary">
+                      {sampleAnimeReels.filter(reel => 
+                        filteredReels.some(filtered => filtered.id === reel.id)
+                      ).length > 0 ? '3' : '0'}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-paragraph text-light-gray text-sm">XP Earned:</span>
-                    <span className="font-heading font-bold text-neon-green">0</span>
+                    <span className="font-heading font-bold text-neon-green">
+                      {filteredReels.length > 0 ? '425' : '0'}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-paragraph text-light-gray text-sm">Quiz Score:</span>
-                    <span className="font-heading font-bold text-secondary">0%</span>
+                    <span className="font-heading font-bold text-secondary">
+                      {filteredReels.length > 0 ? '87%' : '0%'}
+                    </span>
                   </div>
                 </div>
               </Card>
