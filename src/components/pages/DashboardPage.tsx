@@ -25,7 +25,7 @@ import {
   Video
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Image } from '@/components/ui/image';
 
 export default function DashboardPage() {
@@ -33,6 +33,25 @@ export default function DashboardPage() {
   const [showCharacterGenerator, setShowCharacterGenerator] = useState(false);
   const [showMentorCall, setShowMentorCall] = useState(false);
   const [userCharacter, setUserCharacter] = useState<any>(null);
+
+  // Load user character from localStorage on component mount
+  useEffect(() => {
+    const savedCharacter = localStorage.getItem('userCharacter');
+    if (savedCharacter) {
+      try {
+        setUserCharacter(JSON.parse(savedCharacter));
+      } catch (error) {
+        console.error('Error loading user character:', error);
+      }
+    }
+  }, []);
+
+  // Save character to localStorage when it changes
+  const handleCharacterGenerated = (character: any) => {
+    setUserCharacter(character);
+    localStorage.setItem('userCharacter', JSON.stringify(character));
+    setShowCharacterGenerator(false);
+  };
 
   // Mock data - in real app this would come from database
   const dashboardData = {
@@ -229,7 +248,13 @@ export default function DashboardPage() {
                 {userCharacter ? (
                   <div className="text-center">
                     <div className="w-24 h-24 mx-auto mb-4 rounded-full border-4 border-primary overflow-hidden">
-                      <Image src={userCharacter.image} alt={userCharacter.name} className="w-full h-full object-cover" />
+                      <Image 
+                        src={userCharacter.image} 
+                        alt={userCharacter.name} 
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover" 
+                      />
                     </div>
                     <h4 className="font-heading font-bold text-primary mb-1">{userCharacter.name}</h4>
                     <p className="text-sm font-paragraph text-light-gray mb-3">
@@ -450,10 +475,7 @@ export default function DashboardPage() {
               </div>
               <div className="overflow-y-auto max-h-[80vh]">
                 <AnimeCharacterGenerator 
-                  onCharacterGenerated={(character) => {
-                    setUserCharacter(character);
-                    setShowCharacterGenerator(false);
-                  }}
+                  onCharacterGenerated={handleCharacterGenerated}
                   userPreferences={{
                     subject: 'general',
                     learningStyle: 'supportive',
@@ -468,7 +490,8 @@ export default function DashboardPage() {
         {/* AI Mentor Video Call */}
         <AnimeMentor 
           isOpen={showMentorCall} 
-          onClose={() => setShowMentorCall(false)} 
+          onClose={() => setShowMentorCall(false)}
+          userCharacter={userCharacter}
         />
       </div>
     </div>

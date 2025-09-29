@@ -21,7 +21,7 @@ import {
   Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Layout() {
   const { member, isAuthenticated, isLoading, actions } = useMember();
@@ -29,6 +29,19 @@ export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mentorOpen, setMentorOpen] = useState(false);
   const [petOpen, setPetOpen] = useState(false);
+  const [userCharacter, setUserCharacter] = useState<any>(null); // Store user's character
+
+  // Load user character from localStorage on component mount
+  useEffect(() => {
+    const savedCharacter = localStorage.getItem('userCharacter');
+    if (savedCharacter) {
+      try {
+        setUserCharacter(JSON.parse(savedCharacter));
+      } catch (error) {
+        console.error('Error loading user character:', error);
+      }
+    }
+  }, []);
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home, authRequired: true },
@@ -310,7 +323,11 @@ export default function Layout() {
       <BackgroundMusic />
 
       {/* AI Mentor Modal */}
-      <AnimeMentor isOpen={mentorOpen} onClose={() => setMentorOpen(false)} />
+      <AnimeMentor 
+        isOpen={mentorOpen} 
+        onClose={() => setMentorOpen(false)}
+        userCharacter={userCharacter}
+      />
 
       {/* Pet Modal */}
       <AnimePet isOpen={petOpen} onClose={() => setPetOpen(false)} />

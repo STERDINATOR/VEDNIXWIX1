@@ -42,9 +42,10 @@ interface MentorPersonality {
 interface AnimeMentorProps {
   isOpen: boolean;
   onClose: () => void;
+  userCharacter?: any; // The character created by the user
 }
 
-export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
+export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps) {
   const [isCallActive, setIsCallActive] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
@@ -63,9 +64,24 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
   
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Mock mentor data
-  const [mentor, setMentor] = useState<MentorPersonality>(
-    selectedMentor || {
+  // Use user's character if provided, otherwise use default mentor
+  const [mentor, setMentor] = useState<MentorPersonality>(() => {
+    if (userCharacter) {
+      return {
+        name: userCharacter.name || 'Your AI Mentor',
+        personality: userCharacter.personality?.description || 'Wise and encouraging, with a touch of humor',
+        expertise: userCharacter.abilities ? [userCharacter.abilities.element, 'General Studies'] : ['Programming', 'Mathematics', 'Physics', 'Study Techniques'],
+        voiceType: userCharacter.voiceSettings?.tone || 'wise',
+        appearance: {
+          hairColor: userCharacter.appearance?.hairColor || '#4A90E2',
+          eyeColor: userCharacter.appearance?.eyeColor || '#00FFFF',
+          outfit: userCharacter.appearance?.outfit || 'Cyberpunk Teacher',
+          accessories: userCharacter.appearance?.accessories || ['Digital Glasses', 'Holographic Badge']
+        }
+      };
+    }
+    
+    return selectedMentor || {
       name: 'Akira Sensei',
       personality: 'Wise and encouraging, with a touch of humor',
       expertise: ['Programming', 'Mathematics', 'Physics', 'Study Techniques'],
@@ -76,8 +92,8 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
         outfit: 'Cyberpunk Teacher',
         accessories: ['Digital Glasses', 'Holographic Badge']
       }
-    }
-  );
+    };
+  });
 
   const handleCharacterGenerated = (character: any) => {
     // Convert generated character to mentor format
@@ -133,11 +149,14 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
 
   const startCall = () => {
     setIsCallActive(true);
-    // Simulate mentor greeting
+    // Simulate mentor greeting with personalized message
     setTimeout(() => {
       setIsMentorSpeaking(true);
-      addMentorMessage("Hello! I'm Akira, your personal AI mentor. How can I help you with your studies today?");
-      setTimeout(() => setIsMentorSpeaking(false), 3000);
+      const greeting = userCharacter 
+        ? `Hello! I'm ${mentor.name}, your personal AI mentor. ${userCharacter.personality?.catchphrase || 'Ready to learn together?'} How can I help you with your studies today?`
+        : "Hello! I'm Akira, your personal AI mentor. How can I help you with your studies today?";
+      addMentorMessage(greeting);
+      setTimeout(() => setIsMentorSpeaking(false), 4000);
     }, 1000);
   };
 
@@ -205,10 +224,11 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
     };
     setChatHistory(prev => [...prev, userMessage]);
     
-    // Simulate AI response with enhanced responses
+    // Simulate AI response with enhanced responses based on character personality
     setTimeout(() => {
       setIsMentorSpeaking(true);
-      const responses = [
+      
+      let responses = [
         "That's a great question! Let me help you understand this concept better.",
         "I can see you're making excellent progress. Here's what I suggest...",
         "Interesting approach! Have you considered this alternative method?",
@@ -218,6 +238,16 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
         "I'm impressed by your curiosity. Let's explore this together.",
         "Excellent question! This is a fundamental concept in this subject."
       ];
+      
+      // Add personality-specific responses if user character exists
+      if (userCharacter?.personality) {
+        const personalityResponses = [
+          `${userCharacter.personality.catchphrase} Let's tackle this challenge together!`,
+          `As someone with ${userCharacter.personality.trait}, I think you'll find this approach interesting...`,
+          `Your ${userCharacter.personality.trait} nature will help you master this concept quickly!`
+        ];
+        responses = [...responses, ...personalityResponses];
+      }
       
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
       addMentorMessage(randomResponse);
@@ -246,12 +276,26 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-primary/20">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-full flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+                  {userCharacter?.image ? (
+                    <Image
+                      src={userCharacter.image}
+                      alt={mentor.name}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <h3 className="font-heading font-bold text-foreground">{mentor.name}</h3>
-                  <p className="text-sm font-paragraph text-light-gray">AI Learning Mentor</p>
+                  <p className="text-sm font-paragraph text-light-gray">
+                    {userCharacter ? 'Your Personal AI Mentor' : 'AI Learning Mentor'}
+                  </p>
                 </div>
                 {isCallActive && (
                   <Badge className="bg-neon-green/20 text-neon-green">
@@ -274,10 +318,22 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
                     {/* Mentor Video */}
                     <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                       <div className="text-center">
-                        <div className={`w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center text-6xl relative ${
+                        <div className={`w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-primary relative ${
                           isMentorSpeaking ? 'animate-pulse' : ''
                         }`}>
-                          👨‍🏫
+                          {userCharacter?.image ? (
+                            <Image
+                              src={userCharacter.image}
+                              alt={mentor.name}
+                              width={128}
+                              height={128}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center text-6xl">
+                              👨‍🏫
+                            </div>
+                          )}
                           {isMentorSpeaking && (
                             <div className="absolute inset-0 rounded-full border-4 border-primary animate-ping" />
                           )}
@@ -286,6 +342,11 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
                         <p className="font-paragraph text-light-gray">
                           {isMentorSpeaking ? 'Speaking...' : 'Listening...'}
                         </p>
+                        {userCharacter?.personality?.trait && (
+                          <p className="text-xs font-paragraph text-primary mt-1">
+                            {userCharacter.personality.trait}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -335,11 +396,28 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-center">
-                      <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center text-6xl">
-                        👨‍🏫
+                      <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-primary">
+                        {userCharacter?.image ? (
+                          <Image
+                            src={userCharacter.image}
+                            alt={mentor.name}
+                            width={128}
+                            height={128}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center text-6xl">
+                            👨‍🏫
+                          </div>
+                        )}
                       </div>
                       <h4 className="font-heading font-bold text-white text-xl mb-2">{mentor.name}</h4>
-                      <p className="font-paragraph text-light-gray mb-6">Ready to start your learning session?</p>
+                      <p className="font-paragraph text-light-gray mb-2">Ready to start your learning session?</p>
+                      {userCharacter?.personality?.catchphrase && (
+                        <p className="text-sm font-paragraph text-primary mb-4 italic">
+                          "{userCharacter.personality.catchphrase}"
+                        </p>
+                      )}
                       <Button onClick={startCall} className="bg-primary text-primary-foreground hover:bg-primary/90">
                         <Phone className="h-4 w-4 mr-2" />
                         Start Video Call
