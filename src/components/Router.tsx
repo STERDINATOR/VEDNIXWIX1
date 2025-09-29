@@ -9,6 +9,9 @@ import DashboardPage from '@/components/pages/DashboardPage';
 import LearnPage from '@/components/pages/LearnPage';
 import BattleArenaPage from '@/components/pages/BattleArenaPage';
 import StudyGuildsPage from '@/components/pages/StudyGuildsPage';
+import ShopPage from '@/components/pages/ShopPage';
+import LeaderboardPage from '@/components/pages/LeaderboardPage';
+import AchievementsPage from '@/components/pages/AchievementsPage';
 
 const router = createBrowserRouter([
   {
@@ -61,6 +64,30 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to join guilds">
             <StudyGuildsPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "shop",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access the shop">
+            <ShopPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "leaderboard",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to view leaderboard">
+            <LeaderboardPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "achievements",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to view achievements">
+            <AchievementsPage />
           </MemberProtectedRoute>
         ),
       },

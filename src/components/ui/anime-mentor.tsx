@@ -200,26 +200,33 @@ export function AnimeMentor({ isOpen, onClose }: AnimeMentorProps) {
     const userMessage = {
       id: Date.now().toString(),
       sender: 'user' as const,
-      message: message.trim(),
+      message,
       timestamp: new Date()
     };
     setChatHistory(prev => [...prev, userMessage]);
     
-    // Simulate mentor response
+    // Simulate AI response with enhanced responses
     setTimeout(() => {
       setIsMentorSpeaking(true);
       const responses = [
         "That's a great question! Let me help you understand this concept better.",
-        "I see what you're struggling with. Let's break this down step by step.",
-        "Excellent observation! You're really thinking like a true scholar.",
-        "Don't worry, this topic can be tricky. Let me explain it in a different way.",
-        "You're making great progress! Keep up the excellent work!"
+        "I can see you're making excellent progress. Here's what I suggest...",
+        "Interesting approach! Have you considered this alternative method?",
+        "You're on the right track. Let's dive deeper into this topic.",
+        "Perfect! This reminds me of a similar problem we solved before.",
+        "Great thinking! This concept connects to what we learned earlier.",
+        "I'm impressed by your curiosity. Let's explore this together.",
+        "Excellent question! This is a fundamental concept in this subject."
       ];
-      const response = responses[Math.floor(Math.random() * responses.length)];
-      addMentorMessage(response);
+      
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      addMentorMessage(randomResponse);
+      
       setTimeout(() => setIsMentorSpeaking(false), 2000);
     }, 1000);
   };
+
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
