@@ -214,7 +214,7 @@ export default function DashboardPage() {
             >
               <Card className="bg-dark-gray border-primary/20 p-6 text-center">
                 <h3 className="text-lg font-heading font-bold text-foreground mb-4">Your Companion</h3>
-                <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center text-5xl">
+                <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center text-5xl animate-bounce">
                   🐱
                 </div>
                 <h4 className="font-heading font-bold text-primary mb-2">{dashboardData.petStatus.name}</h4>
@@ -231,9 +231,14 @@ export default function DashboardPage() {
                 <p className="text-xs font-paragraph text-light-gray mb-3">
                   {dashboardData.petStatus.nextEvolution - dashboardData.petStatus.level} levels to evolution
                 </p>
-                <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                  Interact
-                </Button>
+                <div className="space-y-2">
+                  <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full">
+                    Interact
+                  </Button>
+                  <div className="text-xs font-paragraph text-neon-green">
+                    💧 "Remember to drink water!"
+                  </div>
+                </div>
               </Card>
             </motion.div>
 

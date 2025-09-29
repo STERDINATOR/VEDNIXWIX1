@@ -3,6 +3,9 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { BackgroundMusic } from '@/components/ui/background-music';
+import { AnimeMentor } from '@/components/ui/anime-mentor';
+import { AnimePet } from '@/components/ui/anime-pet';
 import { 
   Home, 
   User, 
@@ -13,7 +16,9 @@ import {
   LogOut,
   Zap,
   Menu,
-  X
+  X,
+  MessageCircle,
+  Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -22,6 +27,8 @@ export default function Layout() {
   const { member, isAuthenticated, isLoading, actions } = useMember();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mentorOpen, setMentorOpen] = useState(false);
+  const [petOpen, setPetOpen] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home, authRequired: true },
@@ -87,6 +94,26 @@ export default function Layout() {
 
               {isAuthenticated && (
                 <div className="hidden md:flex items-center gap-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMentorOpen(true)}
+                    className="text-light-gray hover:text-primary"
+                    title="AI Mentor"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPetOpen(true)}
+                    className="text-light-gray hover:text-secondary"
+                    title="Your Pet"
+                  >
+                    <Heart className="h-4 w-4" />
+                  </Button>
+                  
                   <Link to="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                     <Avatar className="h-8 w-8 border-2 border-primary/50">
                       <AvatarImage src={member?.profile?.photo?.url} />
@@ -156,6 +183,26 @@ export default function Layout() {
                 {isAuthenticated && (
                   <>
                     <div className="border-t border-primary/20 my-2"></div>
+                    <button
+                      onClick={() => {
+                        setMentorOpen(true);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 px-3 py-3 rounded font-paragraph text-light-gray hover:text-primary hover:bg-primary/5 w-full text-left"
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      AI Mentor
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPetOpen(true);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 px-3 py-3 rounded font-paragraph text-light-gray hover:text-secondary hover:bg-secondary/5 w-full text-left"
+                    >
+                      <Heart className="h-5 w-5" />
+                      Your Pet
+                    </button>
                     <Link
                       to="/profile"
                       onClick={() => setMobileMenuOpen(false)}
@@ -258,6 +305,15 @@ export default function Layout() {
           </div>
         </div>
       </footer>
+
+      {/* Background Music Player */}
+      <BackgroundMusic />
+
+      {/* AI Mentor Modal */}
+      <AnimeMentor isOpen={mentorOpen} onClose={() => setMentorOpen(false)} />
+
+      {/* Pet Modal */}
+      <AnimePet isOpen={petOpen} onClose={() => setPetOpen(false)} />
     </div>
   );
 }
