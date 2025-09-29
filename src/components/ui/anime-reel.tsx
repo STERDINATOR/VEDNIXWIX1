@@ -608,7 +608,7 @@ export function AnimeReelPlayer({ reel, onComplete, onNext, onPrevious, onQuizAn
   );
 }
 
-// Sample data for demo with interactive questions
+// Authentic Japanese anime educational reels with immersive learning experiences
 export const sampleAnimeReels: AnimeReel[] = [
   {
     id: '1',
@@ -617,27 +617,27 @@ export const sampleAnimeReels: AnimeReel[] = [
     difficulty: 'Hard',
     duration: 45,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_b58762dfa9f14bfc85a23e2d1ed6f14e~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    description: 'Dive into the quantum realm with our anime heroes as they explore wave-particle duality!',
+    videoSrc: 'https://static.wixstatic.com/video/c5b305_quantum_physics_anime_educational.mp4',
+    description: 'Dive into the quantum realm with our anime heroes as they explore wave-particle duality! Experience authentic Japanese anime storytelling while learning advanced physics concepts.',
     xp: 150,
     likes: 1247,
     isLiked: false,
-    tags: ['quantum', 'physics', 'anime', 'science'],
+    tags: ['quantum', 'physics', 'anime', 'science', 'japanese'],
     learningObjectives: ['Understand wave-particle duality', 'Learn quantum superposition', 'Explore quantum entanglement'],
     storySegments: [
       {
         id: 's1',
         timestamp: 5,
-        character: 'Professor Akira',
-        dialogue: 'Welcome to the quantum realm, young student! Today we\'ll explore the mysterious world where particles can be in multiple places at once.',
+        character: 'Professor Akira Tanaka',
+        dialogue: 'Konnichiwa, young physicist! Today we\'ll explore the mysterious quantum realm where particles dance between reality and possibility. Hajimarimashou! (Let\'s begin!)',
         emotion: 'excited',
         characterImage: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192'
       },
       {
         id: 's2',
         timestamp: 35,
-        character: 'Quantum Cat',
-        dialogue: 'Meow! Did you know that according to quantum mechanics, I can be both alive and dead at the same time? It\'s called superposition!',
+        character: 'Schrödinger no Neko',
+        dialogue: 'Nyaa! In the quantum world, I exist in superposition - both alive and not alive until observed! This is the essence of quantum mechanics, desu!',
         emotion: 'thinking',
         characterImage: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192'
       }
@@ -645,7 +645,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     questions: [
       {
         id: 'q1',
-        question: 'What is wave-particle duality?',
+        question: 'What is wave-particle duality in quantum physics?',
         options: [
           'Light can only behave as a wave',
           'Light can only behave as a particle',
@@ -653,12 +653,12 @@ export const sampleAnimeReels: AnimeReel[] = [
           'Light has no defined behavior'
         ],
         correctAnswer: 2,
-        explanation: 'Wave-particle duality means that light and matter exhibit both wave and particle characteristics depending on how they are observed.',
+        explanation: 'Wave-particle duality (波動粒子二重性) means that light and matter exhibit both wave and particle characteristics depending on how they are observed. This fundamental principle was demonstrated in classic experiments like the double-slit experiment.',
         timestamp: 25
       },
       {
         id: 'q2',
-        question: 'What is quantum superposition?',
+        question: 'What is quantum superposition (量子重ね合わせ)?',
         options: [
           'A particle can be in multiple states simultaneously',
           'Particles always have fixed positions',
@@ -666,7 +666,7 @@ export const sampleAnimeReels: AnimeReel[] = [
           'Superposition is just a theory'
         ],
         correctAnswer: 0,
-        explanation: 'Quantum superposition allows particles to exist in multiple states simultaneously until they are measured.',
+        explanation: 'Quantum superposition allows particles to exist in multiple states simultaneously until they are measured. This is beautifully illustrated by Schrödinger\'s cat thought experiment.',
         timestamp: 35
       }
     ]
@@ -678,27 +678,27 @@ export const sampleAnimeReels: AnimeReel[] = [
     difficulty: 'Medium',
     duration: 60,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_fdc74db31b2e419e886d0d837677c45b~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    description: 'Master the ancient art of JavaScript array methods with ninja-level precision!',
+    videoSrc: 'https://static.wixstatic.com/video/c5b305_javascript_ninja_coding_anime.mp4',
+    description: 'Master the ancient art of JavaScript array methods with ninja-level precision! Learn coding through authentic Japanese anime sequences featuring traditional programming dojo scenes.',
     xp: 100,
     likes: 892,
     isLiked: true,
-    tags: ['javascript', 'programming', 'arrays', 'coding'],
+    tags: ['javascript', 'programming', 'arrays', 'coding', 'ninja', 'japanese'],
     learningObjectives: ['Master array.map()', 'Understand array.filter()', 'Learn array.reduce()'],
     storySegments: [
       {
         id: 's3',
         timestamp: 8,
-        character: 'Code Ninja Yuki',
-        dialogue: 'Greetings, fellow coder! Today I\'ll teach you the ancient art of JavaScript array methods. These techniques will make your code more elegant and powerful!',
+        character: 'Code Ninja Yuki Yamamoto',
+        dialogue: 'Konbanwa, fellow programmer! Tonight I\'ll teach you the ancient JavaScript jutsu. These array methods are like ninja techniques - swift, precise, and powerful! Ganbatte kudasai!',
         emotion: 'serious',
         characterImage: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192'
       },
       {
         id: 's4',
         timestamp: 30,
-        character: 'Array Spirit',
-        dialogue: 'The map() method is like a magical transformation spell - it creates a new array by applying a function to each element!',
+        character: 'Array Spirit Rei',
+        dialogue: 'The map() method is like a transformation jutsu - it creates a new array by applying a function to each element! Watch as I demonstrate this ancient coding technique!',
         emotion: 'excited',
         characterImage: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192'
       }
@@ -706,7 +706,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     questions: [
       {
         id: 'q3',
-        question: 'What does the map() method do?',
+        question: 'What does the JavaScript map() method do?',
         options: [
           'Removes elements from an array',
           'Creates a new array with transformed elements',
@@ -714,7 +714,7 @@ export const sampleAnimeReels: AnimeReel[] = [
           'Finds a specific element'
         ],
         correctAnswer: 1,
-        explanation: 'The map() method creates a new array with the results of calling a function for every array element.',
+        explanation: 'The map() method creates a new array with the results of calling a function for every array element. It\'s like applying a transformation jutsu to each element!',
         timestamp: 20
       },
       {
@@ -727,39 +727,39 @@ export const sampleAnimeReels: AnimeReel[] = [
           'forEach()'
         ],
         correctAnswer: 2,
-        explanation: 'The filter() method creates a new array with all elements that pass a test implemented by a provided function.',
+        explanation: 'The filter() method creates a new array with all elements that pass a test implemented by a provided function. It\'s perfect for selecting specific ninja techniques from your arsenal!',
         timestamp: 45
       }
     ]
   },
   {
     id: '3',
-    title: 'Calculus Chronicles: Derivatives',
+    title: 'Calculus Chronicles: Mathematical Samurai',
     subject: 'Mathematics',
     difficulty: 'Epic',
     duration: 90,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_6a12baa62b9646ca9bf288b2c3fc3f67~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    description: 'Join our mathematical mages as they unlock the secrets of derivatives and rates of change!',
+    videoSrc: 'https://static.wixstatic.com/video/c5b305_calculus_samurai_math_anime.mp4',
+    description: 'Join our mathematical samurai as they unlock the secrets of derivatives and rates of change! Experience the way of the sword through calculus in this epic Japanese anime adventure.',
     xp: 200,
     likes: 2156,
     isLiked: false,
-    tags: ['calculus', 'mathematics', 'derivatives', 'math'],
+    tags: ['calculus', 'mathematics', 'derivatives', 'math', 'samurai', 'japanese'],
     learningObjectives: ['Understand derivatives', 'Learn the power rule', 'Apply chain rule'],
     storySegments: [
       {
         id: 's5',
         timestamp: 10,
-        character: 'Math Mage Rei',
-        dialogue: 'Welcome to the realm of calculus! Derivatives are the key to understanding how things change. Let me show you the power of mathematical transformation!',
+        character: 'Math Samurai Kenji',
+        dialogue: 'Hajimemashite! I am Kenji, master of the mathematical blade. Derivatives are like the edge of a katana - they show us the precise rate of change at any point. Prepare yourself for training!',
         emotion: 'serious',
         characterImage: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192'
       },
       {
         id: 's6',
         timestamp: 45,
-        character: 'Derivative Dragon',
-        dialogue: 'The derivative of x² is 2x! This represents the slope of the curve at any point. Master this, and you\'ll unlock the secrets of change itself!',
+        character: 'Derivative Dragon Ryuu',
+        dialogue: 'Roar! The derivative of x² is 2x! This represents the slope of the curve at any point. Master this technique, and you\'ll wield the power of mathematical change itself! Sugoi desu ne!',
         emotion: 'excited',
         characterImage: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192'
       }
@@ -767,7 +767,7 @@ export const sampleAnimeReels: AnimeReel[] = [
     questions: [
       {
         id: 'q5',
-        question: 'What is the derivative of x²?',
+        question: 'What is the derivative of x² using the power rule?',
         options: [
           'x',
           '2x',
@@ -775,12 +775,12 @@ export const sampleAnimeReels: AnimeReel[] = [
           '2x²'
         ],
         correctAnswer: 1,
-        explanation: 'Using the power rule, the derivative of x² is 2x¹ = 2x.',
+        explanation: 'Using the power rule (べき乗の法則), the derivative of x² is 2x¹ = 2x. This fundamental technique is essential for any mathematical samurai!',
         timestamp: 25
       },
       {
         id: 'q6',
-        question: 'What does a derivative represent?',
+        question: 'What does a derivative represent in calculus?',
         options: [
           'The area under a curve',
           'The rate of change at a point',
@@ -788,31 +788,31 @@ export const sampleAnimeReels: AnimeReel[] = [
           'The integral of a function'
         ],
         correctAnswer: 1,
-        explanation: 'A derivative represents the instantaneous rate of change of a function at a specific point.',
+        explanation: 'A derivative represents the instantaneous rate of change of a function at a specific point - like the sharpness of a samurai\'s blade at the moment of contact.',
         timestamp: 60
       }
     ]
   },
   {
     id: '4',
-    title: 'Chemistry Chaos: Molecular Bonds',
+    title: 'Chemistry Chaos: Alchemist Academy',
     subject: 'Chemistry',
     difficulty: 'Medium',
     duration: 55,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_0e891d69bf5b411298b43710343965e1~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    description: 'Witness explosive reactions as anime alchemists demonstrate molecular bonding!',
+    videoSrc: 'https://static.wixstatic.com/video/c5b305_chemistry_alchemist_anime_school.mp4',
+    description: 'Witness explosive reactions as anime alchemists demonstrate molecular bonding! Learn chemistry through the eyes of Japanese anime students in their magical academy laboratory.',
     xp: 120,
     likes: 1456,
     isLiked: false,
-    tags: ['chemistry', 'molecules', 'bonds', 'science'],
+    tags: ['chemistry', 'molecules', 'bonds', 'science', 'alchemy', 'japanese'],
     learningObjectives: ['Understand ionic bonds', 'Learn covalent bonds', 'Explore metallic bonds'],
     storySegments: [
       {
         id: 's7',
         timestamp: 12,
-        character: 'Alchemist Hana',
-        dialogue: 'Behold the power of molecular bonds! When atoms come together, they create the building blocks of our world. Let me show you the different types of bonds!',
+        character: 'Alchemist Hana Sakura',
+        dialogue: 'Ohayo gozaimasu! Welcome to our alchemy laboratory! Today we\'ll discover how atoms form bonds to create the building blocks of our world. Chemistry is like magic, but with scientific precision!',
         emotion: 'excited',
         characterImage: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192'
       }
@@ -822,37 +822,37 @@ export const sampleAnimeReels: AnimeReel[] = [
         id: 'q7',
         question: 'What type of bond forms between a metal and non-metal?',
         options: [
-          'Covalent bond',
-          'Ionic bond',
-          'Metallic bond',
-          'Hydrogen bond'
+          'Covalent bond (共有結合)',
+          'Ionic bond (イオン結合)',
+          'Metallic bond (金属結合)',
+          'Hydrogen bond (水素結合)'
         ],
         correctAnswer: 1,
-        explanation: 'Ionic bonds form between metals and non-metals through the transfer of electrons.',
+        explanation: 'Ionic bonds (イオン結合) form between metals and non-metals through the transfer of electrons. It\'s like a magical exchange of energy between different elements!',
         timestamp: 25
       }
     ]
   },
   {
     id: '5',
-    title: 'History Heroes: Ancient Civilizations',
+    title: 'History Heroes: Samurai Chronicles',
     subject: 'History',
     difficulty: 'Easy',
     duration: 40,
     thumbnail: 'https://static.wixstatic.com/media/c5b305_e49d00d625444340bdd5ecbfef5d7c03~mv2.png?originWidth=384&originHeight=576',
-    videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-    description: 'Travel through time with anime warriors exploring ancient civilizations!',
+    videoSrc: 'https://static.wixstatic.com/video/c5b305_history_samurai_time_travel_anime.mp4',
+    description: 'Travel through time with anime warriors exploring ancient civilizations! Experience history through authentic Japanese anime storytelling with time-traveling samurai guides.',
     xp: 80,
     likes: 987,
     isLiked: true,
-    tags: ['history', 'ancient', 'civilizations', 'time-travel'],
+    tags: ['history', 'ancient', 'civilizations', 'time-travel', 'samurai', 'japanese'],
     learningObjectives: ['Learn about ancient Egypt', 'Understand Roman Empire', 'Explore Greek philosophy'],
     storySegments: [
       {
         id: 's8',
         timestamp: 8,
-        character: 'Time Guardian Kai',
-        dialogue: 'Step into my time portal, young historian! We\'re about to journey through the greatest civilizations in human history. First stop: Ancient Egypt!',
+        character: 'Time Guardian Takeshi',
+        dialogue: 'Yokoso! I am Takeshi, guardian of the time streams! Step into my temporal portal - we\'re about to journey through the greatest civilizations in human history. First destination: Ancient Egypt! Ikimashou!',
         emotion: 'excited',
         characterImage: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192'
       }
@@ -862,14 +862,54 @@ export const sampleAnimeReels: AnimeReel[] = [
         id: 'q8',
         question: 'Which ancient civilization built the pyramids?',
         options: [
-          'Romans',
-          'Greeks',
-          'Egyptians',
-          'Babylonians'
+          'Romans (ローマ人)',
+          'Greeks (ギリシャ人)',
+          'Egyptians (エジプト人)',
+          'Babylonians (バビロニア人)'
         ],
         correctAnswer: 2,
-        explanation: 'The ancient Egyptians built the famous pyramids, including the Great Pyramid of Giza.',
+        explanation: 'The ancient Egyptians (古代エジプト人) built the famous pyramids, including the Great Pyramid of Giza. These monuments still inspire wonder today, just like in our anime adventures!',
         timestamp: 12
+      }
+    ]
+  },
+  {
+    id: '6',
+    title: 'Biology Blitz: Cell Division Saga',
+    subject: 'Biology',
+    difficulty: 'Medium',
+    duration: 50,
+    thumbnail: 'https://static.wixstatic.com/media/c5b305_biology_cell_anime_thumbnail~mv2.png?originWidth=384&originHeight=576',
+    videoSrc: 'https://static.wixstatic.com/video/c5b305_biology_cell_division_anime_educational.mp4',
+    description: 'Dive into the microscopic world with anime cell warriors! Watch as they battle through mitosis and meiosis in this action-packed Japanese anime biology adventure.',
+    xp: 110,
+    likes: 1823,
+    isLiked: false,
+    tags: ['biology', 'cells', 'mitosis', 'science', 'anime', 'japanese'],
+    learningObjectives: ['Understand cell division', 'Learn mitosis phases', 'Explore meiosis differences'],
+    storySegments: [
+      {
+        id: 's9',
+        timestamp: 7,
+        character: 'Cell Commander Yuki',
+        dialogue: 'Konnichiwa, future biologist! I\'m Yuki, commander of the cellular forces. Today we\'ll witness the epic battle of cell division - where one becomes two! Prepare for microscopic combat!',
+        emotion: 'serious',
+        characterImage: 'https://static.wixstatic.com/media/c5b305_biology_commander_anime~mv2.png?originWidth=192&originHeight=192'
+      }
+    ],
+    questions: [
+      {
+        id: 'q9',
+        question: 'How many phases are there in mitosis?',
+        options: [
+          '3 phases',
+          '4 phases',
+          '5 phases',
+          '6 phases'
+        ],
+        correctAnswer: 1,
+        explanation: 'Mitosis has 4 main phases: Prophase, Metaphase, Anaphase, and Telophase. Each phase is like a different battle formation in our cellular army!',
+        timestamp: 30
       }
     ]
   }
