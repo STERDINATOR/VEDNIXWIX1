@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AnimeReelFeed } from '@/components/ui/anime-reel';
 import { QuestSystem, sampleQuests } from '@/components/ui/quest-system';
+import { CourseSystem, sampleCourses } from '@/components/ui/course-system';
 import { 
   BookOpen, 
   Play, 
@@ -22,14 +23,67 @@ import {
   Globe,
   Palette,
   Film,
-  Sword
+  Sword,
+  GraduationCap
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function LearnPage() {
-  const [viewMode, setViewMode] = useState<'grid' | 'reels' | 'quests'>('grid');
-  // Mock learning data
+  const [viewMode, setViewMode] = useState<'grid' | 'courses' | 'reels' | 'quests'>('grid');
+  const [enrolledCourses, setEnrolledCourses] = useState<string[]>(['1', '3']);
+  const [completedLessons, setCompletedLessons] = useState<{[key: string]: string[]}>({
+    '1': ['1-1', '1-2'],
+    '3': ['3-1']
+  });
+  const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+  // Handler functions for course interactions
+  const handleEnrollCourse = (courseId: string) => {
+    setEnrolledCourses(prev => [...prev, courseId]);
+    console.log('Enrolled in course:', courseId);
+  };
+
+  const handleStartLesson = (courseId: string, lessonId: string) => {
+    console.log('Starting lesson:', lessonId, 'in course:', courseId);
+  };
+
+  const handleCompleteLesson = (courseId: string, lessonId: string) => {
+    setCompletedLessons(prev => ({
+      ...prev,
+      [courseId]: [...(prev[courseId] || []), lessonId]
+    }));
+    console.log('Completed lesson:', lessonId, 'in course:', courseId);
+  };
+
+  // Handler functions for quest interactions
+  const handleStartQuest = (questId: string) => {
+    console.log('Starting quest:', questId);
+  };
+
+  const handleCompleteQuest = (questId: string) => {
+    setCompletedQuests(prev => [...prev, questId]);
+    console.log('Completed quest:', questId);
+  };
+
+  // Update courses with enrollment and completion status
+  const updatedCourses = sampleCourses.map(course => ({
+    ...course,
+    isEnrolled: enrolledCourses.includes(course.id),
+    lessons: course.lessons.map(lesson => ({
+      ...lesson,
+      isCompleted: completedLessons[course.id]?.includes(lesson.id) || false,
+      isLocked: lesson.id !== course.lessons[0].id && 
+                !completedLessons[course.id]?.includes(course.lessons[course.lessons.findIndex(l => l.id === lesson.id) - 1]?.id)
+    })),
+    progress: course.lessons.length > 0 ? 
+      Math.round(((completedLessons[course.id]?.length || 0) / course.lessons.length) * 100) : 0
+  }));
+
+  // Update quests with completion status
+  const updatedQuests = sampleQuests.map(quest => ({
+    ...quest,
+    isCompleted: completedQuests.includes(quest.id)
+  }));
   const subjects = [
     {
       id: 1,
@@ -182,6 +236,15 @@ export default function LearnPage() {
                 className={viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-light-gray'}
               >
                 <BookOpen className="h-4 w-4 mr-2" />
+                Subjects
+              </Button>
+              <Button
+                variant={viewMode === 'courses' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('courses')}
+                className={viewMode === 'courses' ? 'bg-neon-green text-black' : 'text-light-gray'}
+              >
+                <GraduationCap className="h-4 w-4 mr-2" />
                 Courses
               </Button>
               <Button
@@ -197,7 +260,7 @@ export default function LearnPage() {
                 variant={viewMode === 'quests' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('quests')}
-                className={viewMode === 'quests' ? 'bg-neon-green text-black' : 'text-light-gray'}
+                className={viewMode === 'quests' ? 'bg-cyber-yellow text-black' : 'text-light-gray'}
               >
                 <Sword className="h-4 w-4 mr-2" />
                 Quests
@@ -263,9 +326,13 @@ export default function LearnPage() {
                                 <Badge variant="outline" className="border-primary/50 text-primary">
                                   {subject.courses} Courses
                                 </Badge>
-                                <Button size="sm" className="bg-primary text-primary-foreground">
+                                <Button 
+                                  size="sm" 
+                                  className="bg-primary text-primary-foreground"
+                                  onClick={() => setViewMode('courses')}
+                                >
                                   <Play className="h-4 w-4 mr-1" />
-                                  Continue
+                                  Explore
                                 </Button>
                               </div>
                             </>
@@ -337,7 +404,10 @@ export default function LearnPage() {
                             </div>
                           </div>
                           
-                          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 ml-6">
+                          <Button 
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 ml-6"
+                            onClick={() => setViewMode('quests')}
+                          >
                             <Play className="h-4 w-4 mr-2" />
                             Start Quest
                           </Button>
@@ -347,6 +417,26 @@ export default function LearnPage() {
                   </div>
                 </motion.div>
               </>
+            ) : viewMode === 'courses' ? (
+              /* Course System View */
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="text-center mb-6">
+                  <h2 className="text-3xl font-heading font-bold text-neon-green mb-2">Course Catalog</h2>
+                  <p className="font-paragraph text-light-gray">
+                    Structured learning paths with interactive lessons and assessments
+                  </p>
+                </div>
+                <CourseSystem 
+                  courses={updatedCourses}
+                  onEnrollCourse={handleEnrollCourse}
+                  onStartLesson={handleStartLesson}
+                  onCompleteLesson={handleCompleteLesson}
+                />
+              </motion.div>
             ) : viewMode === 'reels' ? (
               /* Anime Reels View */
               <motion.div
@@ -393,7 +483,7 @@ export default function LearnPage() {
                       className="border-primary text-primary"
                     >
                       <BookOpen className="h-4 w-4 mr-2" />
-                      Switch to Course View
+                      Switch to Subject View
                     </Button>
                   </div>
                 </div>
@@ -406,15 +496,15 @@ export default function LearnPage() {
                 transition={{ duration: 0.6 }}
               >
                 <div className="text-center mb-6">
-                  <h2 className="text-3xl font-heading font-bold text-neon-green mb-2">Quest System</h2>
+                  <h2 className="text-3xl font-heading font-bold text-cyber-yellow mb-2">Quest System</h2>
                   <p className="font-paragraph text-light-gray">
                     Embark on epic learning adventures and defeat knowledge bosses
                   </p>
                 </div>
                 <QuestSystem 
-                  quests={sampleQuests}
-                  onStartQuest={(questId) => console.log('Starting quest:', questId)}
-                  onCompleteQuest={(questId) => console.log('Completing quest:', questId)}
+                  quests={updatedQuests}
+                  onStartQuest={handleStartQuest}
+                  onCompleteQuest={handleCompleteQuest}
                 />
               </motion.div>
             )}
@@ -477,9 +567,9 @@ export default function LearnPage() {
                 <h3 className="text-xl font-heading font-bold text-foreground mb-4">Your Progress</h3>
                 <div className="space-y-4">
                   {[
-                    { label: 'Courses Completed', value: '23', color: 'text-primary' },
-                    { label: 'Quests Finished', value: '156', color: 'text-secondary' },
-                    { label: 'Boss Battles Won', value: '12', color: 'text-neon-green' },
+                    { label: 'Courses Enrolled', value: enrolledCourses.length.toString(), color: 'text-primary' },
+                    { label: 'Lessons Completed', value: Object.values(completedLessons).flat().length.toString(), color: 'text-secondary' },
+                    { label: 'Quests Finished', value: completedQuests.length.toString(), color: 'text-neon-green' },
                     { label: 'Study Streak', value: '15 days', color: 'text-cyber-yellow' }
                   ].map((stat, index) => (
                     <div key={index} className="flex items-center justify-between">
@@ -500,22 +590,25 @@ export default function LearnPage() {
               <Card className="bg-dark-gray border-primary/20 p-6">
                 <h3 className="text-xl font-heading font-bold text-foreground mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  <Link to="/quiz">
-                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                      <Target className="h-4 w-4 mr-2" />
-                      Random Quiz
-                    </Button>
-                  </Link>
+                  <Button 
+                    onClick={() => setViewMode('courses')}
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Target className="h-4 w-4 mr-2" />
+                    Browse Courses
+                  </Button>
+                  <Button 
+                    onClick={() => setViewMode('quests')}
+                    variant="outline" 
+                    className="w-full border-secondary text-secondary hover:bg-secondary/10"
+                  >
+                    <Trophy className="h-4 w-4 mr-2" />
+                    Start Quest
+                  </Button>
                   <Link to="/battle">
-                    <Button variant="outline" className="w-full border-secondary text-secondary hover:bg-secondary/10">
-                      <Trophy className="h-4 w-4 mr-2" />
-                      Battle Arena
-                    </Button>
-                  </Link>
-                  <Link to="/study-groups">
                     <Button variant="outline" className="w-full border-neon-green text-neon-green hover:bg-neon-green/10">
                       <Users className="h-4 w-4 mr-2" />
-                      Study Groups
+                      Battle Arena
                     </Button>
                   </Link>
                 </div>
