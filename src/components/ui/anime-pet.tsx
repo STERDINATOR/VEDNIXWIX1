@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { geminiAI, type PetResponse } from '@/lib/gemini-ai';
 import { 
   Heart, 
   Droplets, 
@@ -22,7 +23,8 @@ import {
   Zap,
   Star,
   Gift,
-  Sparkles
+  Sparkles,
+  Brain
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Image } from '@/components/ui/image';
 import { AnimeCharacterGenerator } from '@/components/ui/anime-character-generator';
+import { geminiAI, type CharacterPersonality, type MentorResponse } from '@/lib/gemini-ai';
 import { 
   Mic, 
   MicOff, 
@@ -22,7 +23,9 @@ import {
   VolumeX,
   Sparkles,
   Save,
-  RotateCcw
+  RotateCcw,
+  Brain,
+  Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -54,12 +57,17 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
   const [isListening, setIsListening] = useState(false);
   const [showCharacterGenerator, setShowCharacterGenerator] = useState(false);
   const [selectedMentor, setSelectedMentor] = useState<any>(null);
+  const [isAIThinking, setIsAIThinking] = useState(false);
+  const [aiServiceStatus, setAIServiceStatus] = useState<any>(null);
   const recognitionRef = useRef<any>(null);
   const [chatHistory, setChatHistory] = useState<Array<{
     id: string;
     sender: 'user' | 'mentor';
     message: string;
     timestamp: Date;
+    emotion?: string;
+    actionSuggestion?: string;
+    studyTip?: string;
   }>>([]);
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -115,6 +123,10 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
   };
 
   useEffect(() => {
+    // Initialize Gemini AI service status
+    const status = geminiAI.getServiceStatus();
+    setAIServiceStatus(status);
+    
     // Initialize speech recognition with error handling
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       try {
@@ -147,15 +159,16 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     }
   }, []);
 
-  const startCall = () => {
+  const startCall = async () => {
     setIsCallActive(true);
     // Simulate mentor greeting with personalized message
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsMentorSpeaking(true);
       const greeting = userCharacter 
         ? `Hello! I'm ${mentor.name}, your personal AI mentor. ${userCharacter.personality?.catchphrase || 'Ready to learn together?'} How can I help you with your studies today?`
         : "Hello! I'm Akira, your personal AI mentor. How can I help you with your studies today?";
-      addMentorMessage(greeting);
+      
+      await addMentorMessage(greeting, false);
       setTimeout(() => setIsMentorSpeaking(false), 4000);
     }, 1000);
   };
@@ -189,19 +202,44 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     }
   };
 
-  const addMentorMessage = (message: string) => {
+  const addMentorMessage = async (message: string, isAIGenerated: boolean = false) => {
+    let mentorResponse: MentorResponse | null = null;
+    
+    if (isAIGenerated && aiServiceStatus?.available) {
+      try {
+        setIsAIThinking(true);
+        mentorResponse = await geminiAI.generateMentorResponse(
+          message,
+          mentor as unknown as CharacterPersonality,
+          {
+            subject: 'general',
+            difficulty: 'medium',
+            userProgress: 75,
+            recentActivity: 'studying'
+          }
+        );
+        setIsAIThinking(false);
+      } catch (error) {
+        console.error('Error generating AI response:', error);
+        setIsAIThinking(false);
+      }
+    }
+    
     const newMessage = {
       id: Date.now().toString(),
       sender: 'mentor' as const,
-      message,
-      timestamp: new Date()
+      message: mentorResponse?.message || message,
+      timestamp: new Date(),
+      emotion: mentorResponse?.emotion,
+      actionSuggestion: mentorResponse?.actionSuggestion,
+      studyTip: mentorResponse?.studyTip
     };
     setChatHistory(prev => [...prev, newMessage]);
     
     // Simulate text-to-speech with error handling
     if ('speechSynthesis' in window) {
       try {
-        const utterance = new SpeechSynthesisUtterance(message);
+        const utterance = new SpeechSynthesisUtterance(newMessage.message);
         utterance.rate = 0.9;
         utterance.pitch = 1.1;
         utterance.onerror = () => console.log('Speech synthesis failed');
@@ -212,7 +250,7 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     }
   };
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
     
     // Add user message
@@ -224,33 +262,39 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     };
     setChatHistory(prev => [...prev, userMessage]);
     
-    // Simulate AI response with enhanced responses based on character personality
-    setTimeout(() => {
+    // Generate AI response
+    setTimeout(async () => {
       setIsMentorSpeaking(true);
       
-      let responses = [
-        "That's a great question! Let me help you understand this concept better.",
-        "I can see you're making excellent progress. Here's what I suggest...",
-        "Interesting approach! Have you considered this alternative method?",
-        "You're on the right track. Let's dive deeper into this topic.",
-        "Perfect! This reminds me of a similar problem we solved before.",
-        "Great thinking! This concept connects to what we learned earlier.",
-        "I'm impressed by your curiosity. Let's explore this together.",
-        "Excellent question! This is a fundamental concept in this subject."
-      ];
-      
-      // Add personality-specific responses if user character exists
-      if (userCharacter?.personality) {
-        const personalityResponses = [
-          `${userCharacter.personality.catchphrase} Let's tackle this challenge together!`,
-          `As someone with ${userCharacter.personality.trait}, I think you'll find this approach interesting...`,
-          `Your ${userCharacter.personality.trait} nature will help you master this concept quickly!`
+      // Use AI if available, otherwise use fallback responses
+      if (aiServiceStatus?.available) {
+        await addMentorMessage(message, true);
+      } else {
+        // Fallback responses
+        let responses = [
+          "That's a great question! Let me help you understand this concept better.",
+          "I can see you're making excellent progress. Here's what I suggest...",
+          "Interesting approach! Have you considered this alternative method?",
+          "You're on the right track. Let's dive deeper into this topic.",
+          "Perfect! This reminds me of a similar problem we solved before.",
+          "Great thinking! This concept connects to what we learned earlier.",
+          "I'm impressed by your curiosity. Let's explore this together.",
+          "Excellent question! This is a fundamental concept in this subject."
         ];
-        responses = [...responses, ...personalityResponses];
+        
+        // Add personality-specific responses if user character exists
+        if (userCharacter?.personality) {
+          const personalityResponses = [
+            `${userCharacter.personality.catchphrase} Let's tackle this challenge together!`,
+            `As someone with ${userCharacter.personality.trait}, I think you'll find this approach interesting...`,
+            `Your ${userCharacter.personality.trait} nature will help you master this concept quickly!`
+          ];
+          responses = [...responses, ...personalityResponses];
+        }
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        await addMentorMessage(randomResponse, false);
       }
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      addMentorMessage(randomResponse);
       
       setTimeout(() => setIsMentorSpeaking(false), 2000);
     }, 1000);
@@ -301,6 +345,12 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
                   <Badge className="bg-neon-green/20 text-neon-green">
                     <div className="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse" />
                     Live
+                  </Badge>
+                )}
+                {aiServiceStatus?.available && (
+                  <Badge className="bg-primary/20 text-primary">
+                    <Brain className="h-3 w-3 mr-1" />
+                    AI Enhanced
                   </Badge>
                 )}
               </div>
@@ -392,6 +442,14 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
                         <span className="text-white text-sm font-paragraph">Listening...</span>
                       </div>
                     )}
+
+                    {/* AI Thinking Indicator */}
+                    {isAIThinking && (
+                      <div className="absolute top-4 right-4 flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-2">
+                        <Brain className="w-4 h-4 text-primary animate-pulse" />
+                        <span className="text-white text-sm font-paragraph">AI Thinking...</span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -451,6 +509,24 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
                         }`}
                       >
                         <p className="font-paragraph text-sm">{msg.message}</p>
+                        {msg.sender === 'mentor' && msg.actionSuggestion && (
+                          <div className="mt-2 p-2 bg-primary/10 rounded text-xs">
+                            <div className="flex items-center gap-1 mb-1">
+                              <Zap className="h-3 w-3 text-primary" />
+                              <span className="font-bold text-primary">Action:</span>
+                            </div>
+                            <p className="text-light-gray">{msg.actionSuggestion}</p>
+                          </div>
+                        )}
+                        {msg.sender === 'mentor' && msg.studyTip && (
+                          <div className="mt-2 p-2 bg-secondary/10 rounded text-xs">
+                            <div className="flex items-center gap-1 mb-1">
+                              <Brain className="h-3 w-3 text-secondary" />
+                              <span className="font-bold text-secondary">Tip:</span>
+                            </div>
+                            <p className="text-light-gray">{msg.studyTip}</p>
+                          </div>
+                        )}
                         <p className="text-xs opacity-70 mt-1">
                           {msg.timestamp.toLocaleTimeString()}
                         </p>

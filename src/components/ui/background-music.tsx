@@ -17,35 +17,35 @@ const cyberpunkTracks: Track[] = [
     id: '1',
     title: 'Neon Dreams',
     artist: 'Cyber Synthwave',
-    src: 'https://static.wixstatic.com/media/c5b305_neon_dreams_cyberpunk_music~mv2.mp3?id=neon-dreams-track',
+    src: 'https://static.wixstatic.com/media/c5b305_38c3e974c27f4d5c9792d5ff67396d9c~mv2.png?originWidth=256&originHeight=256',
     duration: 180
   },
   {
     id: '2',
     title: 'Digital Awakening',
     artist: 'Future Bass Collective',
-    src: 'https://static.wixstatic.com/media/c5b305_digital_awakening_synthwave~mv2.mp3?id=digital-awakening-track',
+    src: 'https://static.wixstatic.com/media/c5b305_4be442bf6f5248198acedc547435fba1~mv2.png?originWidth=256&originHeight=256',
     duration: 210
   },
   {
     id: '3',
     title: 'Matrix Code',
     artist: 'Synthwave Academy',
-    src: 'https://static.wixstatic.com/media/c5b305_matrix_code_electronic~mv2.mp3?id=matrix-code-track',
+    src: 'https://static.wixstatic.com/media/c5b305_33a394de30c04a18900d8b8248088782~mv2.png?originWidth=256&originHeight=256',
     duration: 195
   },
   {
     id: '4',
     title: 'Anime Nights',
     artist: 'Lo-Fi Cyberpunk',
-    src: 'https://static.wixstatic.com/media/c5b305_anime_nights_lofi~mv2.mp3?id=anime-nights-track',
+    src: 'https://static.wixstatic.com/media/c5b305_4f2af35478fe417ca1f99ca9559d2ba9~mv2.png?originWidth=256&originHeight=256',
     duration: 165
   },
   {
     id: '5',
     title: 'Cyber Academy',
     artist: 'VEDNIX Soundtrack',
-    src: 'https://static.wixstatic.com/media/c5b305_cyber_academy_theme~mv2.mp3?id=cyber-academy-track',
+    src: 'https://static.wixstatic.com/media/c5b305_86642379aed043d3a6f79bf0f135d6cb~mv2.png?originWidth=256&originHeight=256',
     duration: 220
   }
 ];
