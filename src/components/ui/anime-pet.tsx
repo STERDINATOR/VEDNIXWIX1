@@ -106,6 +106,7 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
   ]);
 
   const [isTyping, setIsTyping] = useState(false);
+  const [petInteractionCount, setPetInteractionCount] = useState(0);
 
   // Pet animations and behaviors
   const [petAnimation, setPetAnimation] = useState<'idle' | 'happy' | 'sleeping' | 'alert' | 'excited'>('idle');
@@ -184,38 +185,70 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
     setIsTyping(true);
     setPetAnimation('alert');
 
-    // Generate pet response
-    setTimeout(() => {
+    // Generate enhanced AI pet response
+    setTimeout(async () => {
       setIsTyping(false);
       setPetAnimation('happy');
       
-      const responses = [
-        "That's a great question! Let me think... 🤔",
-        "I'm here to help! Based on what you're asking, I'd suggest... 💡",
-        "You're so curious! I love that about you! Here's what I think... ✨",
-        "Hmm, that reminds me of something I learned recently... 🧠",
-        "Great point! You know, when I was helping other students... 🎓",
-        "I'm proud of how hard you're working! For this question... 🌟"
-      ];
-
-      const specificResponses: Record<string, string> = {
-        'water': "You should drink water every 30-60 minutes while studying! It helps your brain function better! 💧",
-        'break': "Take a 5-10 minute break every hour. Try the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds! 👀",
-        'tired': "Feeling tired? Try some light stretching or a quick walk. Fresh air works wonders! 🚶‍♀️",
-        'stuck': "When you're stuck, try explaining the problem out loud to me! Sometimes talking through it helps! 🗣️",
-        'motivation': "Remember why you started! Every small step forward is progress. You're doing amazing! 🌟",
-        'help': "I'm here to remind you to stay healthy, take breaks, and keep motivated! What specific help do you need? 🤗"
-      };
-
-      let response = responses[Math.floor(Math.random() * responses.length)];
+      let response = '';
       
-      // Check for specific keywords
-      const lowerMessage = message.toLowerCase();
-      for (const [keyword, specificResponse] of Object.entries(specificResponses)) {
-        if (lowerMessage.includes(keyword)) {
-          response = specificResponse;
-          break;
+      // Check if Gemini AI is available
+      const aiServiceStatus = geminiAI.getServiceStatus();
+      
+      if (aiServiceStatus.available) {
+        try {
+          // Enhanced context for AI pet response
+          const enhancedContext = {
+            studyTime: Math.floor(Date.now() / 60000) % 120, // Mock study time
+            lastBreak: Math.floor(Math.random() * 60),
+            mood: 'curious',
+            timeOfDay: new Date().toLocaleTimeString(),
+            userActivity: 'studying',
+            petStats: stats,
+            environmentalFactors: {
+              weather: 'clear',
+              season: 'spring',
+              userStressLevel: stats.happiness > 80 ? 'low' : stats.happiness > 50 ? 'medium' : 'high' as 'low' | 'medium' | 'high'
+            }
+          };
+          
+          const aiResponse = await geminiAI.generatePetResponse(
+            message,
+            {
+              name: pet.name,
+              type: pet.type,
+              personality: pet.personality,
+              level: pet.level,
+              mood: petAnimation
+            },
+            enhancedContext
+          );
+          
+          response = aiResponse.message;
+          
+          // Update pet stats based on AI response mood
+          if (aiResponse.mood === 'excited' || aiResponse.mood === 'playful') {
+            setStats(prev => ({
+              ...prev,
+              happiness: Math.min(100, prev.happiness + 3),
+              energy: Math.min(100, prev.energy + 2)
+            }));
+          } else if (aiResponse.mood === 'caring') {
+            setStats(prev => ({
+              ...prev,
+              health: Math.min(100, prev.health + 2),
+              intelligence: Math.min(100, prev.intelligence + 1)
+            }));
+          }
+          
+        } catch (error) {
+          console.error('Error generating AI pet response:', error);
+          // Fall back to default responses
+          response = getDefaultPetResponse(message);
         }
+      } else {
+        // Use default responses when AI is not available
+        response = getDefaultPetResponse(message);
       }
 
       const petMessage = {
@@ -233,6 +266,39 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
         intelligence: Math.min(100, prev.intelligence + 1)
       }));
     }, 1500);
+  };
+
+  // Helper function for default pet responses
+  const getDefaultPetResponse = (message: string): string => {
+    const lowerMessage = message.toLowerCase();
+    
+    const specificResponses: Record<string, string> = {
+      'water': "*gentle purr* You should drink water every 30-60 minutes while studying! It helps your brain function better! 💧",
+      'break': "*stretches paws* Take a 5-10 minute break every hour. Try the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds! 👀",
+      'tired': "*concerned meow* Feeling tired? Try some light stretching or a quick walk. Fresh air works wonders! 🚶‍♀️",
+      'stuck': "*encouraging chirp* When you're stuck, try explaining the problem out loud to me! Sometimes talking through it helps! 🗣️",
+      'motivation': "*proud purr* Remember why you started! Every small step forward is progress. You're doing amazing! 🌟",
+      'help': "*happy wiggle* I'm here to remind you to stay healthy, take breaks, and keep motivated! What specific help do you need? 🤗"
+    };
+
+    // Check for specific keywords
+    for (const [keyword, specificResponse] of Object.entries(specificResponses)) {
+      if (lowerMessage.includes(keyword)) {
+        return specificResponse;
+      }
+    }
+
+    // Default responses based on pet stats and mood
+    const responses = [
+      "*purrs contentedly* You're doing such a great job! I'm so proud of your dedication.",
+      "*bounces with excitement* Learning together is the best! You make studying fun!",
+      "*nuzzles gently* I can feel your determination. You're going to achieve amazing things!",
+      "*stretches and yawns* Remember to take care of yourself while you learn. Health is important too!",
+      "*playful chirp* Your brain is getting stronger every day! Keep up the fantastic work!",
+      "*gentle head tilt* I believe in you completely. You have everything it takes to succeed!"
+    ];
+
+    return responses[Math.floor(Math.random() * responses.length)];
   };
 
   const feedPet = () => {

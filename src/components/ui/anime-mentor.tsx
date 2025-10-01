@@ -68,6 +68,8 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     emotion?: string;
     actionSuggestion?: string;
     studyTip?: string;
+    personalizedAdvice?: string;
+    motivationalQuote?: string;
   }>>([]);
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -215,7 +217,15 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
             subject: 'general',
             difficulty: 'medium',
             userProgress: 75,
-            recentActivity: 'studying'
+            recentActivity: 'studying',
+            userMood: isMentorSpeaking ? 'engaged' : 'curious',
+            timeOfDay: new Date().toLocaleTimeString(),
+            studySession: {
+              duration: Math.floor(Date.now() / 60000) % 60, // Mock session duration
+              questionsAnswered: chatHistory.filter(msg => msg.sender === 'user').length,
+              correctAnswers: Math.floor(chatHistory.filter(msg => msg.sender === 'user').length * 0.8),
+              streak: 5
+            }
           }
         );
         setIsAIThinking(false);
@@ -232,7 +242,9 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
       timestamp: new Date(),
       emotion: mentorResponse?.emotion,
       actionSuggestion: mentorResponse?.actionSuggestion,
-      studyTip: mentorResponse?.studyTip
+      studyTip: mentorResponse?.studyTip,
+      personalizedAdvice: mentorResponse?.personalizedAdvice,
+      motivationalQuote: mentorResponse?.motivationalQuote
     };
     setChatHistory(prev => [...prev, newMessage]);
     

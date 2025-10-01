@@ -21,20 +21,25 @@ interface CharacterPersonality {
   expertise: string[];
   catchphrase: string;
   trait: string;
+  backstory?: string;
 }
 
 interface MentorResponse {
   message: string;
-  emotion: 'happy' | 'encouraging' | 'thoughtful' | 'excited' | 'supportive';
+  emotion: 'happy' | 'encouraging' | 'thoughtful' | 'excited' | 'supportive' | 'concerned' | 'proud' | 'curious' | 'empathetic';
   actionSuggestion?: string;
   studyTip?: string;
+  personalizedAdvice?: string;
+  motivationalQuote?: string;
 }
 
 interface PetResponse {
   message: string;
-  mood: 'playful' | 'caring' | 'energetic' | 'sleepy' | 'excited';
+  mood: 'playful' | 'caring' | 'energetic' | 'sleepy' | 'excited' | 'concerned' | 'proud' | 'curious' | 'affectionate';
   reminder?: string;
   healthTip?: string;
+  encouragement?: string;
+  activitySuggestion?: string;
 }
 
 class GeminiAIService {
@@ -69,6 +74,8 @@ class GeminiAIService {
     subject?: string;
     learningStyle?: string;
     personality?: string;
+    userLevel?: number;
+    userInterests?: string[];
   }): Promise<CharacterPersonality> {
     if (!this.isAvailable) {
       return this.getFallbackCharacter(preferences);
@@ -79,16 +86,21 @@ class GeminiAIService {
       - Subject focus: ${preferences.subject || 'general'}
       - Learning style: ${preferences.learningStyle || 'supportive'}
       - Personality type: ${preferences.personality || 'wise'}
+      - User level: ${preferences.userLevel || 'beginner'}
+      - User interests: ${preferences.userInterests?.join(', ') || 'technology, learning'}
       
-      Generate a character with:
-      - A unique Japanese name
-      - Personality description (2-3 sentences)
-      - Voice type (gentle/energetic/wise/friendly)
-      - 3-4 areas of expertise
-      - A memorable catchphrase
-      - A defining personality trait
+      Generate a character that would be perfect for this user's learning journey:
+      - A unique Japanese name that reflects their expertise
+      - Rich personality description (3-4 sentences) that shows depth and relatability
+      - Voice type (gentle/energetic/wise/friendly) that matches the user's learning style
+      - 3-4 areas of expertise that align with user interests
+      - A memorable catchphrase that's motivational and character-specific
+      - A defining personality trait that makes them unique
+      - Background story snippet that explains their teaching philosophy
       
-      Format as JSON with keys: name, personality, voiceType, expertise, catchphrase, trait`;
+      Make the character feel alive, with quirks and depth that would make learning engaging.
+      
+      Format as JSON with keys: name, personality, voiceType, expertise, catchphrase, trait, backstory`;
 
       // Simulate AI response (in real implementation, this would call Gemini API)
       const aiResponse = await this.simulateGeminiResponse(prompt);
@@ -109,6 +121,14 @@ class GeminiAIService {
       difficulty?: string;
       userProgress?: number;
       recentActivity?: string;
+      userMood?: string;
+      timeOfDay?: string;
+      studySession?: {
+        duration: number;
+        questionsAnswered: number;
+        correctAnswers: number;
+        streak: number;
+      };
     }
   ): Promise<MentorResponse> {
     if (!this.isAvailable) {
@@ -116,20 +136,42 @@ class GeminiAIService {
     }
 
     try {
+      const timeContext = context.timeOfDay ? `Current time: ${context.timeOfDay}` : '';
+      const moodContext = context.userMood ? `User seems: ${context.userMood}` : '';
+      const sessionContext = context.studySession ? 
+        `Study session: ${context.studySession.duration}min, ${context.studySession.correctAnswers}/${context.studySession.questionsAnswered} correct, ${context.studySession.streak} streak` : '';
+
       const prompt = `You are ${character.name}, an AI mentor with this personality: ${character.personality}
       Your catchphrase is: "${character.catchphrase}"
       Your expertise: ${character.expertise.join(', ')}
+      Your trait: ${character.trait}
       
       User said: "${userMessage}"
-      Context: Subject: ${context.subject || 'general'}, Difficulty: ${context.difficulty || 'medium'}, Progress: ${context.userProgress || 0}%
       
-      Respond as this character would, providing:
-      - A helpful, encouraging message (2-3 sentences)
-      - An emotion (happy/encouraging/thoughtful/excited/supportive)
-      - Optional action suggestion
-      - Optional study tip
+      Context:
+      - Subject: ${context.subject || 'general'}
+      - Difficulty: ${context.difficulty || 'medium'}
+      - Progress: ${context.userProgress || 0}%
+      - Recent activity: ${context.recentActivity || 'studying'}
+      ${timeContext}
+      ${moodContext}
+      ${sessionContext}
       
-      Stay in character and be supportive. Format as JSON with keys: message, emotion, actionSuggestion, studyTip`;
+      As ${character.name}, provide a response that:
+      1. Reflects your unique personality and speaking style
+      2. Addresses the user's specific question or concern
+      3. Considers their current context and mood
+      4. Offers practical, actionable advice
+      5. Maintains an encouraging but authentic tone
+      6. Uses your expertise to provide valuable insights
+      
+      Respond with:
+      - A personalized, contextual message (2-4 sentences) that feels natural to your character
+      - An emotion that matches the situation (happy/encouraging/thoughtful/excited/supportive/concerned/proud)
+      - An actionable suggestion tailored to their current situation
+      - A study tip that relates to their specific context
+      
+      Format as JSON with keys: message, emotion, actionSuggestion, studyTip`;
 
       const aiResponse = await this.simulateGeminiResponse(prompt);
       return this.parseMentorResponse(aiResponse.text) || this.getFallbackMentorResponse(userMessage, character);
@@ -146,11 +188,26 @@ class GeminiAIService {
       name: string;
       type: string;
       personality: string;
+      level?: number;
+      mood?: string;
     },
     context: {
       studyTime?: number;
       lastBreak?: number;
       mood?: string;
+      timeOfDay?: string;
+      userActivity?: string;
+      petStats?: {
+        happiness: number;
+        energy: number;
+        health: number;
+        intelligence: number;
+      };
+      environmentalFactors?: {
+        weather?: string;
+        season?: string;
+        userStressLevel?: 'low' | 'medium' | 'high';
+      };
     }
   ): Promise<PetResponse> {
     if (!this.isAvailable) {
@@ -158,18 +215,43 @@ class GeminiAIService {
     }
 
     try {
+      const timeContext = context.timeOfDay ? `Time: ${context.timeOfDay}` : '';
+      const activityContext = context.userActivity ? `User is: ${context.userActivity}` : '';
+      const statsContext = context.petStats ? 
+        `Pet stats - Happiness: ${context.petStats.happiness}%, Energy: ${context.petStats.energy}%, Health: ${context.petStats.health}%, Intelligence: ${context.petStats.intelligence}%` : '';
+      const environmentContext = context.environmentalFactors ? 
+        `Environment - Weather: ${context.environmentalFactors.weather || 'unknown'}, User stress: ${context.environmentalFactors.userStressLevel || 'medium'}` : '';
+
       const prompt = `You are ${petPersonality.name}, a ${petPersonality.type} study companion with personality: ${petPersonality.personality}
+      ${petPersonality.level ? `You are level ${petPersonality.level}` : ''}
+      ${petPersonality.mood ? `Current mood: ${petPersonality.mood}` : ''}
       
       User interaction: "${interaction}"
-      Context: Study time: ${context.studyTime || 0} minutes, Last break: ${context.lastBreak || 0} minutes ago, Mood: ${context.mood || 'neutral'}
       
-      Respond as this pet would, providing:
-      - A caring, supportive message (1-2 sentences)
-      - A mood (playful/caring/energetic/sleepy/excited)
-      - Optional reminder about health/breaks
-      - Optional health tip
+      Context:
+      - Study time: ${context.studyTime || 0} minutes
+      - Last break: ${context.lastBreak || 0} minutes ago
+      - User mood: ${context.mood || 'neutral'}
+      ${timeContext}
+      ${activityContext}
+      ${statsContext}
+      ${environmentContext}
       
-      Be cute, supportive, and focused on the user's wellbeing. Format as JSON with keys: message, mood, reminder, healthTip`;
+      As ${petPersonality.name}, respond with:
+      1. A caring, supportive message that reflects your pet type and personality
+      2. Consider the user's study patterns and current state
+      3. Provide helpful reminders based on their activity
+      4. Show personality traits specific to your type (${petPersonality.type})
+      5. Be cute and endearing while being genuinely helpful
+      
+      Respond with:
+      - A caring message (1-2 sentences) with pet-like expressions and personality
+      - A mood that matches the situation (playful/caring/energetic/sleepy/excited/concerned/proud)
+      - A health/study reminder if appropriate
+      - A helpful tip related to wellbeing or productivity
+      
+      Use pet-like expressions like *purrs*, *wags tail*, *chirps*, etc. based on your type.
+      Format as JSON with keys: message, mood, reminder, healthTip`;
 
       const aiResponse = await this.simulateGeminiResponse(prompt);
       return this.parsePetResponse(aiResponse.text) || this.getFallbackPetResponse(interaction, petPersonality);
@@ -185,7 +267,7 @@ class GeminiAIService {
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
     
     // In a real implementation, this would make an actual API call to Gemini
-    // For now, we'll return structured fallback responses based on the prompt
+    // For now, we'll return more sophisticated structured responses based on the prompt
     
     if (prompt.includes('Create a unique Japanese anime character')) {
       return {
@@ -202,26 +284,50 @@ class GeminiAIService {
     }
     
     if (prompt.includes('You are') && prompt.includes('mentor')) {
+      // Enhanced mentor responses based on context
+      const isEncouraging = prompt.includes('struggling') || prompt.includes('difficult') || prompt.includes('hard');
+      const isExcited = prompt.includes('breakthrough') || prompt.includes('success') || prompt.includes('achievement');
+      const isThoughtful = prompt.includes('question') || prompt.includes('concept') || prompt.includes('understand');
+      
+      let emotion = 'supportive';
+      if (isEncouraging) emotion = 'encouraging';
+      if (isExcited) emotion = 'excited';
+      if (isThoughtful) emotion = 'thoughtful';
+      
       return {
         text: JSON.stringify({
-          message: this.getRandomMentorMessage(),
-          emotion: this.getRandomEmotion(),
-          actionSuggestion: this.getRandomActionSuggestion(),
-          studyTip: this.getRandomStudyTip()
+          message: this.getContextualMentorMessage(prompt),
+          emotion: emotion,
+          actionSuggestion: this.getContextualActionSuggestion(prompt),
+          studyTip: this.getContextualStudyTip(prompt),
+          personalizedAdvice: this.getPersonalizedAdvice(prompt),
+          motivationalQuote: this.getMotivationalQuote(prompt)
         }),
-        confidence: 0.80
+        confidence: 0.85
       };
     }
     
     if (prompt.includes('study companion')) {
+      // Enhanced pet responses based on context
+      const isPlayful = prompt.includes('play') || prompt.includes('fun') || prompt.includes('game');
+      const isCaring = prompt.includes('tired') || prompt.includes('stress') || prompt.includes('break');
+      const isEnergetic = prompt.includes('energy') || prompt.includes('excited') || prompt.includes('motivated');
+      
+      let mood = 'caring';
+      if (isPlayful) mood = 'playful';
+      if (isCaring) mood = 'caring';
+      if (isEnergetic) mood = 'energetic';
+      
       return {
         text: JSON.stringify({
-          message: this.getRandomPetMessage(),
-          mood: this.getRandomPetMood(),
-          reminder: this.getRandomReminder(),
-          healthTip: this.getRandomHealthTip()
+          message: this.getContextualPetMessage(prompt),
+          mood: mood,
+          reminder: this.getContextualReminder(prompt),
+          healthTip: this.getContextualHealthTip(prompt),
+          encouragement: this.getPetEncouragement(prompt),
+          activitySuggestion: this.getPetActivitySuggestion(prompt)
         }),
-        confidence: 0.75
+        confidence: 0.80
       };
     }
     
@@ -471,6 +577,332 @@ class GeminiAIService {
       'Take regular breaks to prevent mental fatigue'
     ];
     return tips[Math.floor(Math.random() * tips.length)];
+  }
+
+  // Enhanced contextual response generators with additional helper methods
+  private getPersonalizedAdvice(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('programming') || lowerPrompt.includes('code')) {
+      const programmingAdvice = [
+        'Consider joining coding communities like GitHub or Stack Overflow to learn from others',
+        'Build a portfolio of projects that showcase your growing skills',
+        'Practice pair programming with friends to learn collaborative coding',
+        'Set up a consistent coding environment and learn keyboard shortcuts for efficiency'
+      ];
+      return programmingAdvice[Math.floor(Math.random() * programmingAdvice.length)];
+    }
+    
+    if (lowerPrompt.includes('math') || lowerPrompt.includes('calculation')) {
+      const mathAdvice = [
+        'Keep a math journal to track your problem-solving strategies and insights',
+        'Form study groups to discuss different approaches to complex problems',
+        'Use online tools like Desmos or GeoGebra to visualize mathematical concepts',
+        'Connect math to your interests - find applications in music, art, or sports'
+      ];
+      return mathAdvice[Math.floor(Math.random() * mathAdvice.length)];
+    }
+    
+    const generalAdvice = [
+      'Create a dedicated study space that inspires focus and creativity',
+      'Set specific, achievable goals for each study session',
+      'Reward yourself for reaching milestones to maintain motivation',
+      'Track your progress visually to see how far you\'ve come'
+    ];
+    return generalAdvice[Math.floor(Math.random() * generalAdvice.length)];
+  }
+
+  private getMotivationalQuote(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('struggling') || lowerPrompt.includes('difficult')) {
+      const encouragingQuotes = [
+        '"The expert in anything was once a beginner." - Helen Hayes',
+        '"Success is not final, failure is not fatal: it is the courage to continue that counts." - Winston Churchill',
+        '"It does not matter how slowly you go as long as you do not stop." - Confucius',
+        '"Believe you can and you\'re halfway there." - Theodore Roosevelt'
+      ];
+      return encouragingQuotes[Math.floor(Math.random() * encouragingQuotes.length)];
+    }
+    
+    if (lowerPrompt.includes('success') || lowerPrompt.includes('achievement')) {
+      const successQuotes = [
+        '"Success is the sum of small efforts repeated day in and day out." - Robert Collier',
+        '"The future belongs to those who believe in the beauty of their dreams." - Eleanor Roosevelt',
+        '"Excellence is not a skill, it\'s an attitude." - Ralph Marston',
+        '"Your limitation—it\'s only your imagination."'
+      ];
+      return successQuotes[Math.floor(Math.random() * successQuotes.length)];
+    }
+    
+    const generalQuotes = [
+      '"Learning never exhausts the mind." - Leonardo da Vinci',
+      '"The beautiful thing about learning is that no one can take it away from you." - B.B. King',
+      '"Education is the most powerful weapon which you can use to change the world." - Nelson Mandela',
+      '"Live as if you were to die tomorrow. Learn as if you were to live forever." - Mahatma Gandhi'
+    ];
+    return generalQuotes[Math.floor(Math.random() * generalQuotes.length)];
+  }
+  private getContextualMentorMessage(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('struggling') || lowerPrompt.includes('difficult')) {
+      const encouragingMessages = [
+        "I can see you're facing a challenge, but remember - every expert was once a beginner. Let's break this down together step by step.",
+        "Difficulties are just opportunities in disguise! Your persistence shows real character, and I believe in your ability to overcome this.",
+        "I understand this feels overwhelming right now. Take a deep breath - we'll tackle this systematically and you'll master it.",
+        "Struggling is part of learning! Your brain is literally rewiring itself right now. That's incredible progress, even if it doesn't feel like it."
+      ];
+      return encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
+    }
+    
+    if (lowerPrompt.includes('success') || lowerPrompt.includes('achievement') || lowerPrompt.includes('completed')) {
+      const celebratoryMessages = [
+        "Outstanding work! Your dedication is paying off beautifully. I'm genuinely proud of how far you've come!",
+        "Incredible achievement! You've shown that persistence and smart work lead to real results. Keep this momentum going!",
+        "Fantastic! This success is proof of your growing expertise. You're becoming quite the scholar!",
+        "Brilliant! Your hard work has culminated in this wonderful achievement. You should feel very proud!"
+      ];
+      return celebratoryMessages[Math.floor(Math.random() * celebratoryMessages.length)];
+    }
+    
+    if (lowerPrompt.includes('question') || lowerPrompt.includes('understand') || lowerPrompt.includes('explain')) {
+      const thoughtfulMessages = [
+        "That's an excellent question that shows you're thinking deeply about this concept. Let me help clarify this for you.",
+        "I love your curiosity! This question demonstrates real analytical thinking. Here's how I'd approach this...",
+        "Great question! Understanding comes from asking the right questions, and you're definitely on the right track.",
+        "Your question reveals sophisticated thinking about this topic. Let's explore this concept together."
+      ];
+      return thoughtfulMessages[Math.floor(Math.random() * thoughtfulMessages.length)];
+    }
+    
+    // Default contextual responses
+    return this.getRandomMentorMessage();
+  }
+
+  private getContextualActionSuggestion(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('struggling') || lowerPrompt.includes('difficult')) {
+      const supportiveActions = [
+        'Break this problem into smaller, more manageable pieces and tackle them one at a time',
+        'Try explaining the concept out loud to yourself - this often reveals where understanding breaks down',
+        'Look for patterns or connections to concepts you already understand well',
+        'Take a short break and return with fresh eyes - sometimes distance brings clarity'
+      ];
+      return supportiveActions[Math.floor(Math.random() * supportiveActions.length)];
+    }
+    
+    if (lowerPrompt.includes('success') || lowerPrompt.includes('completed')) {
+      const progressiveActions = [
+        'Build on this success by tackling the next challenge while your confidence is high',
+        'Teach this concept to someone else to reinforce your understanding',
+        'Apply this knowledge to a real-world project or problem',
+        'Reflect on what strategies worked well here and apply them to future learning'
+      ];
+      return progressiveActions[Math.floor(Math.random() * progressiveActions.length)];
+    }
+    
+    return this.getRandomActionSuggestion();
+  }
+
+  private getContextualStudyTip(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('programming') || lowerPrompt.includes('code')) {
+      const codingTips = [
+        'Practice coding daily, even if just for 15 minutes - consistency builds muscle memory',
+        'Read other people\'s code to learn different approaches and best practices',
+        'Debug by explaining your code line-by-line to a rubber duck (or imaginary friend)',
+        'Build small projects to apply concepts in practical, meaningful ways'
+      ];
+      return codingTips[Math.floor(Math.random() * codingTips.length)];
+    }
+    
+    if (lowerPrompt.includes('math') || lowerPrompt.includes('calculation')) {
+      const mathTips = [
+        'Practice mental math daily to build number sense and calculation speed',
+        'Draw diagrams and visual representations to understand abstract concepts',
+        'Work through problems step-by-step and check each step before proceeding',
+        'Connect mathematical concepts to real-world applications you care about'
+      ];
+      return mathTips[Math.floor(Math.random() * mathTips.length)];
+    }
+    
+    if (lowerPrompt.includes('physics') || lowerPrompt.includes('science')) {
+      const scienceTips = [
+        'Visualize concepts with diagrams, animations, or physical demonstrations',
+        'Connect abstract theories to everyday phenomena you can observe',
+        'Practice solving problems with different approaches to deepen understanding',
+        'Explain scientific concepts in simple terms to test your comprehension'
+      ];
+      return scienceTips[Math.floor(Math.random() * scienceTips.length)];
+    }
+    
+    return this.getRandomStudyTip();
+  }
+
+  private getContextualPetMessage(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('tired') || lowerPrompt.includes('stress') || lowerPrompt.includes('overwhelmed')) {
+      const caringMessages = [
+        "*nuzzles gently* I can sense you're feeling overwhelmed. Remember, even the strongest warriors need rest. You're doing amazing! 💙",
+        "*purrs softly* Your energy feels low, dear friend. How about we take a little break together? I'll keep you company! 🐾",
+        "*gentle head bump* I notice you seem stressed. Let's do some deep breathing together - in and out, nice and slow. You've got this! ✨",
+        "*curls up beside you* Feeling tired is your body's way of saying you've been working hard. I'm proud of your dedication! 💕"
+      ];
+      return caringMessages[Math.floor(Math.random() * caringMessages.length)];
+    }
+    
+    if (lowerPrompt.includes('play') || lowerPrompt.includes('fun') || lowerPrompt.includes('game')) {
+      const playfulMessages = [
+        "*bounces excitedly* Yay! Play time! Learning is so much more fun when we make it a game! What shall we explore together? 🎮",
+        "*spins in circles* I love when you're in a playful mood! Your brain learns best when you're having fun! Let's make this awesome! 🌟",
+        "*playful pounce* Games make everything better! Your curiosity and joy are the best learning tools you have! 🎯",
+        "*happy wiggle* Fun time! When we play while learning, our brains create stronger memories. You're so smart! 🎪"
+      ];
+      return playfulMessages[Math.floor(Math.random() * playfulMessages.length)];
+    }
+    
+    if (lowerPrompt.includes('achievement') || lowerPrompt.includes('success') || lowerPrompt.includes('completed')) {
+      const proudMessages = [
+        "*proud purr* You did it! I'm so incredibly proud of you! Your hard work is really paying off! 🏆",
+        "*happy dance* Amazing work! Watching you grow and succeed fills my heart with joy! You're incredible! ⭐",
+        "*excited chirp* Success! Your determination and effort have led to this wonderful moment! Celebrate! 🎉",
+        "*beaming with pride* Look at you go! Every achievement is proof of your amazing potential! I believe in you! 💫"
+      ];
+      return proudMessages[Math.floor(Math.random() * proudMessages.length)];
+    }
+    
+    return this.getRandomPetMessage();
+  }
+
+  private getContextualReminder(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('long') || lowerPrompt.includes('hours') || lowerPrompt.includes('study time')) {
+      const breakReminders = [
+        'You\'ve been studying for a while! Time for a 10-minute break to recharge your brain',
+        'Long study sessions need breaks! How about some fresh air or a quick walk?',
+        'Your brain processes information better with regular breaks. Time to pause and refresh!',
+        'Extended focus is impressive, but your mind needs rest to consolidate learning'
+      ];
+      return breakReminders[Math.floor(Math.random() * breakReminders.length)];
+    }
+    
+    if (lowerPrompt.includes('late') || lowerPrompt.includes('night') || lowerPrompt.includes('evening')) {
+      const sleepReminders = [
+        'It\'s getting late! Your brain consolidates memories during sleep - don\'t skip rest',
+        'Late night studying? Remember that quality sleep is crucial for memory formation',
+        'Evening study sessions are great, but make sure to wind down before bed',
+        'Night owl studying? Just remember your brain needs sleep to process today\'s learning'
+      ];
+      return sleepReminders[Math.floor(Math.random() * sleepReminders.length)];
+    }
+    
+    return this.getRandomReminder();
+  }
+
+  private getContextualHealthTip(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('eyes') || lowerPrompt.includes('screen') || lowerPrompt.includes('computer')) {
+      const eyeCareTips = [
+        'Follow the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds',
+        'Adjust your screen brightness to match your surroundings to reduce eye strain',
+        'Blink frequently and consciously - we blink less when focusing on screens',
+        'Position your screen slightly below eye level and about arm\'s length away'
+      ];
+      return eyeCareTips[Math.floor(Math.random() * eyeCareTips.length)];
+    }
+    
+    if (lowerPrompt.includes('posture') || lowerPrompt.includes('back') || lowerPrompt.includes('sitting')) {
+      const postureTips = [
+        'Keep your feet flat on the floor and your back straight against the chair',
+        'Adjust your chair height so your elbows are at 90 degrees when typing',
+        'Take micro-breaks every 30 minutes to stand and stretch your spine',
+        'Keep your shoulders relaxed and avoid hunching forward toward the screen'
+      ];
+      return postureTips[Math.floor(Math.random() * postureTips.length)];
+    }
+    
+    if (lowerPrompt.includes('stress') || lowerPrompt.includes('anxiety') || lowerPrompt.includes('overwhelmed')) {
+      const stressTips = [
+        'Try the 4-7-8 breathing technique: inhale for 4, hold for 7, exhale for 8',
+        'Progressive muscle relaxation can help release physical tension from studying',
+        'Take a 5-minute mindfulness break to center yourself and reduce stress',
+        'Remember that some stress is normal - you\'re challenging yourself to grow!'
+      ];
+      return stressTips[Math.floor(Math.random() * stressTips.length)];
+    }
+    
+    return this.getRandomHealthTip();
+  }
+
+  // Additional helper methods for enhanced pet responses
+  private getPetEncouragement(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('tired') || lowerPrompt.includes('overwhelmed')) {
+      const encouragements = [
+        'You\'re stronger than you know! Every challenge makes you grow! 💪',
+        'I believe in you completely! Rest when you need to, then keep going! 🌟',
+        'You\'ve overcome difficulties before, and you\'ll do it again! 🦋',
+        'Your determination inspires me every day! You\'ve got this! ⭐'
+      ];
+      return encouragements[Math.floor(Math.random() * encouragements.length)];
+    }
+    
+    if (lowerPrompt.includes('success') || lowerPrompt.includes('achievement')) {
+      const celebrations = [
+        'Your hard work is paying off beautifully! I\'m so proud! 🎉',
+        'Look how far you\'ve come! You\'re amazing! 🏆',
+        'Every success is proof of your incredible potential! 🌈',
+        'You make learning look so graceful! Keep shining! ✨'
+      ];
+      return celebrations[Math.floor(Math.random() * celebrations.length)];
+    }
+    
+    const generalEncouragements = [
+      'You make every day brighter just by being you! 🌞',
+      'Your curiosity and dedication are truly inspiring! 📚',
+      'I love watching you grow and learn! You\'re incredible! 🌱',
+      'Your journey is unique and beautiful! Keep going! 🦋'
+    ];
+    return generalEncouragements[Math.floor(Math.random() * generalEncouragements.length)];
+  }
+
+  private getPetActivitySuggestion(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('break') || lowerPrompt.includes('tired')) {
+      const breakActivities = [
+        'How about a quick dance party? Just 2 minutes of moving to your favorite song!',
+        'Let\'s do some gentle stretches together - reach for the sky like a cat! 🐱',
+        'Time for a mindful breathing exercise - breathe in calm, breathe out stress',
+        'How about looking out the window and naming 5 things you can see in nature?'
+      ];
+      return breakActivities[Math.floor(Math.random() * breakActivities.length)];
+    }
+    
+    if (lowerPrompt.includes('play') || lowerPrompt.includes('fun')) {
+      const playActivities = [
+        'Let\'s turn your next study session into a game! Set a timer and race against it!',
+        'How about creating flashcards with colorful drawings? Make learning visual!',
+        'Try explaining what you learned to me like I\'m 5 years old - it\'s fun and helpful!',
+        'Let\'s make up a song or rhyme about what you\'re studying! Music helps memory!'
+      ];
+      return playActivities[Math.floor(Math.random() * playActivities.length)];
+    }
+    
+    const generalActivities = [
+      'Try the Pomodoro technique - 25 minutes focused study, then a 5-minute break with me!',
+      'How about setting a small reward for yourself when you complete your next goal?',
+      'Let\'s practice active recall - close your notes and tell me what you remember!',
+      'Try changing your study environment - sometimes a new space brings new energy!'
+    ];
+    return generalActivities[Math.floor(Math.random() * generalActivities.length)];
   }
 
   // Public method to check if AI is available
