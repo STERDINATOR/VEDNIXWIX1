@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Image } from '@/components/ui/image';
 import { geminiAI, type PetResponse } from '@/lib/gemini-ai';
 import { 
   Heart, 
@@ -24,7 +25,17 @@ import {
   Star,
   Gift,
   Sparkles,
-  Brain
+  Brain,
+  Shuffle,
+  Wand2,
+  Crown,
+  Shield,
+  Flame,
+  Snowflake,
+  Zap as Lightning,
+  Eye,
+  Smile,
+  Target
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -37,13 +48,24 @@ interface PetStats {
 
 interface PetPersonality {
   name: string;
-  type: 'cat' | 'dragon' | 'robot' | 'phoenix' | 'wolf';
+  type: 'cat' | 'dragon' | 'robot' | 'phoenix' | 'wolf' | 'fox' | 'bunny' | 'panda';
   color: string;
+  secondaryColor: string;
   accessories: string[];
-  personality: 'playful' | 'wise' | 'energetic' | 'calm' | 'mischievous';
+  personality: 'playful' | 'wise' | 'energetic' | 'calm' | 'mischievous' | 'loyal' | 'mysterious';
   level: number;
   xp: number;
   xpToNext: number;
+  appearance: {
+    eyes: 'normal' | 'sparkly' | 'sleepy' | 'determined' | 'mischievous' | 'wise';
+    expression: 'happy' | 'content' | 'excited' | 'focused' | 'sleepy' | 'curious';
+    pattern: 'solid' | 'stripes' | 'spots' | 'gradient' | 'cyber' | 'holographic';
+    size: 'small' | 'medium' | 'large';
+  };
+  specialAbilities: string[];
+  backstory: string;
+  favoriteActivity: string;
+  image?: string; // AI-generated anime pet image
 }
 
 interface PetReminder {
@@ -59,17 +81,37 @@ interface AnimePetProps {
   onClose: () => void;
 }
 
+interface PetCustomizationProps {
+  isOpen: boolean;
+  onClose: () => void;
+  pet: PetPersonality;
+  onSave: (pet: PetPersonality) => void;
+}
+
 export function AnimePet({ isOpen, onClose }: AnimePetProps) {
   const [pet, setPet] = useState<PetPersonality>({
     name: 'Neko-chan',
     type: 'cat',
     color: '#FF6B9D',
+    secondaryColor: '#FFB6C1',
     accessories: ['Cyber Collar', 'Holographic Wings'],
     personality: 'playful',
     level: 15,
     xp: 2450,
-    xpToNext: 3000
+    xpToNext: 3000,
+    appearance: {
+      eyes: 'sparkly',
+      expression: 'happy',
+      pattern: 'cyber',
+      size: 'medium'
+    },
+    specialAbilities: ['Digital Healing', 'Study Boost'],
+    backstory: 'A cybernetic companion created to help students achieve their learning goals.',
+    favoriteActivity: 'Playing with holographic butterflies while you study',
+    image: 'https://static.wixstatic.com/media/c5b305_64b1f78e7d084df480fb0b1f510cd2f2~mv2.png?originWidth=384&originHeight=384'
   });
+
+  const [showCustomization, setShowCustomization] = useState(false);
 
   const [stats, setStats] = useState<PetStats>({
     happiness: 85,
@@ -107,6 +149,25 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
 
   const [isTyping, setIsTyping] = useState(false);
   const [petInteractionCount, setPetInteractionCount] = useState(0);
+
+  const handleCustomizePet = (newPet: PetPersonality) => {
+    setPet(newPet);
+    setShowCustomization(false);
+    // Save to localStorage
+    localStorage.setItem('userPet', JSON.stringify(newPet));
+  };
+
+  // Load pet from localStorage on mount
+  useEffect(() => {
+    const savedPet = localStorage.getItem('userPet');
+    if (savedPet) {
+      try {
+        setPet(JSON.parse(savedPet));
+      } catch (error) {
+        console.error('Error loading pet data:', error);
+      }
+    }
+  }, []);
 
   // Pet animations and behaviors
   const [petAnimation, setPetAnimation] = useState<'idle' | 'happy' | 'sleeping' | 'alert' | 'excited'>('idle');
@@ -333,7 +394,10 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
       dragon: '🐉',
       robot: '🤖',
       phoenix: '🔥',
-      wolf: '🐺'
+      wolf: '🐺',
+      fox: '🦊',
+      bunny: '🐰',
+      panda: '🐼'
     };
     return emojis[pet.type];
   };
@@ -345,6 +409,31 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
       case 'alert': return 'animate-ping';
       case 'sleeping': return 'opacity-70';
       default: return '';
+    }
+  };
+
+  const getPetDisplay = () => {
+    if (pet.image) {
+      return (
+        <div className={`relative ${getAnimationClass()}`}>
+          <Image
+            src={pet.image}
+            alt={`${pet.name} - ${pet.type} companion`}
+            width={200}
+            height={200}
+            className="w-full h-full object-cover rounded-lg border-2 border-primary/30"
+          />
+          {petAnimation === 'excited' && (
+            <div className="absolute inset-0 rounded-lg border-2 border-primary animate-ping" />
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div className={`text-8xl ${getAnimationClass()}`}>
+          {getPetEmoji()}
+        </div>
+      );
     }
   };
 
@@ -379,9 +468,19 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
                   {pet.xp}/{pet.xpToNext} XP
                 </Badge>
               </div>
-              <Button variant="ghost" onClick={onClose} className="text-light-gray hover:text-foreground">
-                ✕
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowCustomization(true)}
+                  className="text-light-gray hover:text-foreground"
+                >
+                  <Palette className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" onClick={onClose} className="text-light-gray hover:text-foreground">
+                  ✕
+                </Button>
+              </div>
             </div>
 
             {/* Main Content */}
@@ -405,9 +504,27 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
                   <TabsContent value="interact" className="flex-1 flex flex-col">
                     {/* Pet Display */}
                     <div className="text-center mb-6">
-                      <div className={`text-8xl mb-4 ${getAnimationClass()}`}>
-                        {getPetEmoji()}
+                      <div className="w-48 h-48 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg p-4 flex items-center justify-center">
+                        {getPetDisplay()}
                       </div>
+                      
+                      {/* Pet Info */}
+                      <div className="mb-4">
+                        <h4 className="font-heading font-bold text-foreground text-lg mb-2">{pet.name}</h4>
+                        <p className="text-sm font-paragraph text-light-gray mb-2">{pet.backstory}</p>
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Badge className="bg-primary/20 text-primary">
+                            {pet.appearance.pattern} pattern
+                          </Badge>
+                          <Badge className="bg-secondary/20 text-secondary">
+                            {pet.appearance.eyes} eyes
+                          </Badge>
+                        </div>
+                        <p className="text-xs font-paragraph text-light-gray italic">
+                          "Favorite activity: {pet.favoriteActivity}"
+                        </p>
+                      </div>
+                      
                       <div className="flex justify-center gap-3">
                         <Button onClick={feedPet} className="bg-secondary text-secondary-foreground">
                           <Gift className="h-4 w-4 mr-2" />
@@ -416,6 +533,13 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
                         <Button onClick={playWithPet} className="bg-neon-green text-black">
                           <Heart className="h-4 w-4 mr-2" />
                           Play
+                        </Button>
+                        <Button 
+                          onClick={() => setShowCustomization(true)}
+                          className="bg-cyber-yellow text-black"
+                        >
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Customize
                         </Button>
                       </div>
                     </div>
@@ -578,6 +702,16 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
           </motion.div>
         </motion.div>
       )}
+      
+      {/* Pet Customization Modal */}
+      {showCustomization && (
+        <PetCustomization
+          isOpen={showCustomization}
+          onClose={() => setShowCustomization(false)}
+          pet={pet}
+          onSave={handleCustomizePet}
+        />
+      )}
     </AnimatePresence>
   );
 }
@@ -592,31 +726,162 @@ interface PetCustomizationProps {
 
 export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizationProps) {
   const [editedPet, setEditedPet] = useState<PetPersonality>(pet);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const handleSave = () => {
     onSave(editedPet);
     onClose();
   };
 
+  const generateRandomPet = () => {
+    const petTypes = ['cat', 'dragon', 'robot', 'phoenix', 'wolf', 'fox', 'bunny', 'panda'] as const;
+    const personalities = ['playful', 'wise', 'energetic', 'calm', 'mischievous', 'loyal', 'mysterious'] as const;
+    const eyes = ['normal', 'sparkly', 'sleepy', 'determined', 'mischievous', 'wise'] as const;
+    const expressions = ['happy', 'content', 'excited', 'focused', 'sleepy', 'curious'] as const;
+    const patterns = ['solid', 'stripes', 'spots', 'gradient', 'cyber', 'holographic'] as const;
+    const sizes = ['small', 'medium', 'large'] as const;
+    
+    const colors = ['#FF6B9D', '#00FFFF', '#FFFF00', '#FF00FF', '#00FF00', '#FF4500', '#9370DB', '#FF69B4'];
+    const secondaryColors = ['#FFB6C1', '#E0FFFF', '#FFFFE0', '#FFE4E1', '#F0FFF0', '#FFE4B5', '#DDA0DD', '#FFEFD5'];
+    
+    const names = ['Neko-chan', 'Ryu-kun', 'Cyber-san', 'Phoenix-sama', 'Luna-chan', 'Kitsune-kun', 'Mochi-chan', 'Panda-san'];
+    const activities = [
+      'Playing with holographic butterflies',
+      'Meditating under digital cherry blossoms',
+      'Racing through cyber circuits',
+      'Dancing with data streams',
+      'Collecting virtual stardust',
+      'Exploring quantum dimensions',
+      'Creating pixel art masterpieces',
+      'Solving algorithmic puzzles'
+    ];
+    
+    const abilities = [
+      ['Digital Healing', 'Study Boost'],
+      ['Quantum Leap', 'Time Dilation'],
+      ['Circuit Surge', 'Data Shield'],
+      ['Phoenix Fire', 'Rebirth Protocol'],
+      ['Shadow Step', 'Night Vision'],
+      ['Illusion Weave', 'Spirit Bond'],
+      ['Luck Charm', 'Speed Burst'],
+      ['Zen Focus', 'Bamboo Strength']
+    ];
+
+    const randomType = petTypes[Math.floor(Math.random() * petTypes.length)];
+    const randomPersonality = personalities[Math.floor(Math.random() * personalities.length)];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const randomSecondaryColor = secondaryColors[Math.floor(Math.random() * secondaryColors.length)];
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+    const randomAbilities = abilities[Math.floor(Math.random() * abilities.length)];
+
+    setEditedPet({
+      ...editedPet,
+      name: randomName,
+      type: randomType,
+      color: randomColor,
+      secondaryColor: randomSecondaryColor,
+      personality: randomPersonality,
+      appearance: {
+        eyes: eyes[Math.floor(Math.random() * eyes.length)],
+        expression: expressions[Math.floor(Math.random() * expressions.length)],
+        pattern: patterns[Math.floor(Math.random() * patterns.length)],
+        size: sizes[Math.floor(Math.random() * sizes.length)]
+      },
+      specialAbilities: randomAbilities,
+      favoriteActivity: randomActivity,
+      backstory: `A ${randomPersonality} ${randomType} companion with ${editedPet.appearance.eyes} eyes and a ${editedPet.appearance.pattern} pattern. Born in the digital realm to assist students on their learning journey.`
+    });
+  };
+
+  const generateAIPetImage = async () => {
+    setIsGeneratingImage(true);
+    try {
+      // In a real implementation, this would call an AI image generation service
+      // For now, we'll simulate the process and use a placeholder
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      
+      const imageId = `anime-pet-${editedPet.type}-${Date.now()}`;
+      const generatedImage = 'https://static.wixstatic.com/media/c5b305_b9df0ad6afab410f863521c8d8673a09~mv2.png?originWidth=192&originHeight=192';
+      
+      setEditedPet(prev => ({
+        ...prev,
+        image: generatedImage
+      }));
+    } catch (error) {
+      console.error('Error generating pet image:', error);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const petTypes = [
-    { value: 'cat', label: 'Cyber Cat 🐱', emoji: '🐱' },
-    { value: 'dragon', label: 'Data Dragon 🐉', emoji: '🐉' },
-    { value: 'robot', label: 'Study Bot 🤖', emoji: '🤖' },
-    { value: 'phoenix', label: 'Code Phoenix 🔥', emoji: '🔥' },
-    { value: 'wolf', label: 'Wisdom Wolf 🐺', emoji: '🐺' }
+    { value: 'cat', label: 'Cyber Cat 🐱', emoji: '🐱', description: 'Agile and curious digital feline' },
+    { value: 'dragon', label: 'Data Dragon 🐉', emoji: '🐉', description: 'Wise and powerful knowledge guardian' },
+    { value: 'robot', label: 'Study Bot 🤖', emoji: '🤖', description: 'Efficient and logical learning assistant' },
+    { value: 'phoenix', label: 'Code Phoenix 🔥', emoji: '🔥', description: 'Resilient and inspiring flame spirit' },
+    { value: 'wolf', label: 'Wisdom Wolf 🐺', emoji: '🐺', description: 'Loyal and determined pack leader' },
+    { value: 'fox', label: 'Cyber Fox 🦊', emoji: '🦊', description: 'Clever and mischievous trickster' },
+    { value: 'bunny', label: 'Quantum Bunny 🐰', emoji: '🐰', description: 'Quick and energetic speed demon' },
+    { value: 'panda', label: 'Zen Panda 🐼', emoji: '🐼', description: 'Calm and balanced meditation master' }
   ];
 
   const personalities = [
-    { value: 'playful', label: 'Playful & Fun' },
-    { value: 'wise', label: 'Wise & Thoughtful' },
-    { value: 'energetic', label: 'Energetic & Motivating' },
-    { value: 'calm', label: 'Calm & Peaceful' },
-    { value: 'mischievous', label: 'Mischievous & Clever' }
+    { value: 'playful', label: 'Playful & Fun', description: 'Loves games and making learning enjoyable' },
+    { value: 'wise', label: 'Wise & Thoughtful', description: 'Provides deep insights and guidance' },
+    { value: 'energetic', label: 'Energetic & Motivating', description: 'Full of enthusiasm and drive' },
+    { value: 'calm', label: 'Calm & Peaceful', description: 'Brings tranquility and focus' },
+    { value: 'mischievous', label: 'Mischievous & Clever', description: 'Keeps things interesting with surprises' },
+    { value: 'loyal', label: 'Loyal & Supportive', description: 'Always there when you need encouragement' },
+    { value: 'mysterious', label: 'Mysterious & Enigmatic', description: 'Full of secrets and hidden knowledge' }
+  ];
+
+  const eyeTypes = [
+    { value: 'normal', label: 'Normal', icon: <Eye className="h-4 w-4" /> },
+    { value: 'sparkly', label: 'Sparkly', icon: <Star className="h-4 w-4" /> },
+    { value: 'sleepy', label: 'Sleepy', icon: <Moon className="h-4 w-4" /> },
+    { value: 'determined', label: 'Determined', icon: <Target className="h-4 w-4" /> },
+    { value: 'mischievous', label: 'Mischievous', icon: <Smile className="h-4 w-4" /> },
+    { value: 'wise', label: 'Wise', icon: <Brain className="h-4 w-4" /> }
+  ];
+
+  const expressions = [
+    { value: 'happy', label: 'Happy', icon: <Smile className="h-4 w-4" /> },
+    { value: 'content', label: 'Content', icon: <Heart className="h-4 w-4" /> },
+    { value: 'excited', label: 'Excited', icon: <Zap className="h-4 w-4" /> },
+    { value: 'focused', label: 'Focused', icon: <Target className="h-4 w-4" /> },
+    { value: 'sleepy', label: 'Sleepy', icon: <Moon className="h-4 w-4" /> },
+    { value: 'curious', label: 'Curious', icon: <HelpCircle className="h-4 w-4" /> }
+  ];
+
+  const patterns = [
+    { value: 'solid', label: 'Solid', icon: <Shield className="h-4 w-4" /> },
+    { value: 'stripes', label: 'Stripes', icon: <Zap className="h-4 w-4" /> },
+    { value: 'spots', label: 'Spots', icon: <Star className="h-4 w-4" /> },
+    { value: 'gradient', label: 'Gradient', icon: <Palette className="h-4 w-4" /> },
+    { value: 'cyber', label: 'Cyber', icon: <Lightning className="h-4 w-4" /> },
+    { value: 'holographic', label: 'Holographic', icon: <Sparkles className="h-4 w-4" /> }
+  ];
+
+  const sizes = [
+    { value: 'small', label: 'Small & Cute' },
+    { value: 'medium', label: 'Medium & Balanced' },
+    { value: 'large', label: 'Large & Majestic' }
   ];
 
   const accessories = [
     'Cyber Collar', 'Holographic Wings', 'Digital Glasses', 'Neon Bow Tie',
-    'Circuit Patterns', 'LED Stripes', 'Quantum Aura', 'Data Crown'
+    'Circuit Patterns', 'LED Stripes', 'Quantum Aura', 'Data Crown',
+    'Pixel Scarf', 'Binary Bracelet', 'Laser Pointer', 'Virtual Reality Headset',
+    'Glowing Tail Ring', 'Nano Armor', 'Energy Shield', 'Cosmic Pendant'
+  ];
+
+  const specialAbilities = [
+    'Digital Healing', 'Study Boost', 'Quantum Leap', 'Time Dilation',
+    'Circuit Surge', 'Data Shield', 'Phoenix Fire', 'Rebirth Protocol',
+    'Shadow Step', 'Night Vision', 'Illusion Weave', 'Spirit Bond',
+    'Luck Charm', 'Speed Burst', 'Zen Focus', 'Bamboo Strength',
+    'Memory Enhancement', 'Focus Beam', 'Stress Relief', 'Energy Restore'
   ];
 
   return (
@@ -632,130 +897,405 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
+            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-primary/20">
               <div className="flex items-center gap-3">
                 <Sparkles className="h-6 w-6 text-primary" />
-                <h3 className="font-heading font-bold text-foreground text-xl">Customize Your Pet</h3>
+                <h3 className="font-heading font-bold text-foreground text-xl">Create Your Anime Pet</h3>
               </div>
-              <Button variant="ghost" onClick={onClose} className="text-light-gray hover:text-foreground">
-                ✕
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  onClick={generateRandomPet}
+                  variant="outline" 
+                  className="border-secondary text-secondary"
+                >
+                  <Shuffle className="h-4 w-4 mr-2" />
+                  Random
+                </Button>
+                <Button variant="ghost" onClick={onClose} className="text-light-gray hover:text-foreground">
+                  ✕
+                </Button>
+              </div>
             </div>
 
             {/* Content */}
-            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-6">
-              {/* Pet Preview */}
-              <div className="text-center">
-                <div className="text-6xl mb-2">
-                  {petTypes.find(type => type.value === editedPet.type)?.emoji}
-                </div>
-                <h4 className="font-heading font-bold text-foreground text-lg">{editedPet.name}</h4>
-              </div>
-
-              {/* Basic Info */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="pet-name">Pet Name</Label>
-                  <Input
-                    id="pet-name"
-                    value={editedPet.name}
-                    onChange={(e) => setEditedPet(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter pet name..."
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="pet-type">Pet Type</Label>
-                  <select
-                    id="pet-type"
-                    value={editedPet.type}
-                    onChange={(e) => setEditedPet(prev => ({ 
-                      ...prev, 
-                      type: e.target.value as PetPersonality['type']
-                    }))}
-                    className="w-full p-3 bg-background border border-primary/20 rounded-lg text-foreground"
+            <div className="flex h-[75vh]">
+              {/* Left Panel - Preview */}
+              <div className="w-1/3 p-6 border-r border-primary/20">
+                <div className="text-center mb-6">
+                  <h4 className="font-heading font-bold text-foreground text-lg mb-4">Pet Preview</h4>
+                  
+                  {/* Pet Display */}
+                  <div className="w-48 h-48 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg p-4 flex items-center justify-center relative">
+                    {editedPet.image ? (
+                      <Image
+                        src={editedPet.image}
+                        alt={`${editedPet.name} preview`}
+                        width={200}
+                        height={200}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="text-8xl">
+                        {petTypes.find(type => type.value === editedPet.type)?.emoji}
+                      </div>
+                    )}
+                    
+                    {isGeneratingImage && (
+                      <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                          <p className="text-xs text-foreground">Generating...</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <h5 className="font-heading font-bold text-foreground text-lg mb-2">{editedPet.name}</h5>
+                  <p className="text-sm font-paragraph text-light-gray mb-4">{editedPet.backstory}</p>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Badge className="bg-primary/20 text-primary">
+                        {editedPet.type}
+                      </Badge>
+                      <Badge className="bg-secondary/20 text-secondary">
+                        {editedPet.personality}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <Badge variant="outline" className="border-primary/30 text-primary text-xs">
+                        {editedPet.appearance.pattern} pattern
+                      </Badge>
+                      <Badge variant="outline" className="border-secondary/30 text-secondary text-xs">
+                        {editedPet.appearance.eyes} eyes
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    onClick={generateAIPetImage}
+                    disabled={isGeneratingImage}
+                    className="bg-cyber-yellow text-black hover:bg-cyber-yellow/90 w-full mb-4"
                   >
-                    {petTypes.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <Label htmlFor="personality">Personality</Label>
-                  <select
-                    id="personality"
-                    value={editedPet.personality}
-                    onChange={(e) => setEditedPet(prev => ({ 
-                      ...prev, 
-                      personality: e.target.value as PetPersonality['personality']
-                    }))}
-                    className="w-full p-3 bg-background border border-primary/20 rounded-lg text-foreground"
-                  >
-                    {personalities.map((personality) => (
-                      <option key={personality.value} value={personality.value}>
-                        {personality.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <Label htmlFor="color">Primary Color</Label>
-                  <Input
-                    id="color"
-                    type="color"
-                    value={editedPet.color}
-                    onChange={(e) => setEditedPet(prev => ({ ...prev, color: e.target.value }))}
-                  />
-                </div>
-
-                <div>
-                  <Label>Accessories</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {accessories.map((accessory) => (
-                      <label key={accessory} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={editedPet.accessories.includes(accessory)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setEditedPet(prev => ({
-                                ...prev,
-                                accessories: [...prev.accessories, accessory]
-                              }));
-                            } else {
-                              setEditedPet(prev => ({
-                                ...prev,
-                                accessories: prev.accessories.filter(acc => acc !== accessory)
-                              }));
-                            }
-                          }}
-                          className="rounded border-primary/20"
-                        />
-                        <span className="text-sm font-paragraph text-foreground">{accessory}</span>
-                      </label>
-                    ))}
+                    <Wand2 className="h-4 w-4 mr-2" />
+                    {isGeneratingImage ? 'Generating...' : 'Generate AI Image'}
+                  </Button>
+                  
+                  <div className="text-xs font-paragraph text-light-gray">
+                    <p className="mb-1">Special Abilities:</p>
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {editedPet.specialAbilities.map((ability, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs border-neon-green/30 text-neon-green">
+                          {ability}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Right Panel - Customization */}
+              <div className="flex-1 p-6 overflow-y-auto">
+                <Tabs defaultValue="basic" className="h-full">
+                  <TabsList className="grid w-full grid-cols-4 mb-6">
+                    <TabsTrigger value="basic">Basic</TabsTrigger>
+                    <TabsTrigger value="appearance">Appearance</TabsTrigger>
+                    <TabsTrigger value="personality">Personality</TabsTrigger>
+                    <TabsTrigger value="abilities">Abilities</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="basic" className="space-y-6">
+                    <div>
+                      <Label htmlFor="pet-name">Pet Name</Label>
+                      <Input
+                        id="pet-name"
+                        value={editedPet.name}
+                        onChange={(e) => setEditedPet(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Enter your pet's name..."
+                        className="mt-2"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Pet Type</Label>
+                      <div className="grid grid-cols-2 gap-3 mt-2">
+                        {petTypes.map((type) => (
+                          <Button
+                            key={type.value}
+                            variant={editedPet.type === type.value ? 'default' : 'outline'}
+                            onClick={() => setEditedPet(prev => ({ ...prev, type: type.value as any }))}
+                            className={`h-auto p-4 flex flex-col items-center gap-2 ${
+                              editedPet.type === type.value 
+                                ? 'bg-primary text-primary-foreground' 
+                                : 'border-primary/20 text-foreground hover:border-primary/50'
+                            }`}
+                          >
+                            <span className="text-2xl">{type.emoji}</span>
+                            <div className="text-center">
+                              <p className="font-heading font-bold text-sm">{type.label}</p>
+                              <p className="text-xs opacity-70">{type.description}</p>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="primary-color">Primary Color</Label>
+                        <Input
+                          id="primary-color"
+                          type="color"
+                          value={editedPet.color}
+                          onChange={(e) => setEditedPet(prev => ({ ...prev, color: e.target.value }))}
+                          className="mt-2 h-12"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="secondary-color">Secondary Color</Label>
+                        <Input
+                          id="secondary-color"
+                          type="color"
+                          value={editedPet.secondaryColor}
+                          onChange={(e) => setEditedPet(prev => ({ ...prev, secondaryColor: e.target.value }))}
+                          className="mt-2 h-12"
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="appearance" className="space-y-6">
+                    <div>
+                      <Label>Eye Type</Label>
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {eyeTypes.map((eye) => (
+                          <Button
+                            key={eye.value}
+                            variant={editedPet.appearance.eyes === eye.value ? 'default' : 'outline'}
+                            onClick={() => setEditedPet(prev => ({ 
+                              ...prev, 
+                              appearance: { ...prev.appearance, eyes: eye.value as any }
+                            }))}
+                            className="flex items-center gap-2"
+                          >
+                            {eye.icon}
+                            {eye.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Expression</Label>
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {expressions.map((expr) => (
+                          <Button
+                            key={expr.value}
+                            variant={editedPet.appearance.expression === expr.value ? 'default' : 'outline'}
+                            onClick={() => setEditedPet(prev => ({ 
+                              ...prev, 
+                              appearance: { ...prev.appearance, expression: expr.value as any }
+                            }))}
+                            className="flex items-center gap-2"
+                          >
+                            {expr.icon}
+                            {expr.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Pattern</Label>
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {patterns.map((pattern) => (
+                          <Button
+                            key={pattern.value}
+                            variant={editedPet.appearance.pattern === pattern.value ? 'default' : 'outline'}
+                            onClick={() => setEditedPet(prev => ({ 
+                              ...prev, 
+                              appearance: { ...prev.appearance, pattern: pattern.value as any }
+                            }))}
+                            className="flex items-center gap-2"
+                          >
+                            {pattern.icon}
+                            {pattern.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Size</Label>
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {sizes.map((size) => (
+                          <Button
+                            key={size.value}
+                            variant={editedPet.appearance.size === size.value ? 'default' : 'outline'}
+                            onClick={() => setEditedPet(prev => ({ 
+                              ...prev, 
+                              appearance: { ...prev.appearance, size: size.value as any }
+                            }))}
+                          >
+                            {size.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="personality" className="space-y-6">
+                    <div>
+                      <Label>Personality Type</Label>
+                      <div className="grid grid-cols-1 gap-3 mt-2">
+                        {personalities.map((personality) => (
+                          <Button
+                            key={personality.value}
+                            variant={editedPet.personality === personality.value ? 'default' : 'outline'}
+                            onClick={() => setEditedPet(prev => ({ ...prev, personality: personality.value as any }))}
+                            className={`h-auto p-4 text-left justify-start ${
+                              editedPet.personality === personality.value 
+                                ? 'bg-primary text-primary-foreground' 
+                                : 'border-primary/20 text-foreground hover:border-primary/50'
+                            }`}
+                          >
+                            <div>
+                              <p className="font-heading font-bold">{personality.label}</p>
+                              <p className="text-sm opacity-70">{personality.description}</p>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="backstory">Backstory</Label>
+                      <textarea
+                        id="backstory"
+                        value={editedPet.backstory}
+                        onChange={(e) => setEditedPet(prev => ({ ...prev, backstory: e.target.value }))}
+                        className="w-full p-3 bg-background border border-primary/20 rounded-lg text-foreground resize-none mt-2"
+                        rows={3}
+                        placeholder="Tell your pet's origin story..."
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="favorite-activity">Favorite Activity</Label>
+                      <Input
+                        id="favorite-activity"
+                        value={editedPet.favoriteActivity}
+                        onChange={(e) => setEditedPet(prev => ({ ...prev, favoriteActivity: e.target.value }))}
+                        placeholder="What does your pet love to do?"
+                        className="mt-2"
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="abilities" className="space-y-6">
+                    <div>
+                      <Label>Accessories</Label>
+                      <div className="grid grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto">
+                        {accessories.map((accessory) => (
+                          <label key={accessory} className="flex items-center gap-2 p-2 rounded hover:bg-primary/10">
+                            <input
+                              type="checkbox"
+                              checked={editedPet.accessories.includes(accessory)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setEditedPet(prev => ({
+                                    ...prev,
+                                    accessories: [...prev.accessories, accessory]
+                                  }));
+                                } else {
+                                  setEditedPet(prev => ({
+                                    ...prev,
+                                    accessories: prev.accessories.filter(acc => acc !== accessory)
+                                  }));
+                                }
+                              }}
+                              className="rounded border-primary/20"
+                            />
+                            <span className="text-sm font-paragraph text-foreground">{accessory}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Special Abilities (Choose up to 4)</Label>
+                      <div className="grid grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto">
+                        {specialAbilities.map((ability) => (
+                          <label key={ability} className="flex items-center gap-2 p-2 rounded hover:bg-secondary/10">
+                            <input
+                              type="checkbox"
+                              checked={editedPet.specialAbilities.includes(ability)}
+                              onChange={(e) => {
+                                if (e.target.checked && editedPet.specialAbilities.length < 4) {
+                                  setEditedPet(prev => ({
+                                    ...prev,
+                                    specialAbilities: [...prev.specialAbilities, ability]
+                                  }));
+                                } else if (!e.target.checked) {
+                                  setEditedPet(prev => ({
+                                    ...prev,
+                                    specialAbilities: prev.specialAbilities.filter(ab => ab !== ability)
+                                  }));
+                                }
+                              }}
+                              disabled={!editedPet.specialAbilities.includes(ability) && editedPet.specialAbilities.length >= 4}
+                              className="rounded border-primary/20"
+                            />
+                            <span className={`text-sm font-paragraph ${
+                              editedPet.specialAbilities.includes(ability) ? 'text-secondary' : 'text-foreground'
+                            }`}>
+                              {ability}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                      <p className="text-xs text-light-gray mt-2">
+                        Selected: {editedPet.specialAbilities.length}/4 abilities
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-primary/20">
-              <Button variant="outline" onClick={onClose}>Cancel</Button>
-              <Button onClick={handleSave} className="bg-primary text-primary-foreground">
-                <Save className="h-4 w-4 mr-2" />
-                Save Pet
+            <div className="flex items-center justify-between p-6 border-t border-primary/20">
+              <Button 
+                onClick={generateRandomPet}
+                variant="outline" 
+                className="border-cyber-yellow text-cyber-yellow"
+              >
+                <Shuffle className="h-4 w-4 mr-2" />
+                Generate Random Pet
               </Button>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" onClick={onClose}>Cancel</Button>
+                <Button onClick={handleSave} className="bg-primary text-primary-foreground">
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Pet
+                </Button>
+              </div>
             </div>
           </motion.div>
         </motion.div>
+      )}
+      
+      {/* Pet Customization Modal */}
+      {showCustomization && (
+        <PetCustomization
+          isOpen={showCustomization}
+          onClose={() => setShowCustomization(false)}
+          pet={pet}
+          onSave={handleCustomizePet}
+        />
       )}
     </AnimatePresence>
   );

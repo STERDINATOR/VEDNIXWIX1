@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AnimeCharacterGenerator } from '@/components/ui/anime-character-generator';
 import { AnimeMentor } from '@/components/ui/anime-mentor';
+import { AnimePet } from '@/components/ui/anime-pet';
 import { 
   Play, 
   Trophy, 
@@ -22,7 +23,8 @@ import {
   Sparkles,
   User,
   MessageCircle,
-  Video
+  Video,
+  Heart
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -32,6 +34,7 @@ export default function DashboardPage() {
   const { member } = useMember();
   const [showCharacterGenerator, setShowCharacterGenerator] = useState(false);
   const [showMentorCall, setShowMentorCall] = useState(false);
+  const [showPetModal, setShowPetModal] = useState(false);
   const [userCharacter, setUserCharacter] = useState<any>(null);
   const [petInteractionCount, setPetInteractionCount] = useState(0);
   const [questProgress, setQuestProgress] = useState<{[key: number]: number}>({
@@ -382,9 +385,17 @@ export default function DashboardPage() {
               transition={{ duration: 0.6, delay: 0.15 }}
             >
               <Card className="bg-dark-gray border-primary/20 p-6 text-center">
-                <h3 className="text-lg font-heading font-bold text-foreground mb-4">Your Pet</h3>
-                <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center text-5xl animate-bounce">
-                  🐱
+                <h3 className="text-lg font-heading font-bold text-foreground mb-4">Your Anime Pet</h3>
+                <div 
+                  className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center text-5xl animate-bounce cursor-pointer hover:scale-110 transition-transform relative overflow-hidden"
+                  onClick={() => setShowPetModal(true)}
+                >
+                  {/* Enhanced anime-style pet display */}
+                  <div className="relative">
+                    <span className="text-5xl filter drop-shadow-lg">🐱</span>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyber-yellow rounded-full animate-pulse"></div>
+                    <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary rounded-full animate-ping"></div>
+                  </div>
                 </div>
                 <h4 className="font-heading font-bold text-primary mb-2">{dashboardData.petStatus.name}</h4>
                 <p className="text-sm font-paragraph text-light-gray mb-3">
@@ -406,7 +417,17 @@ export default function DashboardPage() {
                     className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full"
                     onClick={handlePetInteraction}
                   >
+                    <Heart className="h-4 w-4 mr-2" />
                     Interact (+25 XP)
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 w-full"
+                    onClick={() => setShowPetModal(true)}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Customize Pet
                   </Button>
                   <div className="text-xs font-paragraph text-neon-green">
                     💧 "{petInteractionCount > 5 ? 'You\'re the best trainer ever!' : 
@@ -569,6 +590,12 @@ export default function DashboardPage() {
           isOpen={showMentorCall} 
           onClose={() => setShowMentorCall(false)}
           userCharacter={userCharacter}
+        />
+
+        {/* Anime Pet Modal */}
+        <AnimePet 
+          isOpen={showPetModal} 
+          onClose={() => setShowPetModal(false)}
         />
       </div>
     </div>
