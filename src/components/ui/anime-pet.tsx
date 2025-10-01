@@ -293,7 +293,7 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden"
+            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-primary/20">
@@ -353,12 +353,12 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
                     </div>
 
                     {/* Chat Area */}
-                    <div className="flex-1 flex flex-col bg-background rounded-lg border border-primary/20">
+                    <div className="flex-1 flex flex-col bg-background rounded-lg border border-primary/20 max-h-[50vh]">
                       <div className="p-3 border-b border-primary/20">
                         <h4 className="font-heading font-bold text-foreground">Chat with {pet.name}</h4>
                       </div>
                       
-                      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                      <div className="flex-1 overflow-y-auto p-3 space-y-3 max-h-[35vh]">
                         {chatHistory.map((msg) => (
                           <div
                             key={msg.id}

@@ -271,7 +271,7 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden"
+            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-primary/20">
@@ -428,7 +428,7 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
               </div>
 
               {/* Chat Sidebar */}
-              <div className="w-80 border-l border-primary/20 flex flex-col">
+              <div className="w-80 border-l border-primary/20 flex flex-col max-h-[70vh]">
                 <div className="p-4 border-b border-primary/20">
                   <h4 className="font-heading font-bold text-foreground mb-2">Chat & Voice</h4>
                   <p className="text-sm font-paragraph text-light-gray">
@@ -437,7 +437,7 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
                 </div>
 
                 {/* Chat Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[50vh]">
                   {chatHistory.map((msg) => (
                     <div
                       key={msg.id}
