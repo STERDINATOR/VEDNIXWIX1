@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useMember } from '@/integrations';
 import { Button } from '@/components/ui/button';
 import { Image } from '@/components/ui/image';
-import { Play, Zap, Trophy, Users, Star, Gamepad2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { AnimePet } from '@/components/ui/anime-pet';
+import { Play, Zap, Trophy, Users, Star, Gamepad2, ArrowRight, ArrowLeft, Heart, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // A simple hook for Intersection Observer to add animations on scroll
@@ -103,6 +104,7 @@ const avatars = [
 export default function HomePage() {
   const { member, isAuthenticated, actions } = useMember();
   const [currentAvatar, setCurrentAvatar] = useState(0);
+  const [showPetModal, setShowPetModal] = useState(false);
 
   const nextAvatar = () => {
     setCurrentAvatar((prev) => (prev === avatars.length - 1 ? 0 : prev + 1));
@@ -356,15 +358,41 @@ export default function HomePage() {
             <p className="text-lg font-paragraph text-light-gray mb-12 max-w-3xl mx-auto">
               Join thousands of students already leveling up their knowledge in the most immersive learning experience ever created. The future of education is here. Don't get left behind.
             </p>
-            {!isAuthenticated && (
-              <Button onClick={actions.login} className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-4 text-lg font-heading uppercase tracking-widest">
-                <Zap className="mr-3 h-5 w-5" />
-                Begin Your Adventure
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              {!isAuthenticated ? (
+                <Button onClick={actions.login} className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-4 text-lg font-heading uppercase tracking-widest">
+                  <Zap className="mr-3 h-5 w-5" />
+                  Begin Your Adventure
+                </Button>
+              ) : (
+                <Link to="/dashboard">
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-4 text-lg font-heading uppercase tracking-widest">
+                    <Play className="mr-3 h-5 w-5" />
+                    Continue Journey
+                  </Button>
+                </Link>
+              )}
+              
+              {/* Pet Demo Button */}
+              <Button 
+                onClick={() => setShowPetModal(true)}
+                variant="outline" 
+                className="border-secondary text-secondary hover:bg-secondary/10 px-8 py-4 text-lg font-heading uppercase tracking-widest"
+              >
+                <Heart className="mr-3 h-5 w-5" />
+                Meet Your Pet
+                <Sparkles className="ml-2 h-4 w-4" />
               </Button>
-            )}
+            </div>
           </AnimatedElement>
         </div>
       </section>
+
+      {/* Anime Pet Modal */}
+      <AnimePet 
+        isOpen={showPetModal} 
+        onClose={() => setShowPetModal(false)}
+      />
     </div>
   );
 }

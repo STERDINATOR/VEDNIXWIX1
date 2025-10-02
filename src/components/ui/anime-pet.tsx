@@ -807,7 +807,28 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
   const [editedPet, setEditedPet] = useState<PetPersonality>(pet);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
+  // Update editedPet when pet prop changes
+  useEffect(() => {
+    setEditedPet(pet);
+  }, [pet]);
+
+  // Update backstory when pet attributes change
+  useEffect(() => {
+    if (editedPet.type && editedPet.personality && editedPet.appearance.eyes && editedPet.appearance.pattern) {
+      const newBackstory = `A ${editedPet.personality} ${editedPet.type} companion with ${editedPet.appearance.eyes} eyes and a ${editedPet.appearance.pattern} pattern. Born in the digital realm to assist students on their learning journey.`;
+      setEditedPet(prev => ({ ...prev, backstory: newBackstory }));
+    }
+  }, [editedPet.type, editedPet.personality, editedPet.appearance.eyes, editedPet.appearance.pattern]);
+
   const handleSave = () => {
+    // Validate required fields
+    if (!editedPet.name.trim()) {
+      alert('Please enter a name for your pet!');
+      return;
+    }
+    
+    // Save to localStorage as well
+    localStorage.setItem('userPet', JSON.stringify(editedPet));
     onSave(editedPet);
     onClose();
   };
@@ -880,8 +901,19 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
       // For now, we'll simulate the process and use a placeholder
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
       
-      const imageId = `anime-pet-${editedPet.type}-${Date.now()}`;
-      const generatedImage = 'https://static.wixstatic.com/media/c5b305_b9df0ad6afab410f863521c8d8673a09~mv2.png?originWidth=192&originHeight=192';
+      // Generate different images based on pet type
+      const petImages = {
+        cat: 'https://static.wixstatic.com/media/c5b305_b9df0ad6afab410f863521c8d8673a09~mv2.png?originWidth=192&originHeight=192',
+        dragon: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192',
+        robot: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192',
+        phoenix: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192',
+        wolf: 'https://static.wixstatic.com/media/c5b305_64b1f78e7d084df480fb0b1f510cd2f2~mv2.png?originWidth=384&originHeight=384',
+        fox: 'https://static.wixstatic.com/media/c5b305_b9df0ad6afab410f863521c8d8673a09~mv2.png?originWidth=192&originHeight=192',
+        bunny: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192',
+        panda: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192'
+      };
+      
+      const generatedImage = petImages[editedPet.type as keyof typeof petImages] || petImages.cat;
       
       setEditedPet(prev => ({
         ...prev,
@@ -889,6 +921,7 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
       }));
     } catch (error) {
       console.error('Error generating pet image:', error);
+      alert('Failed to generate pet image. Please try again.');
     } finally {
       setIsGeneratingImage(false);
     }
@@ -1168,17 +1201,22 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                             key={type.value}
                             variant={editedPet.type === type.value ? 'default' : 'outline'}
                             onClick={() => setEditedPet(prev => ({ ...prev, type: type.value as any }))}
-                            className={`h-auto p-4 flex flex-col items-center gap-2 ${
+                            className={`h-auto p-4 flex flex-col items-center gap-2 relative transition-all duration-200 ${
                               editedPet.type === type.value 
-                                ? 'bg-primary text-primary-foreground' 
-                                : 'border-primary/20 text-foreground hover:border-primary/50'
+                                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-primary shadow-lg transform scale-105' 
+                                : 'border-primary/20 text-foreground hover:border-primary/50 hover:bg-primary/10 hover:scale-102'
                             }`}
                           >
-                            <span className="text-2xl">{type.emoji}</span>
+                            <span className="text-3xl filter drop-shadow-lg">{type.emoji}</span>
                             <div className="text-center">
                               <p className="font-heading font-bold text-sm">{type.label}</p>
-                              <p className="text-xs opacity-70">{type.description}</p>
+                              <p className="text-xs opacity-70 leading-tight">{type.description}</p>
                             </div>
+                            {editedPet.type === type.value && (
+                              <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyber-yellow rounded-full flex items-center justify-center text-black text-xs font-bold">
+                                ✓
+                              </div>
+                            )}
                           </Button>
                         ))}
                       </div>
@@ -1220,10 +1258,19 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                               ...prev, 
                               appearance: { ...prev.appearance, eyes: eye.value as any }
                             }))}
-                            className="flex items-center gap-2"
+                            className={`flex items-center gap-2 relative transition-all duration-200 ${
+                              editedPet.appearance.eyes === eye.value 
+                                ? 'bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground border-secondary shadow-lg transform scale-105' 
+                                : 'border-primary/20 text-foreground hover:border-secondary/50 hover:bg-secondary/10 hover:scale-102'
+                            }`}
                           >
                             {eye.icon}
                             {eye.label}
+                            {editedPet.appearance.eyes === eye.value && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyber-yellow rounded-full flex items-center justify-center text-black text-xs">
+                                ✓
+                              </div>
+                            )}
                           </Button>
                         ))}
                       </div>
@@ -1240,10 +1287,19 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                               ...prev, 
                               appearance: { ...prev.appearance, expression: expr.value as any }
                             }))}
-                            className="flex items-center gap-2"
+                            className={`flex items-center gap-2 relative transition-all duration-200 ${
+                              editedPet.appearance.expression === expr.value 
+                                ? 'bg-gradient-to-br from-neon-green to-neon-green/80 text-black border-neon-green shadow-lg transform scale-105' 
+                                : 'border-primary/20 text-foreground hover:border-neon-green/50 hover:bg-neon-green/10 hover:scale-102'
+                            }`}
                           >
                             {expr.icon}
                             {expr.label}
+                            {editedPet.appearance.expression === expr.value && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyber-yellow rounded-full flex items-center justify-center text-black text-xs">
+                                ✓
+                              </div>
+                            )}
                           </Button>
                         ))}
                       </div>
@@ -1260,10 +1316,19 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                               ...prev, 
                               appearance: { ...prev.appearance, pattern: pattern.value as any }
                             }))}
-                            className="flex items-center gap-2"
+                            className={`flex items-center gap-2 relative transition-all duration-200 ${
+                              editedPet.appearance.pattern === pattern.value 
+                                ? 'bg-gradient-to-br from-cyber-yellow to-cyber-yellow/80 text-black border-cyber-yellow shadow-lg transform scale-105' 
+                                : 'border-primary/20 text-foreground hover:border-cyber-yellow/50 hover:bg-cyber-yellow/10 hover:scale-102'
+                            }`}
                           >
                             {pattern.icon}
                             {pattern.label}
+                            {editedPet.appearance.pattern === pattern.value && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-white text-xs">
+                                ✓
+                              </div>
+                            )}
                           </Button>
                         ))}
                       </div>
@@ -1280,8 +1345,18 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                               ...prev, 
                               appearance: { ...prev.appearance, size: size.value as any }
                             }))}
+                            className={`relative transition-all duration-200 ${
+                              editedPet.appearance.size === size.value 
+                                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-primary shadow-lg transform scale-105' 
+                                : 'border-primary/20 text-foreground hover:border-primary/50 hover:bg-primary/10 hover:scale-102'
+                            }`}
                           >
                             {size.label}
+                            {editedPet.appearance.size === size.value && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyber-yellow rounded-full flex items-center justify-center text-black text-xs">
+                                ✓
+                              </div>
+                            )}
                           </Button>
                         ))}
                       </div>
@@ -1297,16 +1372,21 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                             key={personality.value}
                             variant={editedPet.personality === personality.value ? 'default' : 'outline'}
                             onClick={() => setEditedPet(prev => ({ ...prev, personality: personality.value as any }))}
-                            className={`h-auto p-4 text-left justify-start ${
+                            className={`h-auto p-4 text-left justify-start relative transition-all duration-200 ${
                               editedPet.personality === personality.value 
-                                ? 'bg-primary text-primary-foreground' 
-                                : 'border-primary/20 text-foreground hover:border-primary/50'
+                                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-primary shadow-lg transform scale-105' 
+                                : 'border-primary/20 text-foreground hover:border-primary/50 hover:bg-primary/10 hover:scale-102'
                             }`}
                           >
                             <div>
                               <p className="font-heading font-bold">{personality.label}</p>
                               <p className="text-sm opacity-70">{personality.description}</p>
                             </div>
+                            {editedPet.personality === personality.value && (
+                              <div className="absolute top-2 right-2 w-6 h-6 bg-cyber-yellow rounded-full flex items-center justify-center text-black text-xs font-bold">
+                                ✓
+                              </div>
+                            )}
                           </Button>
                         ))}
                       </div>
@@ -1318,7 +1398,7 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                         id="backstory"
                         value={editedPet.backstory}
                         onChange={(e) => setEditedPet(prev => ({ ...prev, backstory: e.target.value }))}
-                        className="w-full p-3 bg-background border border-primary/20 rounded-lg text-foreground resize-none mt-2"
+                        className="w-full p-3 bg-background border border-primary/20 rounded-lg text-foreground resize-none mt-2 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                         rows={3}
                         placeholder="Tell your pet's origin story..."
                       />
@@ -1331,7 +1411,7 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                         value={editedPet.favoriteActivity}
                         onChange={(e) => setEditedPet(prev => ({ ...prev, favoriteActivity: e.target.value }))}
                         placeholder="What does your pet love to do?"
-                        className="mt-2"
+                        className="mt-2 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                       />
                     </div>
                   </TabsContent>
@@ -1339,9 +1419,13 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                   <TabsContent value="abilities" className="space-y-6">
                     <div>
                       <Label>Accessories</Label>
-                      <div className="grid grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto">
+                      <div className="grid grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto bg-background/50 rounded-lg p-3 border border-primary/20">
                         {accessories.map((accessory) => (
-                          <label key={accessory} className="flex items-center gap-2 p-2 rounded hover:bg-primary/10">
+                          <label key={accessory} className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-all duration-200 ${
+                            editedPet.accessories.includes(accessory) 
+                              ? 'bg-primary/20 border border-primary/50' 
+                              : 'hover:bg-primary/10 border border-transparent'
+                          }`}>
                             <input
                               type="checkbox"
                               checked={editedPet.accessories.includes(accessory)}
@@ -1358,19 +1442,37 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                                   }));
                                 }
                               }}
-                              className="rounded border-primary/20"
+                              className="rounded border-primary/20 text-primary focus:ring-primary/50"
                             />
-                            <span className="text-sm font-paragraph text-foreground">{accessory}</span>
+                            <span className={`text-sm font-paragraph ${
+                              editedPet.accessories.includes(accessory) ? 'text-primary font-bold' : 'text-foreground'
+                            }`}>
+                              {accessory}
+                            </span>
+                            {editedPet.accessories.includes(accessory) && (
+                              <span className="ml-auto text-primary">✓</span>
+                            )}
                           </label>
                         ))}
                       </div>
+                      <p className="text-xs text-light-gray mt-2">
+                        Selected: {editedPet.accessories.length} accessories
+                      </p>
                     </div>
 
                     <div>
                       <Label>Special Abilities (Choose up to 4)</Label>
-                      <div className="grid grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto">
+                      <div className="grid grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto bg-background/50 rounded-lg p-3 border border-secondary/20">
                         {specialAbilities.map((ability) => (
-                          <label key={ability} className="flex items-center gap-2 p-2 rounded hover:bg-secondary/10">
+                          <label key={ability} className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-all duration-200 ${
+                            editedPet.specialAbilities.includes(ability) 
+                              ? 'bg-secondary/20 border border-secondary/50' 
+                              : 'hover:bg-secondary/10 border border-transparent'
+                          } ${
+                            !editedPet.specialAbilities.includes(ability) && editedPet.specialAbilities.length >= 4 
+                              ? 'opacity-50 cursor-not-allowed' 
+                              : ''
+                          }`}>
                             <input
                               type="checkbox"
                               checked={editedPet.specialAbilities.includes(ability)}
@@ -1388,13 +1490,16 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                                 }
                               }}
                               disabled={!editedPet.specialAbilities.includes(ability) && editedPet.specialAbilities.length >= 4}
-                              className="rounded border-primary/20"
+                              className="rounded border-secondary/20 text-secondary focus:ring-secondary/50"
                             />
                             <span className={`text-sm font-paragraph ${
-                              editedPet.specialAbilities.includes(ability) ? 'text-secondary' : 'text-foreground'
+                              editedPet.specialAbilities.includes(ability) ? 'text-secondary font-bold' : 'text-foreground'
                             }`}>
                               {ability}
                             </span>
+                            {editedPet.specialAbilities.includes(ability) && (
+                              <span className="ml-auto text-secondary">⚡</span>
+                            )}
                           </label>
                         ))}
                       </div>
@@ -1407,21 +1512,39 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-between p-6 border-t border-primary/20">
-              <Button 
-                onClick={generateRandomPet}
-                variant="outline" 
-                className="border-cyber-yellow text-cyber-yellow"
-              >
-                <Shuffle className="h-4 w-4 mr-2" />
-                Generate Random Pet
-              </Button>
+            {/* Enhanced Footer with Better Visual Hierarchy */}
+            <div className="flex items-center justify-between p-6 border-t border-primary/20 bg-dark-gray/50">
               <div className="flex items-center gap-3">
-                <Button variant="outline" onClick={onClose}>Cancel</Button>
-                <Button onClick={handleSave} className="bg-primary text-primary-foreground">
+                <Button 
+                  onClick={generateRandomPet}
+                  variant="outline" 
+                  className="border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 transform hover:scale-105 transition-all duration-200"
+                >
+                  <Shuffle className="h-4 w-4 mr-2" />
+                  <span className="font-heading font-bold">Generate Random Pet</span>
+                  <span className="ml-2">🎲</span>
+                </Button>
+                
+                <div className="text-xs text-light-gray">
+                  <p>💡 Tip: Use the Random button for inspiration!</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="border-light-gray text-light-gray hover:bg-light-gray/10"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSave} 
+                  className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 border border-primary/30 shadow-lg transform hover:scale-105 transition-all duration-200"
+                >
                   <Save className="h-4 w-4 mr-2" />
-                  Save Pet
+                  <span className="font-heading font-bold">Save Pet</span>
+                  <span className="ml-2">✨</span>
                 </Button>
               </div>
             </div>
