@@ -8,23 +8,15 @@ import { AnimeCharacterGenerator } from '@/components/ui/anime-character-generat
 import { AnimeMentor } from '@/components/ui/anime-mentor';
 import { AnimePet } from '@/components/ui/anime-pet';
 import { 
-  Play, 
-  Trophy, 
-  Users, 
   BookOpen, 
   Zap, 
   Target, 
-  Flame,
-  Star,
-  Sword,
-  Crown,
   Calendar,
   TrendingUp,
-  Sparkles,
   User,
   MessageCircle,
   Video,
-  Heart
+  Sparkles
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -186,28 +178,28 @@ export default function DashboardPage() {
                   { 
                     label: 'Daily Streak', 
                     value: dashboardData.dailyStreak, 
-                    icon: <Flame className="h-8 w-8" />, 
+                    icon: <span className="text-4xl">🔥</span>, 
                     color: 'text-secondary',
                     bgColor: 'bg-secondary/20'
                   },
                   { 
                     label: 'Today\'s XP', 
                     value: dashboardData.todayXP, 
-                    icon: <Zap className="h-8 w-8" />, 
+                    icon: <span className="text-4xl">⚡</span>, 
                     color: 'text-primary',
                     bgColor: 'bg-primary/20'
                   },
                   { 
                     label: 'Active Quests', 
                     value: dashboardData.currentQuests.length, 
-                    icon: <Target className="h-8 w-8" />, 
+                    icon: <span className="text-4xl">🎯</span>, 
                     color: 'text-neon-green',
                     bgColor: 'bg-neon-green/20'
                   },
                   { 
                     label: 'Rank', 
                     value: '#4', 
-                    icon: <Crown className="h-8 w-8" />, 
+                    icon: <span className="text-4xl">👑</span>, 
                     color: 'text-cyber-yellow',
                     bgColor: 'bg-cyber-yellow/20'
                   }
@@ -293,7 +285,7 @@ export default function DashboardPage() {
                           onClick={() => handleContinueQuest(quest.id)}
                           disabled={quest.progress >= 100}
                         >
-                          <Play className="h-4 w-4 mr-1" />
+                          <span className="mr-1 text-lg">▶️</span>
                           {quest.progress >= 100 ? 'Complete!' : 'Continue'}
                         </Button>
                       </div>
@@ -340,7 +332,7 @@ export default function DashboardPage() {
                         onClick={() => setShowMentorCall(true)}
                         className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                       >
-                        <Video className="h-4 w-4 mr-2" />
+                        <span className="mr-2 text-lg">📹</span>
                         Video Call
                       </Button>
                       <Button 
@@ -349,7 +341,7 @@ export default function DashboardPage() {
                         onClick={() => setShowCharacterGenerator(true)}
                         className="border-secondary text-secondary w-full"
                       >
-                        <Sparkles className="h-4 w-4 mr-2" />
+                        <span className="mr-2 text-lg">✨</span>
                         Customize
                       </Button>
                     </div>
@@ -370,7 +362,7 @@ export default function DashboardPage() {
                       onClick={() => setShowCharacterGenerator(true)}
                       className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                     >
-                      <Sparkles className="h-4 w-4 mr-2" />
+                      <span className="mr-2 text-lg">✨</span>
                       Create Character
                     </Button>
                   </div>
@@ -490,7 +482,7 @@ export default function DashboardPage() {
                       className="bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground hover:from-secondary/90 hover:to-secondary/70 w-full border border-secondary/30 shadow-lg transform hover:scale-105 transition-all duration-200"
                       onClick={handlePetInteraction}
                     >
-                      <Heart className="h-4 w-4 mr-2" />
+                      <span className="mr-2 text-lg">💖</span>
                       <span className="font-heading font-bold">Interact (+25 XP)</span>
                       <span className="ml-2">💖</span>
                     </Button>
@@ -501,7 +493,7 @@ export default function DashboardPage() {
                       className="border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 w-full border-2 shadow-lg transform hover:scale-105 transition-all duration-200"
                       onClick={() => setShowPetModal(true)}
                     >
-                      <Sparkles className="h-4 w-4 mr-2" />
+                      <span className="mr-2 text-lg">✨</span>
                       <span className="font-heading font-bold">Customize Pet</span>
                       <span className="ml-2">✨</span>
                     </Button>
@@ -555,7 +547,7 @@ export default function DashboardPage() {
                 </div>
                 <Link to="/leaderboard">
                   <Button variant="outline" className="w-full mt-4 border-primary text-primary">
-                    <TrendingUp className="h-4 w-4 mr-2" />
+                    <span className="mr-2 text-lg">📈</span>
                     View Full Leaderboard
                   </Button>
                 </Link>
@@ -574,9 +566,9 @@ export default function DashboardPage() {
                   {dashboardData.upcomingEvents.map((event, index) => (
                     <div key={index} className="p-3 bg-background rounded border border-primary/10">
                       <div className="flex items-center gap-2 mb-1">
-                        {event.type === 'battle' && <Sword className="h-4 w-4 text-secondary" />}
-                        {event.type === 'event' && <Star className="h-4 w-4 text-cyber-yellow" />}
-                        {event.type === 'raid' && <Trophy className="h-4 w-4 text-primary" />}
+                        {event.type === 'battle' && <span className="text-lg">⚔️</span>}
+                        {event.type === 'event' && <span className="text-lg">🌟</span>}
+                        {event.type === 'raid' && <span className="text-lg">🏆</span>}
                         <Badge variant="outline" className="text-xs">
                           {event.time}
                         </Badge>
@@ -587,7 +579,7 @@ export default function DashboardPage() {
                 </div>
                 <Link to="/achievements">
                   <Button variant="outline" className="w-full mt-4 border-primary text-primary">
-                    <Calendar className="h-4 w-4 mr-2" />
+                    <span className="mr-2 text-lg">📅</span>
                     View All Events
                   </Button>
                 </Link>
@@ -606,16 +598,16 @@ export default function DashboardPage() {
           <h3 className="text-2xl font-heading font-bold text-foreground mb-6">Quick Actions</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
-              { label: 'Start Learning', icon: <BookOpen className="h-6 w-6" />, link: '/learn', color: 'bg-primary' },
-              { label: 'Battle Arena', icon: <Sword className="h-6 w-6" />, link: '/battle', color: 'bg-secondary' },
-              { label: 'Join Guild', icon: <Users className="h-6 w-6" />, link: '/guilds', color: 'bg-neon-green' },
+              { label: 'Start Learning', icon: <span className="text-2xl">📚</span>, link: '/learn', color: 'bg-primary' },
+              { label: 'Battle Arena', icon: <span className="text-2xl">⚔️</span>, link: '/battle', color: 'bg-secondary' },
+              { label: 'Join Guild', icon: <span className="text-2xl">👥</span>, link: '/guilds', color: 'bg-neon-green' },
               { 
                 label: 'AI Mentor', 
-                icon: <MessageCircle className="h-6 w-6" />, 
+                icon: <span className="text-2xl">💬</span>, 
                 action: () => userCharacter ? setShowMentorCall(true) : setShowCharacterGenerator(true), 
                 color: 'bg-cyber-yellow' 
               },
-              { label: 'Shop', icon: <Star className="h-6 w-6" />, link: '/shop', color: 'bg-primary' }
+              { label: 'Shop', icon: <span className="text-2xl">🌟</span>, link: '/shop', color: 'bg-primary' }
             ].map((action, index) => (
               action.link ? (
                 <Link key={index} to={action.link}>

@@ -4,7 +4,7 @@ import { useMember } from '@/integrations';
 import { Button } from '@/components/ui/button';
 import { Image } from '@/components/ui/image';
 import { AnimePet } from '@/components/ui/anime-pet';
-import { Play, Zap, Trophy, Users, Star, Gamepad2, ArrowRight, ArrowLeft, Heart, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // A simple hook for Intersection Observer to add animations on scroll
@@ -50,37 +50,37 @@ const AnimatedElement = ({ children, className, threshold = 0.1 }: { children: R
 const features = [
   {
     id: "01",
-    icon: <Gamepad2 className="h-8 w-8 text-primary" />,
+    icon: <span className="text-4xl">🎮</span>,
     title: "3D Anime Avatars",
     description: "Forge your digital identity. Customize your cyberpunk character and pet companions that evolve with your progress, becoming a legend in the VEDNIX universe."
   },
   {
     id: "02",
-    icon: <Trophy className="h-8 w-8 text-primary" />,
+    icon: <span className="text-4xl">🏆</span>,
     title: "Gamified Learning",
     description: "Education is the new high score. Earn XP, maintain streaks, unlock achievements, and face down quiz-based boss battles that make learning addictive."
   },
   {
     id: "03",
-    icon: <Users className="h-8 w-8 text-primary" />,
+    icon: <span className="text-4xl">👥</span>,
     title: "Multiplayer Quests",
     description: "Syndicate with allies. Team up with friends for cooperative group challenges and engage in epic, immersive multiplayer boss battles for ultimate glory."
   },
   {
     id: "04",
-    icon: <Star className="h-8 w-8 text-primary" />,
+    icon: <span className="text-4xl">🌟</span>,
     title: "AI Anime Tutor",
     description: "Your personal AI sensei is always on duty. It adapts to your unique learning style, tracks your mood, and provides support when you need it most."
   },
   {
     id: "05",
-    icon: <Zap className="h-8 w-8 text-primary" />,
+    icon: <span className="text-4xl">⚡</span>,
     title: "RPG Skill Trees",
     description: "Knowledge is power. Unlock new abilities on a visualized skill tree, watching your expertise grow from a novice operative to a master of your craft."
   },
   {
     id: "06",
-    icon: <Play className="h-8 w-8 text-primary" />,
+    icon: <span className="text-4xl">▶️</span>,
     title: "Interactive Stories",
     description: "Your choices define your reality. Immerse yourself in branching anime storylines that adapt to your decisions, creating a unique narrative experience."
   }
@@ -205,7 +205,7 @@ export default function HomePage() {
                 <>
                   <Link to="/dashboard">
                     <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 text-base font-heading uppercase tracking-widest">
-                      <Play className="mr-2 h-4 w-4" />
+                      <span className="mr-2 text-lg">▶️</span>
                       Continue Journey
                     </Button>
                   </Link>
@@ -218,7 +218,7 @@ export default function HomePage() {
               ) : (
                 <>
                   <Button onClick={actions.login} className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 text-base font-heading uppercase tracking-widest">
-                    <Zap className="mr-2 h-4 w-4" />
+                    <span className="mr-2 text-lg">⚡</span>
                     Start Your Quest
                   </Button>
                   <Button variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary/10 px-8 py-3 text-base font-heading uppercase tracking-widest" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
@@ -361,13 +361,13 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               {!isAuthenticated ? (
                 <Button onClick={actions.login} className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-4 text-lg font-heading uppercase tracking-widest">
-                  <Zap className="mr-3 h-5 w-5" />
+                  <span className="mr-3 text-xl">⚡</span>
                   Begin Your Adventure
                 </Button>
               ) : (
                 <Link to="/dashboard">
                   <Button className="bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-4 text-lg font-heading uppercase tracking-widest">
-                    <Play className="mr-3 h-5 w-5" />
+                    <span className="mr-3 text-xl">▶️</span>
                     Continue Journey
                   </Button>
                 </Link>
@@ -379,9 +379,9 @@ export default function HomePage() {
                 variant="outline" 
                 className="border-secondary text-secondary hover:bg-secondary/10 px-8 py-4 text-lg font-heading uppercase tracking-widest"
               >
-                <Heart className="mr-3 h-5 w-5" />
+                <span className="mr-3 text-xl">💖</span>
                 Meet Your Pet
-                <Sparkles className="ml-2 h-4 w-4" />
+                <span className="ml-2 text-lg">✨</span>
               </Button>
             </div>
           </AnimatedElement>

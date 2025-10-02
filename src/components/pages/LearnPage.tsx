@@ -10,20 +10,9 @@ import {
   BookOpen, 
   Play, 
   Lock, 
-  Star, 
-  Trophy, 
-  Zap, 
   Clock,
   Users,
   Target,
-  Brain,
-  Code,
-  Calculator,
-  Atom,
-  Globe,
-  Palette,
-  Film,
-  Sword,
   GraduationCap
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -88,7 +77,7 @@ export default function LearnPage() {
     {
       id: 1,
       name: 'Programming',
-      icon: <Code className="h-8 w-8" />,
+      icon: <span className="text-4xl">💻</span>,
       color: 'text-primary',
       bgColor: 'bg-primary/20',
       progress: 75,
@@ -101,7 +90,7 @@ export default function LearnPage() {
     {
       id: 2,
       name: 'Mathematics',
-      icon: <Calculator className="h-8 w-8" />,
+      icon: <span className="text-4xl">🧮</span>,
       color: 'text-secondary',
       bgColor: 'bg-secondary/20',
       progress: 60,
@@ -114,7 +103,7 @@ export default function LearnPage() {
     {
       id: 3,
       name: 'Physics',
-      icon: <Atom className="h-8 w-8" />,
+      icon: <span className="text-4xl">⚛️</span>,
       color: 'text-neon-green',
       bgColor: 'bg-neon-green/20',
       progress: 45,
@@ -127,7 +116,7 @@ export default function LearnPage() {
     {
       id: 4,
       name: 'Languages',
-      icon: <Globe className="h-8 w-8" />,
+      icon: <span className="text-4xl">🌍</span>,
       color: 'text-cyber-yellow',
       bgColor: 'bg-cyber-yellow/20',
       progress: 30,
@@ -140,7 +129,7 @@ export default function LearnPage() {
     {
       id: 5,
       name: 'Art & Design',
-      icon: <Palette className="h-8 w-8" />,
+      icon: <span className="text-4xl">🎨</span>,
       color: 'text-primary',
       bgColor: 'bg-primary/20',
       progress: 15,
@@ -153,7 +142,7 @@ export default function LearnPage() {
     {
       id: 6,
       name: 'Neuroscience',
-      icon: <Brain className="h-8 w-8" />,
+      icon: <span className="text-4xl">🧠</span>,
       color: 'text-secondary',
       bgColor: 'bg-secondary/20',
       progress: 0,
@@ -235,7 +224,7 @@ export default function LearnPage() {
                 onClick={() => setViewMode('grid')}
                 className={viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-light-gray'}
               >
-                <BookOpen className="h-4 w-4 mr-2" />
+                <span className="mr-2 text-lg">📚</span>
                 Subjects
               </Button>
               <Button
@@ -244,7 +233,7 @@ export default function LearnPage() {
                 onClick={() => setViewMode('courses')}
                 className={viewMode === 'courses' ? 'bg-neon-green text-black' : 'text-light-gray'}
               >
-                <GraduationCap className="h-4 w-4 mr-2" />
+                <span className="mr-2 text-lg">🎓</span>
                 Courses
               </Button>
               <Button
@@ -253,7 +242,7 @@ export default function LearnPage() {
                 onClick={() => setViewMode('reels')}
                 className={viewMode === 'reels' ? 'bg-secondary text-secondary-foreground' : 'text-light-gray'}
               >
-                <Film className="h-4 w-4 mr-2" />
+                <span className="mr-2 text-lg">🎬</span>
                 Anime Reels
               </Button>
               <Button
@@ -262,7 +251,7 @@ export default function LearnPage() {
                 onClick={() => setViewMode('quests')}
                 className={viewMode === 'quests' ? 'bg-cyber-yellow text-black' : 'text-light-gray'}
               >
-                <Sword className="h-4 w-4 mr-2" />
+                <span className="mr-2 text-lg">⚔️</span>
                 Quests
               </Button>
             </div>
@@ -331,7 +320,7 @@ export default function LearnPage() {
                                   className="bg-primary text-primary-foreground"
                                   onClick={() => setViewMode('courses')}
                                 >
-                                  <Play className="h-4 w-4 mr-1" />
+                                  <span className="mr-1 text-lg">▶️</span>
                                   Explore
                                 </Button>
                               </div>
@@ -386,7 +375,7 @@ export default function LearnPage() {
                             
                             <div className="flex items-center gap-6 text-sm font-paragraph text-light-gray">
                               <div className="flex items-center gap-1">
-                                <Zap className="h-4 w-4 text-primary" />
+                                <span className="text-lg">⚡</span>
                                 +{quest.xp} XP
                               </div>
                               <div className="flex items-center gap-1">
@@ -408,7 +397,7 @@ export default function LearnPage() {
                             className="bg-primary text-primary-foreground hover:bg-primary/90 ml-6"
                             onClick={() => setViewMode('quests')}
                           >
-                            <Play className="h-4 w-4 mr-2" />
+                            <span className="mr-2 text-lg">▶️</span>
                             Start Quest
                           </Button>
                         </div>
@@ -482,7 +471,7 @@ export default function LearnPage() {
                       variant="outline" 
                       className="border-primary text-primary"
                     >
-                      <BookOpen className="h-4 w-4 mr-2" />
+                      <span className="mr-2 text-lg">📚</span>
                       Switch to Subject View
                     </Button>
                   </div>
@@ -535,7 +524,7 @@ export default function LearnPage() {
                           {challenge.title}
                         </h4>
                         {challenge.completed && (
-                          <Trophy className="h-4 w-4 text-neon-green" />
+                          <span className="text-lg">🏆</span>
                         )}
                       </div>
                       <div className="flex items-center justify-between text-xs">
@@ -594,7 +583,7 @@ export default function LearnPage() {
                     onClick={() => setViewMode('courses')}
                     className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                   >
-                    <Target className="h-4 w-4 mr-2" />
+                    <span className="mr-2 text-lg">🎯</span>
                     Browse Courses
                   </Button>
                   <Button 
@@ -602,12 +591,12 @@ export default function LearnPage() {
                     variant="outline" 
                     className="w-full border-secondary text-secondary hover:bg-secondary/10"
                   >
-                    <Trophy className="h-4 w-4 mr-2" />
+                    <span className="mr-2 text-lg">🏆</span>
                     Start Quest
                   </Button>
                   <Link to="/battle">
                     <Button variant="outline" className="w-full border-neon-green text-neon-green hover:bg-neon-green/10">
-                      <Users className="h-4 w-4 mr-2" />
+                      <span className="mr-2 text-lg">👥</span>
                       Battle Arena
                     </Button>
                   </Link>
