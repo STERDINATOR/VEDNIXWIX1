@@ -378,61 +378,144 @@ export default function DashboardPage() {
               </Card>
             </motion.div>
 
-            {/* Pet Status */}
+            {/* Enhanced Anime Pet Status */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
             >
-              <Card className="bg-dark-gray border-primary/20 p-6 text-center">
-                <h3 className="text-lg font-heading font-bold text-foreground mb-4">Your Anime Pet</h3>
-                <div 
-                  className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center text-5xl animate-bounce cursor-pointer hover:scale-110 transition-transform relative overflow-hidden"
-                  onClick={() => setShowPetModal(true)}
-                >
-                  {/* Enhanced anime-style pet display */}
-                  <div className="relative">
-                    <span className="text-5xl filter drop-shadow-lg">🐱</span>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyber-yellow rounded-full animate-pulse"></div>
-                    <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary rounded-full animate-ping"></div>
-                  </div>
-                </div>
-                <h4 className="font-heading font-bold text-primary mb-2">{dashboardData.petStatus.name}</h4>
-                <p className="text-sm font-paragraph text-light-gray mb-3">
-                  Level {dashboardData.petStatus.level} • {dashboardData.petStatus.mood}
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-xs">
-                    <span>Energy</span>
-                    <span>{dashboardData.petStatus.energy}%</span>
-                  </div>
-                  <Progress value={dashboardData.petStatus.energy} className="h-2" />
-                </div>
-                <p className="text-xs font-paragraph text-light-gray mb-3">
-                  {dashboardData.petStatus.nextEvolution - dashboardData.petStatus.level} levels to evolution
-                </p>
-                <div className="space-y-2">
-                  <Button 
-                    size="sm" 
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full"
-                    onClick={handlePetInteraction}
-                  >
-                    <Heart className="h-4 w-4 mr-2" />
-                    Interact (+25 XP)
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 w-full"
+              <Card className="bg-dark-gray border-primary/20 p-6 text-center relative overflow-hidden">
+                {/* Anime-style background effects */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/5 to-cyber-yellow/10 opacity-50"></div>
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/20 rounded-full blur-xl"></div>
+                <div className="absolute bottom-0 left-0 w-16 h-16 bg-secondary/20 rounded-full blur-lg"></div>
+                
+                <div className="relative z-10">
+                  <h3 className="text-lg font-heading font-bold text-foreground mb-4 flex items-center justify-center gap-2">
+                    <span className="text-primary">✨</span>
+                    Your Anime Pet
+                    <span className="text-secondary">✨</span>
+                  </h3>
+                  
+                  {/* Enhanced Pet Display */}
+                  <div 
+                    className="w-28 h-28 mx-auto mb-4 relative cursor-pointer group"
                     onClick={() => setShowPetModal(true)}
                   >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Customize Pet
-                  </Button>
-                  <div className="text-xs font-paragraph text-neon-green">
-                    💧 "{petInteractionCount > 5 ? 'You\'re the best trainer ever!' : 
-                         petInteractionCount > 2 ? 'Thanks for playing with me!' : 
-                         'Remember to drink water!'}"
+                    {/* Multiple layered background effects */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/20 to-cyber-yellow/30 rounded-full blur-lg scale-110 animate-pulse group-hover:scale-125 transition-transform duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/15 to-secondary/15 rounded-full"></div>
+                    
+                    {/* Main pet container */}
+                    <div className="relative z-10 w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center border-2 border-primary/40 group-hover:border-primary/70 transition-all duration-300 shadow-lg">
+                      {/* Enhanced anime-style pet display */}
+                      <div className="relative">
+                        <span className="text-6xl filter drop-shadow-2xl group-hover:scale-110 transition-transform duration-300">🐱</span>
+                        
+                        {/* Floating anime particles */}
+                        <div className="absolute -top-2 -right-2 w-4 h-4 bg-cyber-yellow rounded-full animate-ping opacity-80"></div>
+                        <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-primary rounded-full animate-bounce opacity-70"></div>
+                        <div className="absolute top-1/2 -right-1 w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                        
+                        {/* Holographic effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Floating decorative elements */}
+                    <div className="absolute -top-3 -right-3 w-6 h-6 bg-cyber-yellow rounded-full animate-bounce flex items-center justify-center text-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      ⭐
+                    </div>
+                    <div className="absolute -bottom-3 -left-3 w-5 h-5 bg-primary rounded-full animate-pulse flex items-center justify-center text-xs shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      💎
+                    </div>
+                    
+                    {/* Hover effect overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                  
+                  {/* Enhanced Pet Info */}
+                  <div className="mb-4">
+                    <h4 className="font-heading font-bold text-primary mb-2 flex items-center justify-center gap-2">
+                      <span className="text-cyber-yellow">✦</span>
+                      {dashboardData.petStatus.name}
+                      <span className="text-neon-green">✦</span>
+                    </h4>
+                    
+                    <div className="bg-background/50 rounded-lg p-2 mb-3 border border-primary/20">
+                      <p className="text-sm font-paragraph text-light-gray">
+                        Level {dashboardData.petStatus.level} • {dashboardData.petStatus.mood}
+                      </p>
+                      <div className="flex items-center justify-center gap-2 mt-1">
+                        <Badge className="bg-primary/20 text-primary text-xs">
+                          <span className="mr-1">⚡</span>
+                          Cyber Cat
+                        </Badge>
+                        <Badge className="bg-secondary/20 text-secondary text-xs">
+                          <span className="mr-1">💫</span>
+                          Playful
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Enhanced Energy Bar */}
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-xs">
+                      <span className="flex items-center gap-1">
+                        <span className="text-neon-green">⚡</span>
+                        Energy
+                      </span>
+                      <span className="text-neon-green font-bold">{dashboardData.petStatus.energy}%</span>
+                    </div>
+                    <div className="relative">
+                      <Progress value={dashboardData.petStatus.energy} className="h-3 bg-dark-gray" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-neon-green/20 to-cyber-yellow/20 rounded-full blur-sm"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Evolution Progress */}
+                  <div className="mb-4">
+                    <p className="text-xs font-paragraph text-light-gray mb-2 flex items-center justify-center gap-1">
+                      <span className="text-cyber-yellow">🌟</span>
+                      {dashboardData.petStatus.nextEvolution - dashboardData.petStatus.level} levels to evolution
+                      <span className="text-cyber-yellow">🌟</span>
+                    </p>
+                  </div>
+                  
+                  {/* Enhanced Action Buttons */}
+                  <div className="space-y-2">
+                    <Button 
+                      size="sm" 
+                      className="bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground hover:from-secondary/90 hover:to-secondary/70 w-full border border-secondary/30 shadow-lg transform hover:scale-105 transition-all duration-200"
+                      onClick={handlePetInteraction}
+                    >
+                      <Heart className="h-4 w-4 mr-2" />
+                      <span className="font-heading font-bold">Interact (+25 XP)</span>
+                      <span className="ml-2">💖</span>
+                    </Button>
+                    
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 w-full border-2 shadow-lg transform hover:scale-105 transition-all duration-200"
+                      onClick={() => setShowPetModal(true)}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      <span className="font-heading font-bold">Customize Pet</span>
+                      <span className="ml-2">✨</span>
+                    </Button>
+                    
+                    {/* Pet Chat Bubble */}
+                    <div className="bg-primary/10 rounded-lg p-3 border border-primary/20 mt-3">
+                      <div className="text-xs font-paragraph text-neon-green text-center italic">
+                        <span className="text-primary">💬</span>
+                        "{petInteractionCount > 5 ? 'You\'re the best trainer ever! ✨' : 
+                           petInteractionCount > 2 ? 'Thanks for playing with me! 🎮' : 
+                           'Remember to drink water! 💧'}"
+                        <span className="text-secondary">💬</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>

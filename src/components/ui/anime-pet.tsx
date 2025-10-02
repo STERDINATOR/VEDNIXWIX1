@@ -416,22 +416,59 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
     if (pet.image) {
       return (
         <div className={`relative ${getAnimationClass()}`}>
-          <Image
-            src={pet.image}
-            alt={`${pet.name} - ${pet.type} companion`}
-            width={200}
-            height={200}
-            className="w-full h-full object-cover rounded-lg border-2 border-primary/30"
-          />
+          {/* Anime-style background effects */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-cyber-yellow/20 rounded-lg blur-sm"></div>
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/5 to-secondary/10 rounded-lg"></div>
+          
+          {/* Main pet image with anime styling */}
+          <div className="relative z-10">
+            <Image
+              src={pet.image}
+              alt={`${pet.name} - ${pet.type} companion`}
+              width={200}
+              height={200}
+              className="w-full h-full object-cover rounded-lg border-2 border-primary/50 shadow-lg"
+            />
+            
+            {/* Anime-style glow effects */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-cyber-yellow rounded-lg blur opacity-30 animate-pulse"></div>
+            
+            {/* Floating particles */}
+            <div className="absolute top-2 right-2 w-2 h-2 bg-cyber-yellow rounded-full animate-ping"></div>
+            <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute top-1/2 right-1 w-1 h-1 bg-secondary rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+          </div>
+          
+          {/* Excitement effects */}
           {petAnimation === 'excited' && (
-            <div className="absolute inset-0 rounded-lg border-2 border-primary animate-ping" />
+            <>
+              <div className="absolute inset-0 rounded-lg border-2 border-primary animate-ping" />
+              <div className="absolute -inset-2 bg-primary/20 rounded-lg animate-pulse" />
+            </>
           )}
         </div>
       );
     } else {
       return (
-        <div className={`text-8xl ${getAnimationClass()}`}>
-          {getPetEmoji()}
+        <div className={`relative ${getAnimationClass()}`}>
+          {/* Enhanced emoji display with anime styling */}
+          <div className="relative">
+            {/* Background glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/20 to-cyber-yellow/30 rounded-full blur-lg scale-110"></div>
+            
+            {/* Main emoji with enhanced styling */}
+            <div className="relative z-10 text-8xl filter drop-shadow-2xl">
+              {getPetEmoji()}
+            </div>
+            
+            {/* Anime-style effects around the emoji */}
+            <div className="absolute -top-2 -right-2 w-4 h-4 bg-cyber-yellow rounded-full animate-ping"></div>
+            <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-primary rounded-full animate-bounce"></div>
+            <div className="absolute top-1/2 -right-1 w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+            
+            {/* Holographic effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent rounded-full animate-pulse"></div>
+          </div>
         </div>
       );
     }
@@ -502,44 +539,96 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
                   </TabsList>
 
                   <TabsContent value="interact" className="flex-1 flex flex-col">
-                    {/* Pet Display */}
+                    {/* Pet Display with Enhanced Anime Styling */}
                     <div className="text-center mb-6">
-                      <div className="w-48 h-48 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg p-4 flex items-center justify-center">
-                        {getPetDisplay()}
-                      </div>
-                      
-                      {/* Pet Info */}
-                      <div className="mb-4">
-                        <h4 className="font-heading font-bold text-foreground text-lg mb-2">{pet.name}</h4>
-                        <p className="text-sm font-paragraph text-light-gray mb-2">{pet.backstory}</p>
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Badge className="bg-primary/20 text-primary">
-                            {pet.appearance.pattern} pattern
-                          </Badge>
-                          <Badge className="bg-secondary/20 text-secondary">
-                            {pet.appearance.eyes} eyes
-                          </Badge>
+                      <div className="w-48 h-48 mx-auto mb-4 relative">
+                        {/* Anime-style container with multiple layers */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/20 to-cyber-yellow/30 rounded-lg blur-md"></div>
+                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/10 to-secondary/15 rounded-lg"></div>
+                        
+                        {/* Main pet display area */}
+                        <div className="relative z-10 w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg p-4 flex items-center justify-center border-2 border-primary/30">
+                          {getPetDisplay()}
                         </div>
-                        <p className="text-xs font-paragraph text-light-gray italic">
-                          "Favorite activity: {pet.favoriteActivity}"
-                        </p>
+                        
+                        {/* Floating anime-style elements */}
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-cyber-yellow rounded-full animate-bounce flex items-center justify-center text-xs">✨</div>
+                        <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-primary rounded-full animate-pulse flex items-center justify-center text-xs">💫</div>
+                        <div className="absolute top-1/4 -right-1 w-3 h-3 bg-secondary rounded-full animate-ping"></div>
+                        <div className="absolute bottom-1/4 -left-1 w-4 h-4 bg-neon-green rounded-full animate-pulse opacity-70"></div>
                       </div>
                       
-                      <div className="flex justify-center gap-3">
-                        <Button onClick={feedPet} className="bg-secondary text-secondary-foreground">
+                      {/* Enhanced Pet Info with Anime Styling */}
+                      <div className="mb-4 relative">
+                        {/* Background glow effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-secondary/5 to-cyber-yellow/10 rounded-lg blur-sm"></div>
+                        
+                        <div className="relative z-10 p-4 bg-dark-gray/50 rounded-lg border border-primary/20">
+                          <h4 className="font-heading font-bold text-foreground text-lg mb-2 flex items-center gap-2">
+                            <span className="text-primary">✦</span>
+                            {pet.name}
+                            <span className="text-secondary">✦</span>
+                          </h4>
+                          
+                          <p className="text-sm font-paragraph text-light-gray mb-3 italic">
+                            "{pet.backstory}"
+                          </p>
+                          
+                          <div className="flex items-center justify-center gap-2 mb-3">
+                            <Badge className="bg-primary/20 text-primary border border-primary/30">
+                              <span className="mr-1">🎨</span>
+                              {pet.appearance.pattern} pattern
+                            </Badge>
+                            <Badge className="bg-secondary/20 text-secondary border border-secondary/30">
+                              <span className="mr-1">👁️</span>
+                              {pet.appearance.eyes} eyes
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex items-center justify-center gap-2 mb-3">
+                            <Badge className="bg-cyber-yellow/20 text-cyber-yellow border border-cyber-yellow/30">
+                              <span className="mr-1">😊</span>
+                              {pet.appearance.expression}
+                            </Badge>
+                            <Badge className="bg-neon-green/20 text-neon-green border border-neon-green/30">
+                              <span className="mr-1">📏</span>
+                              {pet.appearance.size}
+                            </Badge>
+                          </div>
+                          
+                          <p className="text-xs font-paragraph text-light-gray italic text-center">
+                            <span className="text-primary">💝</span> "Favorite activity: {pet.favoriteActivity}" <span className="text-secondary">💝</span>
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Enhanced Action Buttons with Anime Styling */}
+                      <div className="flex justify-center gap-3 mb-6">
+                        <Button 
+                          onClick={feedPet} 
+                          className="bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground hover:from-secondary/90 hover:to-secondary/70 border border-secondary/30 shadow-lg transform hover:scale-105 transition-all duration-200"
+                        >
                           <Gift className="h-4 w-4 mr-2" />
-                          Feed
+                          <span className="font-heading font-bold">Feed</span>
+                          <span className="ml-1">🍰</span>
                         </Button>
-                        <Button onClick={playWithPet} className="bg-neon-green text-black">
+                        
+                        <Button 
+                          onClick={playWithPet} 
+                          className="bg-gradient-to-r from-neon-green to-neon-green/80 text-black hover:from-neon-green/90 hover:to-neon-green/70 border border-neon-green/30 shadow-lg transform hover:scale-105 transition-all duration-200"
+                        >
                           <Heart className="h-4 w-4 mr-2" />
-                          Play
+                          <span className="font-heading font-bold">Play</span>
+                          <span className="ml-1">🎮</span>
                         </Button>
+                        
                         <Button 
                           onClick={() => setShowCustomization(true)}
-                          className="bg-cyber-yellow text-black"
+                          className="bg-gradient-to-r from-cyber-yellow to-cyber-yellow/80 text-black hover:from-cyber-yellow/90 hover:to-cyber-yellow/70 border border-cyber-yellow/30 shadow-lg transform hover:scale-105 transition-all duration-200"
                         >
                           <Sparkles className="h-4 w-4 mr-2" />
-                          Customize
+                          <span className="font-heading font-bold">Customize</span>
+                          <span className="ml-1">✨</span>
                         </Button>
                       </div>
                     </div>
@@ -701,16 +790,6 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
             </div>
           </motion.div>
         </motion.div>
-      )}
-      
-      {/* Pet Customization Modal */}
-      {showCustomization && (
-        <PetCustomization
-          isOpen={showCustomization}
-          onClose={() => setShowCustomization(false)}
-          pet={pet}
-          onSave={handleCustomizePet}
-        />
       )}
     </AnimatePresence>
   );
@@ -927,71 +1006,133 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
                 <div className="text-center mb-6">
                   <h4 className="font-heading font-bold text-foreground text-lg mb-4">Pet Preview</h4>
                   
-                  {/* Pet Display */}
-                  <div className="w-48 h-48 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg p-4 flex items-center justify-center relative">
-                    {editedPet.image ? (
-                      <Image
-                        src={editedPet.image}
-                        alt={`${editedPet.name} preview`}
-                        width={200}
-                        height={200}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    ) : (
-                      <div className="text-8xl">
-                        {petTypes.find(type => type.value === editedPet.type)?.emoji}
-                      </div>
-                    )}
+                  {/* Enhanced Pet Preview with Anime Styling */}
+                  <div className="w-48 h-48 mx-auto mb-4 relative">
+                    {/* Multiple layered background effects */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-cyber-yellow/40 rounded-lg blur-lg scale-110 animate-pulse"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/20 to-secondary/20 rounded-lg"></div>
+                    <div className="absolute inset-0 bg-gradient-to-bl from-cyber-yellow/10 via-transparent to-neon-green/10 rounded-lg"></div>
                     
+                    {/* Main display container */}
+                    <div className="relative z-10 w-full h-full bg-gradient-to-br from-dark-gray/80 to-background/80 rounded-lg border-2 border-primary/50 backdrop-blur-sm">
+                      {editedPet.image ? (
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={editedPet.image}
+                            alt={`${editedPet.name} preview`}
+                            width={200}
+                            height={200}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                          
+                          {/* Anime-style overlay effects */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-primary/10 rounded-lg"></div>
+                          <div className="absolute top-2 right-2 w-3 h-3 bg-cyber-yellow rounded-full animate-ping"></div>
+                          <div className="absolute bottom-2 left-2 w-2 h-2 bg-secondary rounded-full animate-bounce"></div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center relative">
+                          {/* Enhanced emoji display */}
+                          <div className="relative">
+                            <div className="text-8xl filter drop-shadow-2xl">
+                              {petTypes.find(type => type.value === editedPet.type)?.emoji}
+                            </div>
+                            
+                            {/* Floating anime elements */}
+                            <div className="absolute -top-2 -right-2 text-lg animate-bounce">✨</div>
+                            <div className="absolute -bottom-2 -left-2 text-sm animate-pulse">💫</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Floating decorative elements */}
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-cyber-yellow rounded-full animate-bounce flex items-center justify-center text-lg shadow-lg">
+                      ⭐
+                    </div>
+                    <div className="absolute -bottom-3 -left-3 w-6 h-6 bg-primary rounded-full animate-pulse flex items-center justify-center text-sm shadow-lg">
+                      💎
+                    </div>
+                    <div className="absolute top-1/4 -right-2 w-4 h-4 bg-secondary rounded-full animate-ping opacity-70"></div>
+                    <div className="absolute bottom-1/4 -left-2 w-5 h-5 bg-neon-green rounded-full animate-pulse opacity-60"></div>
+                    
+                    {/* Generation loading overlay */}
                     {isGeneratingImage && (
-                      <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/70 rounded-lg flex items-center justify-center z-20 backdrop-blur-sm">
                         <div className="text-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                          <p className="text-xs text-foreground">Generating...</p>
+                          <div className="relative mb-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
+                            <div className="absolute inset-0 animate-ping rounded-full h-12 w-12 border-2 border-secondary opacity-30"></div>
+                          </div>
+                          <p className="text-sm text-foreground font-heading font-bold">Generating Anime Pet...</p>
+                          <p className="text-xs text-light-gray mt-1">✨ Creating your perfect companion ✨</p>
                         </div>
                       </div>
                     )}
                   </div>
                   
-                  <h5 className="font-heading font-bold text-foreground text-lg mb-2">{editedPet.name}</h5>
-                  <p className="text-sm font-paragraph text-light-gray mb-4">{editedPet.backstory}</p>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <Badge className="bg-primary/20 text-primary">
-                        {editedPet.type}
-                      </Badge>
-                      <Badge className="bg-secondary/20 text-secondary">
-                        {editedPet.personality}
-                      </Badge>
+                  {/* Enhanced Pet Info Display */}
+                  <div className="text-center mb-6">
+                    <h5 className="font-heading font-bold text-foreground text-xl mb-2 flex items-center justify-center gap-2">
+                      <span className="text-primary">✦</span>
+                      {editedPet.name}
+                      <span className="text-secondary">✦</span>
+                    </h5>
+                    
+                    <div className="bg-dark-gray/50 rounded-lg p-3 mb-4 border border-primary/20">
+                      <p className="text-sm font-paragraph text-light-gray mb-3 italic">
+                        "{editedPet.backstory}"
+                      </p>
+                      
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <Badge className="bg-primary/20 text-primary border border-primary/30">
+                            <span className="mr-1">🎭</span>
+                            {editedPet.type}
+                          </Badge>
+                          <Badge className="bg-secondary/20 text-secondary border border-secondary/30">
+                            <span className="mr-1">💫</span>
+                            {editedPet.personality}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center justify-center gap-2">
+                          <Badge variant="outline" className="border-primary/30 text-primary text-xs">
+                            <span className="mr-1">🎨</span>
+                            {editedPet.appearance.pattern} pattern
+                          </Badge>
+                          <Badge variant="outline" className="border-secondary/30 text-secondary text-xs">
+                            <span className="mr-1">👁️</span>
+                            {editedPet.appearance.eyes} eyes
+                          </Badge>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Badge variant="outline" className="border-primary/30 text-primary text-xs">
-                        {editedPet.appearance.pattern} pattern
-                      </Badge>
-                      <Badge variant="outline" className="border-secondary/30 text-secondary text-xs">
-                        {editedPet.appearance.eyes} eyes
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    onClick={generateAIPetImage}
-                    disabled={isGeneratingImage}
-                    className="bg-cyber-yellow text-black hover:bg-cyber-yellow/90 w-full mb-4"
-                  >
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    {isGeneratingImage ? 'Generating...' : 'Generate AI Image'}
-                  </Button>
-                  
-                  <div className="text-xs font-paragraph text-light-gray">
-                    <p className="mb-1">Special Abilities:</p>
-                    <div className="flex flex-wrap gap-1 justify-center">
-                      {editedPet.specialAbilities.map((ability, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs border-neon-green/30 text-neon-green">
-                          {ability}
-                        </Badge>
-                      ))}
+                    
+                    {/* Enhanced Generate Button */}
+                    <Button 
+                      onClick={generateAIPetImage}
+                      disabled={isGeneratingImage}
+                      className="bg-gradient-to-r from-cyber-yellow to-cyber-yellow/80 text-black hover:from-cyber-yellow/90 hover:to-cyber-yellow/70 w-full mb-4 border border-cyber-yellow/30 shadow-lg transform hover:scale-105 transition-all duration-200"
+                    >
+                      <Wand2 className="h-4 w-4 mr-2" />
+                      <span className="font-heading font-bold">
+                        {isGeneratingImage ? 'Generating Magic...' : 'Generate AI Pet Image'}
+                      </span>
+                      <span className="ml-2">✨</span>
+                    </Button>
+                    
+                    {/* Special Abilities Display */}
+                    <div className="text-xs font-paragraph text-light-gray">
+                      <p className="mb-2 text-primary font-bold">🌟 Special Abilities:</p>
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {editedPet.specialAbilities.map((ability, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs border-neon-green/30 text-neon-green bg-neon-green/10">
+                            <span className="mr-1">⚡</span>
+                            {ability}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1286,16 +1427,6 @@ export function PetCustomization({ isOpen, onClose, pet, onSave }: PetCustomizat
             </div>
           </motion.div>
         </motion.div>
-      )}
-      
-      {/* Pet Customization Modal */}
-      {showCustomization && (
-        <PetCustomization
-          isOpen={showCustomization}
-          onClose={() => setShowCustomization(false)}
-          pet={pet}
-          onSave={handleCustomizePet}
-        />
       )}
     </AnimatePresence>
   );
