@@ -7,7 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Image } from '@/components/ui/image';
 import { AnimeCharacterGenerator } from '@/components/ui/anime-character-generator';
-import { geminiAI, type CharacterPersonality, type MentorResponse } from '@/lib/gemini-ai';
+import { 
+  geminiAI, 
+  type CharacterPersonality, 
+  type MentorResponse,
+  type DoubtSolvingSession,
+  startMentorSession,
+  startDoubtSession,
+  setupNotifications
+} from '@/lib/gemini-ai';
 import { 
   Mic, 
   MicOff, 
@@ -32,7 +40,13 @@ import {
   Heart,
   AlertCircle,
   TrendingUp,
-  Eye
+  Eye,
+  Bell,
+  BellOff,
+  Headphones,
+  HelpCircle,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -60,9 +74,21 @@ interface AnimeMentorProps {
   isOpen: boolean;
   onClose: () => void;
   userCharacter?: any; // The character created by the user
+  enableRealTime?: boolean;
+  customName?: string;
+  enableNotifications?: boolean;
+  enableDoubtSolving?: boolean;
 }
 
-export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps) {
+export function AnimeMentor({ 
+  isOpen, 
+  onClose, 
+  userCharacter,
+  enableRealTime = true,
+  customName,
+  enableNotifications = true,
+  enableDoubtSolving = true
+}: AnimeMentorProps) {
   const [isCallActive, setIsCallActive] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
@@ -73,6 +99,15 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
   const [selectedMentor, setSelectedMentor] = useState<any>(null);
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [aiServiceStatus, setAIServiceStatus] = useState<any>(null);
+  
+  // Real-time features
+  const [realTimeSessionId, setRealTimeSessionId] = useState<string | null>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(enableNotifications);
+  const [doubtSolvingMode, setDoubtSolvingMode] = useState(false);
+  const [activeDoubtSession, setActiveDoubtSession] = useState<DoubtSolvingSession | null>(null);
+  const [wakeUpCommandsActive, setWakeUpCommandsActive] = useState(true);
+  const [currentSubject, setCurrentSubject] = useState('General');
+  const [questionDifficulty, setQuestionDifficulty] = useState<'easy' | 'medium' | 'hard' | 'expert'>('medium');
   
   // Mood Detection States
   const [currentMood, setCurrentMood] = useState<MoodDetectionResult | null>(null);
@@ -95,13 +130,16 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     personalizedAdvice?: string;
     motivationalQuote?: string;
     detectedMood?: MoodDetectionResult;
+    isRealTime?: boolean;
+    sessionId?: string;
+    audioUrl?: string;
   }>>([]);
 
   // Use user's character if provided, otherwise use default mentor
   const [mentor, setMentor] = useState<MentorPersonality>(() => {
     if (userCharacter) {
       return {
-        name: userCharacter.name || 'Your AI Mentor',
+        name: customName || userCharacter.customName || userCharacter.name || 'Your AI Mentor',
         personality: userCharacter.personality?.description || 'Wise and encouraging, with a touch of humor',
         expertise: userCharacter.abilities ? [userCharacter.abilities.element, 'General Studies'] : ['Programming', 'Mathematics', 'Physics', 'Study Techniques'],
         voiceType: userCharacter.voiceSettings?.tone || 'wise',
@@ -115,7 +153,7 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     }
     
     return selectedMentor || {
-      name: 'Akira Sensei',
+      name: customName || 'Akira Sensei',
       personality: 'Wise and encouraging, with a touch of humor',
       expertise: ['Programming', 'Mathematics', 'Physics', 'Study Techniques'],
       voiceType: 'wise',
@@ -371,6 +409,84 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     const status = geminiAI.getServiceStatus();
     setAIServiceStatus(status);
     
+    // Setup notifications if enabled
+    if (enableNotifications && customName) {
+      setupNotifications(customName);
+      geminiAI.updateNotificationSettings({ 
+        enabled: true, 
+        customName,
+        studyReminders: true,
+        breakReminders: true,
+        motivationalMessages: true,
+        petCare: true
+      });
+    }
+    
+    // Start real-time session if enabled
+    if (enableRealTime && isCallActive) {
+      const sessionId = startMentorSession(customName);
+      setRealTimeSessionId(sessionId);
+    }
+    
+    // Listen for AI notifications and wake-up commands
+    const handleAINotification = (event: CustomEvent) => {
+      const { title, message, type, action } = event.detail;
+      // Handle in-app notifications
+      console.log('AI Notification:', { title, message, type });
+      if (action) action();
+    };
+
+    const handleWakeUpCommand = (event: CustomEvent) => {
+      const { command, response, action, customName } = event.detail;
+      if (action === 'mentor') {
+        setIsCallActive(true);
+        handleSendMessage(`${customName || 'User'} called: ${command}`);
+      }
+    };
+
+    const handleMentorSessionStarted = (event: CustomEvent) => {
+      const { sessionId, customName } = event.detail;
+      setRealTimeSessionId(sessionId);
+      setIsCallActive(true);
+    };
+
+    const handleDoubtSessionStarted = (event: CustomEvent) => {
+      const { sessionId, subject, difficulty, initialResponse } = event.detail;
+      setActiveDoubtSession({
+        id: sessionId,
+        subject,
+        difficulty,
+        question: '',
+        isActive: true,
+        startTime: new Date(),
+        responses: []
+      });
+      setDoubtSolvingMode(true);
+      setCurrentSubject(subject);
+      setQuestionDifficulty(difficulty);
+      
+      // Add initial response to chat
+      if (initialResponse) {
+        const newMessage = {
+          id: `msg-${Date.now()}`,
+          sender: 'mentor' as const,
+          message: initialResponse.message,
+          timestamp: new Date(),
+          emotion: initialResponse.emotion,
+          actionSuggestion: initialResponse.actionSuggestion,
+          studyTip: initialResponse.studyTip,
+          isRealTime: true,
+          sessionId
+        };
+        setChatHistory(prev => [...prev, newMessage]);
+      }
+    };
+
+    window.addEventListener('ai-notification', handleAINotification);
+    window.addEventListener('wake-up-command', handleWakeUpCommand);
+    window.addEventListener('mentor-session-started', handleMentorSessionStarted);
+    window.addEventListener('doubt-session-started', handleDoubtSessionStarted);
+    
     // Initialize speech recognition with error handling
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       try {
@@ -410,12 +526,22 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
             videoRef.current.srcObject = stream;
           }
         })
-        .catch(error => {
-          console.log('Camera access denied or not available');
-        });
+        .catch(err => console.log('Camera access denied:', err));
     }
-  }, []);
 
+    return () => {
+      window.removeEventListener('ai-notification', handleAINotification);
+      window.removeEventListener('wake-up-command', handleWakeUpCommand);
+      window.removeEventListener('mentor-session-started', handleMentorSessionStarted);
+      window.removeEventListener('doubt-session-started', handleDoubtSessionStarted);
+      
+      if (realTimeSessionId) {
+        geminiAI.endSession(realTimeSessionId);
+      }
+      if (activeDoubtSession) {
+        geminiAI.endDoubtSolvingSession(activeDoubtSession.id, 3, false);
+      }
+    };
   // Mood detection interval
   useEffect(() => {
     if (isCallActive && isMoodDetectionActive) {
@@ -430,12 +556,20 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
 
   const startCall = async () => {
     setIsCallActive(true);
+    
+    // Start real-time session if enabled
+    if (enableRealTime) {
+      const sessionId = startMentorSession(customName);
+      setRealTimeSessionId(sessionId);
+    }
+    
     // Simulate mentor greeting with personalized message
     setTimeout(async () => {
       setIsMentorSpeaking(true);
+      const mentorName = customName || mentor.name;
       const greeting = userCharacter 
-        ? `Hello! I'm ${mentor.name}, your personal AI mentor. ${userCharacter.personality?.catchphrase || 'Ready to learn together?'} I can also detect your mood to provide better support. How can I help you with your studies today?`
-        : "Hello! I'm Akira, your personal AI mentor with mood detection capabilities. How can I help you with your studies today?";
+        ? `Hello! I'm ${mentorName}, your personal AI mentor. ${userCharacter.personality?.catchphrase || 'Ready to learn together?'} I can detect your mood and provide real-time support. How can I help you with your studies today?`
+        : `Hello! I'm ${mentorName}, your personal AI mentor with real-time capabilities and mood detection. How can I help you with your studies today?`;
       
       await addMentorMessage(greeting, false);
       setTimeout(() => setIsMentorSpeaking(false), 4000);
@@ -448,6 +582,19 @@ export function AnimeMentor({ isOpen, onClose, userCharacter }: AnimeMentorProps
     setIsListening(false);
     setCurrentMood(null);
     setMoodHistory([]);
+    
+    // End real-time session
+    if (realTimeSessionId) {
+      geminiAI.endSession(realTimeSessionId);
+      setRealTimeSessionId(null);
+    }
+    
+    // End doubt solving session if active
+    if (activeDoubtSession) {
+      geminiAI.endDoubtSolvingSession(activeDoubtSession.id, 3, true);
+      setActiveDoubtSession(null);
+      setDoubtSolvingMode(false);
+    }
     
     if (recognitionRef.current) {
       recognitionRef.current.stop();

@@ -1,11 +1,40 @@
-// Gemini AI Integration for VEDNIX
-// This service provides AI-powered features for the anime mentor and pet
+// Enhanced Gemini AI Integration for VEDNIX
+// Real-time AI-powered features for anime mentor and pet interactions
 
 interface GeminiConfig {
-  apiKey?: string;
+  apiKey?: AIzaSyCusXcqVwzJmJWOOdpdxxkVtsZ3-XhyC1g;
   model: string;
   temperature: number;
   maxTokens: number;
+  realTimeEnabled: boolean;
+  notificationsEnabled: boolean;
+  wakeUpCommandsEnabled: boolean;
+  imageGenerationEnabled: boolean;
+}
+
+interface NotificationSettings {
+  enabled: boolean;
+  studyReminders: boolean;
+  breakReminders: boolean;
+  motivationalMessages: boolean;
+  petCare: boolean;
+  customName?: string;
+}
+
+interface WakeUpCommand {
+  phrase: string;
+  customName?: string;
+  response: string;
+  action?: 'mentor' | 'pet' | 'study' | 'break' | 'help';
+}
+
+interface RealTimeSession {
+  id: string;
+  type: 'mentor' | 'pet' | 'doubt-solving';
+  isActive: boolean;
+  startTime: Date;
+  participantName?: string;
+  context: any;
 }
 
 interface GeminiResponse {
@@ -22,6 +51,13 @@ interface CharacterPersonality {
   catchphrase: string;
   trait: string;
   backstory?: string;
+  customName?: string; // User-customized name for wake-up commands
+  imageUrl?: string; // Real-time generated character image
+  voiceSettings?: {
+    pitch: number;
+    speed: number;
+    tone: string;
+  };
 }
 
 interface MentorResponse {
@@ -31,6 +67,14 @@ interface MentorResponse {
   studyTip?: string;
   personalizedAdvice?: string;
   motivationalQuote?: string;
+  isRealTime?: boolean;
+  sessionId?: string;
+  audioResponse?: string; // Text-to-speech audio URL
+  visualCues?: {
+    expression: string;
+    gesture: string;
+    backgroundEffect?: string;
+  };
 }
 
 interface PetResponse {
@@ -40,21 +84,77 @@ interface PetResponse {
   healthTip?: string;
   encouragement?: string;
   activitySuggestion?: string;
+  isRealTime?: boolean;
+  customName?: string;
+  imageUrl?: string; // Real-time generated pet image
+  animation?: {
+    type: 'bounce' | 'purr' | 'wiggle' | 'sleep' | 'play';
+    duration: number;
+  };
+}
+
+interface DoubtSolvingSession {
+  id: string;
+  subject: string;
+  question: string;
+  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+  isActive: boolean;
+  startTime: Date;
+  responses: Array<{
+    timestamp: Date;
+    type: 'user' | 'mentor';
+    content: string;
+    attachments?: string[];
+  }>;
+  resolution?: {
+    solved: boolean;
+    satisfaction: number;
+    followUpNeeded: boolean;
+  };
 }
 
 class GeminiAIService {
   private config: GeminiConfig;
   private isAvailable: boolean = false;
+  private notificationSettings: NotificationSettings;
+  private wakeUpCommands: WakeUpCommand[];
+  private activeSessions: Map<string, RealTimeSession>;
+  private doubtSolvingSessions: Map<string, DoubtSolvingSession>;
+  private notificationInterval?: NodeJS.Timeout;
 
   constructor() {
     this.config = {
       model: 'gemini-pro',
       temperature: 0.7,
-      maxTokens: 500
+      maxTokens: 500,
+      realTimeEnabled: true,
+      notificationsEnabled: true,
+      wakeUpCommandsEnabled: true,
+      imageGenerationEnabled: true
     };
     
-    // Check if Gemini AI is available (mock for now)
+    this.notificationSettings = {
+      enabled: true,
+      studyReminders: true,
+      breakReminders: true,
+      motivationalMessages: true,
+      petCare: true
+    };
+
+    this.wakeUpCommands = [
+      { phrase: 'hey mentor', response: 'I\'m here to help you learn!', action: 'mentor' },
+      { phrase: 'wake up pet', response: '*stretches and purrs* I\'m awake! Ready to study together?', action: 'pet' },
+      { phrase: 'study time', response: 'Let\'s make this learning session amazing!', action: 'study' },
+      { phrase: 'help me', response: 'Of course! What can I help you with?', action: 'help' }
+    ];
+
+    this.activeSessions = new Map();
+    this.doubtSolvingSessions = new Map();
+    
+    // Initialize service and start real-time features
     this.initializeService();
+    this.startNotificationSystem();
+    this.initializeWakeUpCommands();
   }
 
   private async initializeService() {
@@ -62,20 +162,365 @@ class GeminiAIService {
       // In a real implementation, this would check for API availability
       // For now, we'll simulate the service being available
       this.isAvailable = true;
-      console.log('Gemini AI Service initialized successfully');
+      console.log('Enhanced Gemini AI Service initialized successfully');
+      console.log('Real-time features enabled:', {
+        realTime: this.config.realTimeEnabled,
+        notifications: this.config.notificationsEnabled,
+        wakeUpCommands: this.config.wakeUpCommandsEnabled,
+        imageGeneration: this.config.imageGenerationEnabled
+      });
     } catch (error) {
       console.warn('Gemini AI Service not available, using fallback responses');
       this.isAvailable = false;
     }
   }
 
-  // Generate anime character personality using AI
+  // Real-time notification system
+  private startNotificationSystem() {
+    if (!this.notificationSettings.enabled) return;
+
+    // Check every 30 minutes for study reminders
+    this.notificationInterval = setInterval(() => {
+      this.checkAndSendNotifications();
+    }, 30 * 60 * 1000);
+
+    console.log('Real-time notification system started');
+  }
+
+  private async checkAndSendNotifications() {
+    const now = new Date();
+    const hour = now.getHours();
+    
+    // Study reminders during productive hours
+    if (this.notificationSettings.studyReminders && (hour >= 9 && hour <= 21)) {
+      const lastStudyTime = localStorage.getItem('lastStudyTime');
+      const lastStudy = lastStudyTime ? new Date(lastStudyTime) : null;
+      
+      if (!lastStudy || (now.getTime() - lastStudy.getTime()) > 2 * 60 * 60 * 1000) {
+        this.sendNotification({
+          title: `${this.notificationSettings.customName || 'Your AI Mentor'} is calling!`,
+          message: 'Ready for another learning adventure? Your knowledge awaits! 📚✨',
+          type: 'study-reminder',
+          action: () => this.triggerWakeUpCommand('study time')
+        });
+      }
+    }
+
+    // Break reminders for active study sessions
+    if (this.notificationSettings.breakReminders && this.activeSessions.size > 0) {
+      for (const [sessionId, session] of this.activeSessions) {
+        const sessionDuration = now.getTime() - session.startTime.getTime();
+        if (sessionDuration > 50 * 60 * 1000) { // 50 minutes
+          this.sendNotification({
+            title: 'Time for a break! 🌸',
+            message: 'You\'ve been studying hard! Your pet misses you - time for a quick break together!',
+            type: 'break-reminder',
+            action: () => this.triggerWakeUpCommand('wake up pet')
+          });
+        }
+      }
+    }
+
+    // Pet care reminders
+    if (this.notificationSettings.petCare) {
+      const lastPetInteraction = localStorage.getItem('lastPetInteraction');
+      const lastInteraction = lastPetInteraction ? new Date(lastPetInteraction) : null;
+      
+      if (!lastInteraction || (now.getTime() - lastInteraction.getTime()) > 4 * 60 * 60 * 1000) {
+        this.sendNotification({
+          title: 'Your pet needs attention! 🐾',
+          message: '*sad meow* I miss you! Come play with me for a few minutes? 💕',
+          type: 'pet-care',
+          action: () => this.triggerWakeUpCommand('wake up pet')
+        });
+      }
+    }
+  }
+
+  private sendNotification(notification: {
+    title: string;
+    message: string;
+    type: string;
+    action?: () => void;
+  }) {
+    // Browser notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const browserNotification = new Notification(notification.title, {
+        body: notification.message,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: notification.type
+      });
+
+      browserNotification.onclick = () => {
+        window.focus();
+        notification.action?.();
+        browserNotification.close();
+      };
+    }
+
+    // In-app notification (could trigger a toast or modal)
+    this.dispatchCustomEvent('ai-notification', {
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+      action: notification.action
+    });
+  }
+
+  // Wake-up command system
+  private initializeWakeUpCommands() {
+    if (!this.config.wakeUpCommandsEnabled) return;
+
+    // Listen for voice commands (simulated with keyboard shortcuts for demo)
+    document.addEventListener('keydown', (event) => {
+      // Ctrl + Shift + M for mentor
+      if (event.ctrlKey && event.shiftKey && event.key === 'M') {
+        this.triggerWakeUpCommand('hey mentor');
+      }
+      // Ctrl + Shift + P for pet
+      if (event.ctrlKey && event.shiftKey && event.key === 'P') {
+        this.triggerWakeUpCommand('wake up pet');
+      }
+      // Ctrl + Shift + S for study
+      if (event.ctrlKey && event.shiftKey && event.key === 'S') {
+        this.triggerWakeUpCommand('study time');
+      }
+    });
+
+    console.log('Wake-up commands initialized. Use Ctrl+Shift+M/P/S for quick access!');
+  }
+
+  public triggerWakeUpCommand(phrase: string) {
+    const command = this.wakeUpCommands.find(cmd => 
+      phrase.toLowerCase().includes(cmd.phrase.toLowerCase())
+    );
+
+    if (command) {
+      const customName = this.notificationSettings.customName;
+      let response = command.response;
+      
+      if (customName && command.action === 'mentor') {
+        response = response.replace('I\'m here', `${customName} is here`);
+      }
+
+      this.dispatchCustomEvent('wake-up-command', {
+        command: command.phrase,
+        response,
+        action: command.action,
+        customName
+      });
+
+      // Start appropriate session
+      if (command.action === 'mentor') {
+        this.startRealTimeMentorSession();
+      } else if (command.action === 'pet') {
+        this.startRealTimePetSession();
+      } else if (command.action === 'study') {
+        this.startStudySession();
+      }
+
+      return response;
+    }
+
+    return 'I didn\'t understand that command. Try "hey mentor", "wake up pet", or "study time"!';
+  }
+
+  // Real-time session management
+  public startRealTimeMentorSession(context?: any): string {
+    const sessionId = `mentor-${Date.now()}`;
+    const session: RealTimeSession = {
+      id: sessionId,
+      type: 'mentor',
+      isActive: true,
+      startTime: new Date(),
+      participantName: this.notificationSettings.customName,
+      context: context || {}
+    };
+
+    this.activeSessions.set(sessionId, session);
+    
+    this.dispatchCustomEvent('mentor-session-started', {
+      sessionId,
+      customName: this.notificationSettings.customName
+    });
+
+    return sessionId;
+  }
+
+  public startRealTimePetSession(context?: any): string {
+    const sessionId = `pet-${Date.now()}`;
+    const session: RealTimeSession = {
+      id: sessionId,
+      type: 'pet',
+      isActive: true,
+      startTime: new Date(),
+      participantName: this.notificationSettings.customName,
+      context: context || {}
+    };
+
+    this.activeSessions.set(sessionId, session);
+    
+    this.dispatchCustomEvent('pet-session-started', {
+      sessionId,
+      customName: this.notificationSettings.customName
+    });
+
+    return sessionId;
+  }
+
+  public startStudySession(): string {
+    const sessionId = `study-${Date.now()}`;
+    localStorage.setItem('lastStudyTime', new Date().toISOString());
+    
+    this.dispatchCustomEvent('study-session-started', { sessionId });
+    
+    return sessionId;
+  }
+
+  // Real-time doubt solving session
+  public async startDoubtSolvingSession(
+    subject: string,
+    question: string,
+    difficulty: 'easy' | 'medium' | 'hard' | 'expert' = 'medium'
+  ): Promise<string> {
+    const sessionId = `doubt-${Date.now()}`;
+    const session: DoubtSolvingSession = {
+      id: sessionId,
+      subject,
+      question,
+      difficulty,
+      isActive: true,
+      startTime: new Date(),
+      responses: [{
+        timestamp: new Date(),
+        type: 'user',
+        content: question
+      }]
+    };
+
+    this.doubtSolvingSessions.set(sessionId, session);
+
+    // Generate initial mentor response
+    const mentorResponse = await this.generateRealTimeMentorResponse(
+      question,
+      {
+        name: this.notificationSettings.customName || 'AI Mentor',
+        personality: 'Expert problem solver who breaks down complex concepts',
+        voiceType: 'wise',
+        expertise: [subject],
+        catchphrase: 'Let\'s solve this step by step!',
+        trait: 'Patient and thorough'
+      },
+      {
+        subject,
+        difficulty,
+        sessionType: 'doubt-solving',
+        isRealTime: true
+      }
+    );
+
+    session.responses.push({
+      timestamp: new Date(),
+      type: 'mentor',
+      content: mentorResponse.message
+    });
+
+    this.dispatchCustomEvent('doubt-session-started', {
+      sessionId,
+      subject,
+      difficulty,
+      initialResponse: mentorResponse
+    });
+
+    return sessionId;
+  }
+
+  public async addDoubtSessionMessage(
+    sessionId: string,
+    message: string,
+    attachments?: string[]
+  ): Promise<MentorResponse | null> {
+    const session = this.doubtSolvingSessions.get(sessionId);
+    if (!session || !session.isActive) return null;
+
+    // Add user message
+    session.responses.push({
+      timestamp: new Date(),
+      type: 'user',
+      content: message,
+      attachments
+    });
+
+    // Generate mentor response
+    const context = {
+      subject: session.subject,
+      difficulty: session.difficulty,
+      sessionHistory: session.responses,
+      isRealTime: true,
+      sessionType: 'doubt-solving'
+    };
+
+    const mentorResponse = await this.generateRealTimeMentorResponse(
+      message,
+      {
+        name: this.notificationSettings.customName || 'AI Mentor',
+        personality: 'Expert problem solver focused on understanding',
+        voiceType: 'wise',
+        expertise: [session.subject],
+        catchphrase: 'Let\'s work through this together!',
+        trait: 'Analytical and supportive'
+      },
+      context
+    );
+
+    session.responses.push({
+      timestamp: new Date(),
+      type: 'mentor',
+      content: mentorResponse.message
+    });
+
+    return mentorResponse;
+  }
+
+  public endDoubtSolvingSession(
+    sessionId: string,
+    satisfaction: number,
+    solved: boolean = true
+  ): boolean {
+    const session = this.doubtSolvingSessions.get(sessionId);
+    if (!session) return false;
+
+    session.isActive = false;
+    session.resolution = {
+      solved,
+      satisfaction,
+      followUpNeeded: satisfaction < 4 || !solved
+    };
+
+    this.dispatchCustomEvent('doubt-session-ended', {
+      sessionId,
+      resolution: session.resolution,
+      duration: Date.now() - session.startTime.getTime()
+    });
+
+    return true;
+  }
+
+  private dispatchCustomEvent(eventName: string, detail: any) {
+    const event = new CustomEvent(eventName, { detail });
+    window.dispatchEvent(event);
+  }
+
+  // Enhanced character generation with real-time image generation
   async generateCharacterPersonality(preferences: {
     subject?: string;
     learningStyle?: string;
     personality?: string;
     userLevel?: number;
     userInterests?: string[];
+    customName?: string;
+    generateImage?: boolean;
   }): Promise<CharacterPersonality> {
     if (!this.isAvailable) {
       return this.getFallbackCharacter(preferences);
@@ -88,32 +533,65 @@ class GeminiAIService {
       - Personality type: ${preferences.personality || 'wise'}
       - User level: ${preferences.userLevel || 'beginner'}
       - User interests: ${preferences.userInterests?.join(', ') || 'technology, learning'}
+      ${preferences.customName ? `- Custom name preference: ${preferences.customName}` : ''}
       
       Generate a character that would be perfect for this user's learning journey:
-      - A unique Japanese name that reflects their expertise
+      - A unique Japanese name that reflects their expertise (or adapt ${preferences.customName} if provided)
       - Rich personality description (3-4 sentences) that shows depth and relatability
       - Voice type (gentle/energetic/wise/friendly) that matches the user's learning style
       - 3-4 areas of expertise that align with user interests
       - A memorable catchphrase that's motivational and character-specific
       - A defining personality trait that makes them unique
       - Background story snippet that explains their teaching philosophy
+      - Voice settings (pitch: 0.5-1.5, speed: 0.8-1.2, tone description)
       
       Make the character feel alive, with quirks and depth that would make learning engaging.
       
-      Format as JSON with keys: name, personality, voiceType, expertise, catchphrase, trait, backstory`;
+      Format as JSON with keys: name, personality, voiceType, expertise, catchphrase, trait, backstory, voiceSettings`;
 
-      // Simulate AI response (in real implementation, this would call Gemini API)
       const aiResponse = await this.simulateGeminiResponse(prompt);
+      const character = this.parseCharacterResponse(aiResponse.text) || this.getFallbackCharacter(preferences);
       
-      return this.parseCharacterResponse(aiResponse.text) || this.getFallbackCharacter(preferences);
+      // Add custom name if provided
+      if (preferences.customName) {
+        character.customName = preferences.customName;
+      }
+
+      // Generate character image if requested
+      if (preferences.generateImage && this.config.imageGenerationEnabled) {
+        character.imageUrl = await this.generateCharacterImage(character);
+      }
+
+      return character;
     } catch (error) {
       console.error('Error generating character:', error);
       return this.getFallbackCharacter(preferences);
     }
   }
 
-  // Generate mentor response using AI
-  async generateMentorResponse(
+  // Real-time image generation for characters
+  private async generateCharacterImage(character: CharacterPersonality): Promise<string> {
+    try {
+      // Simulate image generation (in real implementation, this would call an image generation API)
+      const imagePrompt = `Anime-style character portrait: ${character.name}, ${character.personality}, ${character.trait}, Japanese anime art style, high quality, detailed, educational mentor appearance`;
+      
+      // For demo purposes, return a placeholder that would be replaced with actual generated image
+      const imageId = `character-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      return `https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=${imageId}`;
+    } catch (error) {
+      console.error('Error generating character image:', error);
+      // Return fallback character images
+      const fallbackImages = [
+        'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png',
+        'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png',
+        'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png'
+      ];
+      return fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+    }
+  }
+
+  // Enhanced mentor response with real-time features
+  async generateRealTimeMentorResponse(
     userMessage: string,
     character: CharacterPersonality,
     context: {
@@ -123,6 +601,9 @@ class GeminiAIService {
       recentActivity?: string;
       userMood?: string;
       timeOfDay?: string;
+      isRealTime?: boolean;
+      sessionType?: 'general' | 'doubt-solving' | 'study-session';
+      sessionHistory?: Array<{timestamp: Date; type: string; content: string}>;
       studySession?: {
         duration: number;
         questionsAnswered: number;
@@ -140,11 +621,16 @@ class GeminiAIService {
       const moodContext = context.userMood ? `User seems: ${context.userMood}` : '';
       const sessionContext = context.studySession ? 
         `Study session: ${context.studySession.duration}min, ${context.studySession.correctAnswers}/${context.studySession.questionsAnswered} correct, ${context.studySession.streak} streak` : '';
+      const historyContext = context.sessionHistory ? 
+        `Recent conversation: ${context.sessionHistory.slice(-3).map(h => `${h.type}: ${h.content}`).join('; ')}` : '';
 
-      const prompt = `You are ${character.name}, an AI mentor with this personality: ${character.personality}
+      const customName = character.customName || character.name;
+
+      const prompt = `You are ${customName}, an AI mentor with this personality: ${character.personality}
       Your catchphrase is: "${character.catchphrase}"
       Your expertise: ${character.expertise.join(', ')}
       Your trait: ${character.trait}
+      Voice settings: ${character.voiceSettings ? `Pitch: ${character.voiceSettings.pitch}, Speed: ${character.voiceSettings.speed}, Tone: ${character.voiceSettings.tone}` : 'Natural and warm'}
       
       User said: "${userMessage}"
       
@@ -153,36 +639,55 @@ class GeminiAIService {
       - Difficulty: ${context.difficulty || 'medium'}
       - Progress: ${context.userProgress || 0}%
       - Recent activity: ${context.recentActivity || 'studying'}
+      - Session type: ${context.sessionType || 'general'}
+      - Real-time session: ${context.isRealTime ? 'Yes' : 'No'}
       ${timeContext}
       ${moodContext}
       ${sessionContext}
+      ${historyContext}
       
-      As ${character.name}, provide a response that:
+      As ${customName}, provide a response that:
       1. Reflects your unique personality and speaking style
       2. Addresses the user's specific question or concern
       3. Considers their current context and mood
       4. Offers practical, actionable advice
       5. Maintains an encouraging but authentic tone
       6. Uses your expertise to provide valuable insights
+      ${context.isRealTime ? '7. Provides immediate, conversational responses suitable for real-time interaction' : ''}
+      ${context.sessionType === 'doubt-solving' ? '8. Focuses on step-by-step problem solving and clear explanations' : ''}
       
       Respond with:
       - A personalized, contextual message (2-4 sentences) that feels natural to your character
-      - An emotion that matches the situation (happy/encouraging/thoughtful/excited/supportive/concerned/proud)
+      - An emotion that matches the situation
       - An actionable suggestion tailored to their current situation
       - A study tip that relates to their specific context
+      ${context.isRealTime ? '- Visual cues for expression and gesture' : ''}
       
-      Format as JSON with keys: message, emotion, actionSuggestion, studyTip`;
+      Format as JSON with keys: message, emotion, actionSuggestion, studyTip${context.isRealTime ? ', visualCues' : ''}`;
 
       const aiResponse = await this.simulateGeminiResponse(prompt);
-      return this.parseMentorResponse(aiResponse.text) || this.getFallbackMentorResponse(userMessage, character);
+      const response = this.parseMentorResponse(aiResponse.text) || this.getFallbackMentorResponse(userMessage, character);
+      
+      // Add real-time specific properties
+      if (context.isRealTime) {
+        response.isRealTime = true;
+        response.sessionId = this.getActiveSessionId('mentor');
+        
+        // Generate audio response if voice settings are available
+        if (character.voiceSettings) {
+          response.audioResponse = await this.generateAudioResponse(response.message, character.voiceSettings);
+        }
+      }
+
+      return response;
     } catch (error) {
       console.error('Error generating mentor response:', error);
       return this.getFallbackMentorResponse(userMessage, character);
     }
   }
 
-  // Generate pet response using AI
-  async generatePetResponse(
+  // Enhanced pet response with real-time features and image generation
+  async generateRealTimePetResponse(
     interaction: string,
     petPersonality: {
       name: string;
@@ -190,6 +695,7 @@ class GeminiAIService {
       personality: string;
       level?: number;
       mood?: string;
+      customName?: string;
     },
     context: {
       studyTime?: number;
@@ -197,6 +703,8 @@ class GeminiAIService {
       mood?: string;
       timeOfDay?: string;
       userActivity?: string;
+      isRealTime?: boolean;
+      generateImage?: boolean;
       petStats?: {
         happiness: number;
         energy: number;
@@ -222,7 +730,9 @@ class GeminiAIService {
       const environmentContext = context.environmentalFactors ? 
         `Environment - Weather: ${context.environmentalFactors.weather || 'unknown'}, User stress: ${context.environmentalFactors.userStressLevel || 'medium'}` : '';
 
-      const prompt = `You are ${petPersonality.name}, a ${petPersonality.type} study companion with personality: ${petPersonality.personality}
+      const petName = petPersonality.customName || petPersonality.name;
+
+      const prompt = `You are ${petName}, a ${petPersonality.type} study companion with personality: ${petPersonality.personality}
       ${petPersonality.level ? `You are level ${petPersonality.level}` : ''}
       ${petPersonality.mood ? `Current mood: ${petPersonality.mood}` : ''}
       
@@ -232,32 +742,179 @@ class GeminiAIService {
       - Study time: ${context.studyTime || 0} minutes
       - Last break: ${context.lastBreak || 0} minutes ago
       - User mood: ${context.mood || 'neutral'}
+      - Real-time session: ${context.isRealTime ? 'Yes' : 'No'}
       ${timeContext}
       ${activityContext}
       ${statsContext}
       ${environmentContext}
       
-      As ${petPersonality.name}, respond with:
+      As ${petName}, respond with:
       1. A caring, supportive message that reflects your pet type and personality
       2. Consider the user's study patterns and current state
       3. Provide helpful reminders based on their activity
       4. Show personality traits specific to your type (${petPersonality.type})
       5. Be cute and endearing while being genuinely helpful
+      ${context.isRealTime ? '6. Provide immediate, interactive responses with animations' : ''}
       
       Respond with:
       - A caring message (1-2 sentences) with pet-like expressions and personality
       - A mood that matches the situation (playful/caring/energetic/sleepy/excited/concerned/proud)
       - A health/study reminder if appropriate
       - A helpful tip related to wellbeing or productivity
+      ${context.isRealTime ? '- Animation type and duration for visual feedback' : ''}
       
       Use pet-like expressions like *purrs*, *wags tail*, *chirps*, etc. based on your type.
-      Format as JSON with keys: message, mood, reminder, healthTip`;
+      Format as JSON with keys: message, mood, reminder, healthTip${context.isRealTime ? ', animation' : ''}`;
 
       const aiResponse = await this.simulateGeminiResponse(prompt);
-      return this.parsePetResponse(aiResponse.text) || this.getFallbackPetResponse(interaction, petPersonality);
+      const response = this.parsePetResponse(aiResponse.text) || this.getFallbackPetResponse(interaction, petPersonality);
+      
+      // Add real-time specific properties
+      if (context.isRealTime) {
+        response.isRealTime = true;
+        response.customName = petName;
+        
+        // Generate pet image if requested
+        if (context.generateImage && this.config.imageGenerationEnabled) {
+          response.imageUrl = await this.generatePetImage(petPersonality, response.mood);
+        }
+        
+        // Update last interaction time
+        localStorage.setItem('lastPetInteraction', new Date().toISOString());
+      }
+
+      return response;
     } catch (error) {
       console.error('Error generating pet response:', error);
       return this.getFallbackPetResponse(interaction, petPersonality);
+    }
+  }
+
+  // Real-time pet image generation
+  private async generatePetImage(
+    petPersonality: { name: string; type: string; personality: string; mood?: string },
+    currentMood: string
+  ): Promise<string> {
+    try {
+      // Simulate image generation for pet based on mood and personality
+      const imagePrompt = `Cute anime-style ${petPersonality.type} pet, ${petPersonality.personality}, currently feeling ${currentMood}, kawaii art style, expressive, study companion`;
+      
+      // For demo purposes, return a placeholder that would be replaced with actual generated image
+      const imageId = `pet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      return `https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=${imageId}`;
+    } catch (error) {
+      console.error('Error generating pet image:', error);
+      // Return fallback pet images based on mood
+      const moodImages = {
+        playful: 'https://static.wixstatic.com/media/c5b305_pet_playful~mv2.png',
+        caring: 'https://static.wixstatic.com/media/c5b305_pet_caring~mv2.png',
+        energetic: 'https://static.wixstatic.com/media/c5b305_pet_energetic~mv2.png',
+        sleepy: 'https://static.wixstatic.com/media/c5b305_pet_sleepy~mv2.png'
+      };
+      return moodImages[currentMood as keyof typeof moodImages] || moodImages.caring;
+    }
+  }
+
+  // Audio response generation for voice features
+  private async generateAudioResponse(
+    text: string,
+    voiceSettings: { pitch: number; speed: number; tone: string }
+  ): Promise<string> {
+    try {
+      // Simulate text-to-speech generation
+      // In real implementation, this would call a TTS API with the voice settings
+      const audioId = `audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      return `https://static.wixstatic.com/media/12d367_audio_${audioId}~mv2.mp3`;
+    } catch (error) {
+      console.error('Error generating audio response:', error);
+      return '';
+    }
+  }
+
+  // Utility methods for session management
+  private getActiveSessionId(type: 'mentor' | 'pet'): string | undefined {
+    for (const [sessionId, session] of this.activeSessions) {
+      if (session.type === type && session.isActive) {
+        return sessionId;
+      }
+    }
+    return undefined;
+  }
+
+  public endSession(sessionId: string): boolean {
+    const session = this.activeSessions.get(sessionId);
+    if (session) {
+      session.isActive = false;
+      this.activeSessions.delete(sessionId);
+      
+      this.dispatchCustomEvent('session-ended', {
+        sessionId,
+        type: session.type,
+        duration: Date.now() - session.startTime.getTime()
+      });
+      
+      return true;
+    }
+    return false;
+  }
+
+  // Configuration methods
+  public updateNotificationSettings(settings: Partial<NotificationSettings>) {
+    this.notificationSettings = { ...this.notificationSettings, ...settings };
+    
+    if (!settings.enabled && this.notificationInterval) {
+      clearInterval(this.notificationInterval);
+      this.notificationInterval = undefined;
+    } else if (settings.enabled && !this.notificationInterval) {
+      this.startNotificationSystem();
+    }
+  }
+
+  public addCustomWakeUpCommand(phrase: string, response: string, action?: string) {
+    this.wakeUpCommands.push({
+      phrase: phrase.toLowerCase(),
+      response,
+      action: action as any
+    });
+  }
+
+  public removeWakeUpCommand(phrase: string) {
+    this.wakeUpCommands = this.wakeUpCommands.filter(
+      cmd => cmd.phrase !== phrase.toLowerCase()
+    );
+  }
+
+  public getActiveDoubtSessions(): DoubtSolvingSession[] {
+    return Array.from(this.doubtSolvingSessions.values()).filter(session => session.isActive);
+  }
+
+  public getSessionHistory(sessionId: string): DoubtSolvingSession | null {
+    return this.doubtSolvingSessions.get(sessionId) || null;
+  }
+
+  // Request notification permission
+  public async requestNotificationPermission(): Promise<boolean> {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    }
+    return false;
+  }
+
+  // Cleanup method
+  public cleanup() {
+    if (this.notificationInterval) {
+      clearInterval(this.notificationInterval);
+    }
+    
+    // End all active sessions
+    for (const sessionId of this.activeSessions.keys()) {
+      this.endSession(sessionId);
+    }
+    
+    // End all doubt solving sessions
+    for (const sessionId of this.doubtSolvingSessions.keys()) {
+      this.endDoubtSolvingSession(sessionId, 0, false);
     }
   }
 
@@ -910,8 +1567,23 @@ class GeminiAIService {
     return this.isAvailable;
   }
 
-  // Public method to get service status
-  public getServiceStatus(): { available: boolean; model: string; features: string[] } {
+  // Enhanced service status with real-time features
+  public getServiceStatus(): { 
+    available: boolean; 
+    model: string; 
+    features: string[];
+    realTimeFeatures: {
+      notifications: boolean;
+      wakeUpCommands: boolean;
+      imageGeneration: boolean;
+      doubtSolving: boolean;
+      activeSessions: number;
+    };
+    settings: {
+      notifications: NotificationSettings;
+      wakeUpCommands: WakeUpCommand[];
+    };
+  } {
     return {
       available: this.isAvailable,
       model: this.config.model,
@@ -920,31 +1592,83 @@ class GeminiAIService {
         'Mentor Responses',
         'Pet Interactions',
         'Personalized Learning',
-        'Emotional Intelligence'
-      ]
+        'Emotional Intelligence',
+        'Real-time Notifications',
+        'Wake-up Commands',
+        'Image Generation',
+        'Doubt Solving Sessions',
+        'Voice Responses'
+      ],
+      realTimeFeatures: {
+        notifications: this.config.notificationsEnabled,
+        wakeUpCommands: this.config.wakeUpCommandsEnabled,
+        imageGeneration: this.config.imageGenerationEnabled,
+        doubtSolving: true,
+        activeSessions: this.activeSessions.size
+      },
+      settings: {
+        notifications: this.notificationSettings,
+        wakeUpCommands: this.wakeUpCommands
+      }
     };
   }
 }
+}
 
-// Export singleton instance and convenience function
+// Export enhanced singleton instance and convenience functions
 export const geminiAI = new GeminiAIService();
 
-// Convenience function for backwards compatibility
+// Enhanced convenience functions for backwards compatibility
 export const generateAIResponse = async (prompt: string, context?: any) => {
-  return await geminiAI.generateMentorResponse(prompt, {
+  return await geminiAI.generateRealTimeMentorResponse(prompt, {
     name: 'AI Assistant',
     personality: 'Helpful and knowledgeable',
     voiceType: 'friendly',
     expertise: ['General Knowledge'],
     catchphrase: 'I\'m here to help!',
     trait: 'Supportive and encouraging'
-  }, context || {});
+  }, { ...context, isRealTime: true });
 };
 
-// Export types for use in other components
+// Real-time convenience functions
+export const startMentorSession = (customName?: string) => {
+  if (customName) {
+    geminiAI.updateNotificationSettings({ customName });
+  }
+  return geminiAI.startRealTimeMentorSession();
+};
+
+export const startPetSession = (customName?: string) => {
+  if (customName) {
+    geminiAI.updateNotificationSettings({ customName });
+  }
+  return geminiAI.startRealTimePetSession();
+};
+
+export const startDoubtSession = (subject: string, question: string, difficulty?: 'easy' | 'medium' | 'hard' | 'expert') => {
+  return geminiAI.startDoubtSolvingSession(subject, question, difficulty);
+};
+
+export const triggerWakeUp = (command: string) => {
+  return geminiAI.triggerWakeUpCommand(command);
+};
+
+export const setupNotifications = async (customName?: string) => {
+  const granted = await geminiAI.requestNotificationPermission();
+  if (granted && customName) {
+    geminiAI.updateNotificationSettings({ customName, enabled: true });
+  }
+  return granted;
+};
+
+// Export enhanced types for use in other components
 export type {
   CharacterPersonality,
   MentorResponse,
   PetResponse,
-  GeminiResponse
+  GeminiResponse,
+  NotificationSettings,
+  WakeUpCommand,
+  RealTimeSession,
+  DoubtSolvingSession
 };
