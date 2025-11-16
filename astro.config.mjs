@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
-import cloudProviderFetchAdapter from "@wix/cloud-provider-fetch-adapter";
+import cloudflare from "@astrojs/cloudflare";
 import wix from "@wix/astro";
 import monitoring from "@wix/monitoring-astro";
 import react from "@astrojs/react";
@@ -29,7 +29,7 @@ export default defineConfig({
                 const url = version === 'local' ? localUrl : cdnUrl;
                 const framewireModule = await import(url);
                 globalThis.framewire = framewireModule;
-                framewireModule.init({}, import.meta.hot);
+                framewireModule.init();
                 console.log('Framewire initialized');
               }`
             );
@@ -42,7 +42,7 @@ export default defineConfig({
       enableHtmlEmbeds: isBuild,
       enableAuthRoutes: true
     }),
-    isBuild ? monitoring() : undefined,
+    monitoring(),
     react({ babel: { plugins: [sourceAttrsPlugin, dynamicDataPlugin] } }),
   ],
   vite: {
@@ -50,7 +50,7 @@ export default defineConfig({
       customErrorOverlayPlugin(),
     ],
   },
-  adapter: isBuild ? cloudProviderFetchAdapter({}) : undefined,
+  adapter: isBuild ? cloudflare() : undefined,
   devToolbar: {
     enabled: false,
   },
