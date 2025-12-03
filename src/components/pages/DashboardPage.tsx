@@ -21,6 +21,8 @@ import {
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Image } from '@/components/ui/image';
+import { useProgressStore, initializeProgressStore } from '@/stores/progressStore';
+import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 
 export default function DashboardPage() {
   const { member } = useMember();
@@ -28,18 +30,36 @@ export default function DashboardPage() {
   const [showMentorCall, setShowMentorCall] = useState(false);
   const [showPetModal, setShowPetModal] = useState(false);
   const [userCharacter, setUserCharacter] = useState<any>(null);
-  const [petInteractionCount, setPetInteractionCount] = useState(0);
-  const [questProgress, setQuestProgress] = useState<{[key: number]: number}>({
-    1: 75,
-    2: 30,
-    3: 90
+
+  // Use the progress store for real-time sync
+  const {
+    progressData,
+    updateQuestProgress,
+    updateWeeklyProgress,
+    updateTodayXP,
+    incrementDailyStreak,
+    incrementPetInteraction,
+    isSyncing,
+  } = useProgressStore();
+
+  // Setup real-time synchronization
+  const { manualSync } = useRealtimeSync({
+    enabled: true,
+    interval: 30000, // Sync every 30 seconds
+    onSyncSuccess: () => {
+      console.log('Progress synced successfully');
+    },
+    onSyncError: (error) => {
+      console.error('Sync error:', error);
+    },
+    broadcastChannel: true, // Enable cross-tab sync
   });
-  const [weeklyProgress, setWeeklyProgress] = useState(1250);
-  const [todayXP, setTodayXP] = useState(450);
-  const [dailyStreak, setDailyStreak] = useState(15);
 
   // Load user character from localStorage on component mount
   useEffect(() => {
+    // Initialize progress store from localStorage
+    initializeProgressStore();
+
     const savedCharacter = localStorage.getItem('userCharacter');
     if (savedCharacter) {
       try {
@@ -48,34 +68,7 @@ export default function DashboardPage() {
         console.error('Error loading user character:', error);
       }
     }
-
-    // Load saved progress data
-    const savedProgress = localStorage.getItem('dashboardProgress');
-    if (savedProgress) {
-      try {
-        const progress = JSON.parse(savedProgress);
-        setQuestProgress(progress.questProgress || { 1: 75, 2: 30, 3: 90 });
-        setWeeklyProgress(progress.weeklyProgress || 1250);
-        setTodayXP(progress.todayXP || 450);
-        setDailyStreak(progress.dailyStreak || 15);
-        setPetInteractionCount(progress.petInteractionCount || 0);
-      } catch (error) {
-        console.error('Error loading progress data:', error);
-      }
-    }
   }, []);
-
-  // Save progress data to localStorage
-  const saveProgress = () => {
-    const progressData = {
-      questProgress,
-      weeklyProgress,
-      todayXP,
-      dailyStreak,
-      petInteractionCount
-    };
-    localStorage.setItem('dashboardProgress', JSON.stringify(progressData));
-  };
 
   // Save character to localStorage when it changes
   const handleCharacterGenerated = (character: any) => {
@@ -84,46 +77,46 @@ export default function DashboardPage() {
     setShowCharacterGenerator(false);
   };
 
-  // Handle quest continuation
+  // Handle quest continuation with real-time sync
   const handleContinueQuest = (questId: number) => {
-    setQuestProgress(prev => {
-      const newProgress = { ...prev };
-      if (newProgress[questId] < 100) {
-        newProgress[questId] = Math.min(100, newProgress[questId] + 10);
-        setTodayXP(prevXP => prevXP + 50);
-        setWeeklyProgress(prevWeekly => prevWeekly + 50);
-      }
-      return newProgress;
-    });
-    saveProgress();
+    const currentProgress = progressData.questProgress[questId] || 0;
+    if (currentProgress < 100) {
+      updateQuestProgress(questId, currentProgress + 10);
+      updateTodayXP(50);
+      updateWeeklyProgress(50);
+      // Trigger immediate sync
+      manualSync();
+    }
   };
 
-  // Handle pet interaction
+  // Handle pet interaction with real-time sync
   const handlePetInteraction = () => {
-    setPetInteractionCount(prev => prev + 1);
-    setTodayXP(prevXP => prevXP + 25);
-    setWeeklyProgress(prevWeekly => prevWeekly + 25);
-    saveProgress();
+    incrementPetInteraction();
+    updateTodayXP(25);
+    updateWeeklyProgress(25);
+    // Trigger immediate sync
+    manualSync();
   };
 
-  // Handle daily streak extension
+  // Handle daily streak extension with real-time sync
   const handleStreakBonus = () => {
-    setDailyStreak(prev => prev + 1);
-    setTodayXP(prevXP => prevXP + 100);
-    setWeeklyProgress(prevWeekly => prevWeekly + 100);
-    saveProgress();
+    incrementDailyStreak();
+    updateTodayXP(100);
+    updateWeeklyProgress(100);
+    // Trigger immediate sync
+    manualSync();
   };
 
   // Dynamic data that updates based on user interactions
   const dashboardData = {
-    dailyStreak,
-    todayXP,
+    dailyStreak: progressData.dailyStreak,
+    todayXP: progressData.todayXP,
     weeklyGoal: 2000,
-    weeklyProgress,
+    weeklyProgress: progressData.weeklyProgress,
     currentQuests: [
-      { id: 1, title: 'Master Quantum Physics', progress: questProgress[1], difficulty: 'Hard', xp: 500 },
-      { id: 2, title: 'Algebra Boss Battle', progress: questProgress[2], difficulty: 'Epic', xp: 750 },
-      { id: 3, title: 'Code the Matrix', progress: questProgress[3], difficulty: 'Medium', xp: 300 }
+      { id: 1, title: 'Master Quantum Physics', progress: progressData.questProgress[1] || 0, difficulty: 'Hard', xp: 500 },
+      { id: 2, title: 'Algebra Boss Battle', progress: progressData.questProgress[2] || 0, difficulty: 'Epic', xp: 750 },
+      { id: 3, title: 'Code the Matrix', progress: progressData.questProgress[3] || 0, difficulty: 'Medium', xp: 300 }
     ],
     upcomingEvents: [
       { title: 'Guild War: Math Masters vs Code Ninjas', time: '2 hours', type: 'battle' },
@@ -134,20 +127,20 @@ export default function DashboardPage() {
       { rank: 1, name: 'CyberSamurai99', xp: 25000, avatar: '🥷' },
       { rank: 2, name: 'QuantumQueen', xp: 23500, avatar: '👑' },
       { rank: 3, name: 'CodeNinja42', xp: 22100, avatar: '🥋' },
-      { rank: 4, name: member?.profile?.nickname || 'You', xp: 15750 + weeklyProgress, avatar: '⚡', isUser: true },
+      { rank: 4, name: member?.profile?.nickname || 'You', xp: 15750 + progressData.weeklyProgress, avatar: '⚡', isUser: true },
       { rank: 5, name: 'MathMaster', xp: 15200, avatar: '🧮' }
     ],
     petStatus: {
       name: 'Neko-chan',
-      mood: petInteractionCount > 5 ? 'Ecstatic' : petInteractionCount > 2 ? 'Happy' : 'Content',
-      energy: Math.min(100, 85 + (petInteractionCount * 3)),
-      level: 38 + Math.floor(petInteractionCount / 3),
+      mood: progressData.petInteractionCount > 5 ? 'Ecstatic' : progressData.petInteractionCount > 2 ? 'Happy' : 'Content',
+      energy: Math.min(100, 85 + (progressData.petInteractionCount * 3)),
+      level: 38 + Math.floor(progressData.petInteractionCount / 3),
       nextEvolution: 40
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="min-h-screen text-foreground p-8">
       <div className="max-w-[120rem] mx-auto">
         {/* Welcome Header */}
         <motion.div 
@@ -156,12 +149,22 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-5xl font-heading font-black text-primary mb-4">
-            Welcome back, {member?.profile?.nickname || member?.contact?.firstName || 'Cyber Student'}!
-          </h1>
-          <p className="text-xl font-paragraph text-light-gray">
-            Ready to continue your cyberpunk learning adventure?
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-5xl font-heading font-black text-primary mb-4">
+                Welcome back, {member?.profile?.nickname || member?.contact?.firstName || 'Cyber Student'}!
+              </h1>
+              <p className="text-xl font-paragraph text-light-gray">
+                Ready to continue your cyberpunk learning adventure?
+              </p>
+            </div>
+            {isSyncing && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/20 border border-primary/50 rounded-lg">
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                <span className="text-sm font-paragraph text-primary">Syncing...</span>
+              </div>
+            )}
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -502,8 +505,8 @@ export default function DashboardPage() {
                     <div className="bg-primary/10 rounded-lg p-3 border border-primary/20 mt-3">
                       <div className="text-xs font-paragraph text-neon-green text-center italic">
                         <span className="text-primary">💬</span>
-                        "{petInteractionCount > 5 ? 'You\'re the best trainer ever! ✨' : 
-                           petInteractionCount > 2 ? 'Thanks for playing with me! 🎮' : 
+                        "{progressData.petInteractionCount > 5 ? 'You\'re the best trainer ever! ✨' : 
+                           progressData.petInteractionCount > 2 ? 'Thanks for playing with me! 🎮' : 
                            'Remember to drink water! 💧'}"
                         <span className="text-secondary">💬</span>
                       </div>
