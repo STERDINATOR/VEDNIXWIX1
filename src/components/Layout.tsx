@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BackgroundMusic } from '@/components/ui/background-music';
 import { AnimeMentor } from '@/components/ui/anime-mentor';
 import { AnimePet } from '@/components/ui/anime-pet';
+import { AnimeBackground } from '@/components/ui/anime-background';
 import { 
   Home, 
   User, 
@@ -59,7 +60,12 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative">
+      {/* Anime Background */}
+      <AnimeBackground />
+      
+      {/* Content wrapper with relative positioning */}
+      <div className="relative z-10">
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-primary/20">
         <div className="max-w-[120rem] mx-auto px-8">
@@ -333,6 +339,7 @@ export default function Layout() {
 
       {/* Pet Modal */}
       <AnimePet isOpen={petOpen} onClose={() => setPetOpen(false)} />
+      </div>
     </div>
   );
 }
