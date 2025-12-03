@@ -546,7 +546,7 @@ export default function StudyGuildsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="min-h-screen text-foreground p-8">
       <div className="max-w-[120rem] mx-auto">
         {/* Header */}
         <motion.div 
