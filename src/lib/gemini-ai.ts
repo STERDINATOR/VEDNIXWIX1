@@ -1,5 +1,6 @@
 // Gemini AI Integration for VEDNIX
 // This service provides AI-powered features for the anime mentor and pet
+// STABLE MODE: Uses only local mock/simulated responses - no external API calls
 
 interface GeminiConfig {
   apiKey?: string;
@@ -44,32 +45,27 @@ interface PetResponse {
 
 class GeminiAIService {
   private config: GeminiConfig;
-  private isAvailable: boolean = false;
+  private isAvailable: boolean = true; // Always true - using local mock responses only
 
   constructor() {
     this.config = {
-      model: 'gemini-pro',
+      model: 'gemini-pro-local',
       temperature: 0.7,
       maxTokens: 500
     };
     
-    // Check if Gemini AI is available (mock for now)
+    // Initialize service with local mock mode
     this.initializeService();
   }
 
   private async initializeService() {
-    try {
-      // In a real implementation, this would check for API availability
-      // For now, we'll simulate the service being available
-      this.isAvailable = true;
-      console.log('Gemini AI Service initialized successfully');
-    } catch (error) {
-      console.warn('Gemini AI Service not available, using fallback responses');
-      this.isAvailable = false;
-    }
+    // Service is always available in stable mode - uses only local mock responses
+    this.isAvailable = true;
+    console.log('🎯 Gemini AI Service initialized in STABLE MODE (Local Mock Responses)');
+    console.log('✅ No external API calls - using reliable fallback responses');
   }
 
-  // Generate anime character personality using AI
+  // Generate anime character personality using AI (STABLE MODE - Local Mock Only)
   async generateCharacterPersonality(preferences: {
     subject?: string;
     learningStyle?: string;
@@ -77,42 +73,22 @@ class GeminiAIService {
     userLevel?: number;
     userInterests?: string[];
   }): Promise<CharacterPersonality> {
-    if (!this.isAvailable) {
-      return this.getFallbackCharacter(preferences);
-    }
-
+    // STABLE MODE: Always use local mock responses - no external API calls
     try {
-      const prompt = `Create a unique Japanese anime character for an educational AI mentor with these preferences:
-      - Subject focus: ${preferences.subject || 'general'}
-      - Learning style: ${preferences.learningStyle || 'supportive'}
-      - Personality type: ${preferences.personality || 'wise'}
-      - User level: ${preferences.userLevel || 'beginner'}
-      - User interests: ${preferences.userInterests?.join(', ') || 'technology, learning'}
+      // Simulate brief processing delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
       
-      Generate a character that would be perfect for this user's learning journey:
-      - A unique Japanese name that reflects their expertise
-      - Rich personality description (3-4 sentences) that shows depth and relatability
-      - Voice type (gentle/energetic/wise/friendly) that matches the user's learning style
-      - 3-4 areas of expertise that align with user interests
-      - A memorable catchphrase that's motivational and character-specific
-      - A defining personality trait that makes them unique
-      - Background story snippet that explains their teaching philosophy
-      
-      Make the character feel alive, with quirks and depth that would make learning engaging.
-      
-      Format as JSON with keys: name, personality, voiceType, expertise, catchphrase, trait, backstory`;
-
-      // Simulate AI response (in real implementation, this would call Gemini API)
-      const aiResponse = await this.simulateGeminiResponse(prompt);
-      
-      return this.parseCharacterResponse(aiResponse.text) || this.getFallbackCharacter(preferences);
+      // Use reliable local mock response
+      const character = this.getFallbackCharacter(preferences);
+      console.log(`✅ Character generated locally: ${character.name}`);
+      return character;
     } catch (error) {
       console.error('Error generating character:', error);
       return this.getFallbackCharacter(preferences);
     }
   }
 
-  // Generate mentor response using AI
+  // Generate mentor response using AI (STABLE MODE - Local Mock Only)
   async generateMentorResponse(
     userMessage: string,
     character: CharacterPersonality,
@@ -131,57 +107,22 @@ class GeminiAIService {
       };
     }
   ): Promise<MentorResponse> {
-    if (!this.isAvailable) {
-      return this.getFallbackMentorResponse(userMessage, character);
-    }
-
+    // STABLE MODE: Always use local mock responses - no external API calls
     try {
-      const timeContext = context.timeOfDay ? `Current time: ${context.timeOfDay}` : '';
-      const moodContext = context.userMood ? `User seems: ${context.userMood}` : '';
-      const sessionContext = context.studySession ? 
-        `Study session: ${context.studySession.duration}min, ${context.studySession.correctAnswers}/${context.studySession.questionsAnswered} correct, ${context.studySession.streak} streak` : '';
-
-      const prompt = `You are ${character.name}, an AI mentor with this personality: ${character.personality}
-      Your catchphrase is: "${character.catchphrase}"
-      Your expertise: ${character.expertise.join(', ')}
-      Your trait: ${character.trait}
+      // Simulate brief processing delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 300));
       
-      User said: "${userMessage}"
-      
-      Context:
-      - Subject: ${context.subject || 'general'}
-      - Difficulty: ${context.difficulty || 'medium'}
-      - Progress: ${context.userProgress || 0}%
-      - Recent activity: ${context.recentActivity || 'studying'}
-      ${timeContext}
-      ${moodContext}
-      ${sessionContext}
-      
-      As ${character.name}, provide a response that:
-      1. Reflects your unique personality and speaking style
-      2. Addresses the user's specific question or concern
-      3. Considers their current context and mood
-      4. Offers practical, actionable advice
-      5. Maintains an encouraging but authentic tone
-      6. Uses your expertise to provide valuable insights
-      
-      Respond with:
-      - A personalized, contextual message (2-4 sentences) that feels natural to your character
-      - An emotion that matches the situation (happy/encouraging/thoughtful/excited/supportive/concerned/proud)
-      - An actionable suggestion tailored to their current situation
-      - A study tip that relates to their specific context
-      
-      Format as JSON with keys: message, emotion, actionSuggestion, studyTip`;
-
-      const aiResponse = await this.simulateGeminiResponse(prompt);
-      return this.parseMentorResponse(aiResponse.text) || this.getFallbackMentorResponse(userMessage, character);
+      // Use reliable local mock response
+      const response = this.getFallbackMentorResponse(userMessage, character);
+      console.log(`✅ Mentor response generated locally`);
+      return response;
     } catch (error) {
       console.error('Error generating mentor response:', error);
       return this.getFallbackMentorResponse(userMessage, character);
     }
   }
 
-  // Generate pet response using AI
+  // Generate pet response using AI (STABLE MODE - Local Mock Only)
   async generatePetResponse(
     interaction: string,
     petPersonality: {
@@ -210,51 +151,15 @@ class GeminiAIService {
       };
     }
   ): Promise<PetResponse> {
-    if (!this.isAvailable) {
-      return this.getFallbackPetResponse(interaction, petPersonality);
-    }
-
+    // STABLE MODE: Always use local mock responses - no external API calls
     try {
-      const timeContext = context.timeOfDay ? `Time: ${context.timeOfDay}` : '';
-      const activityContext = context.userActivity ? `User is: ${context.userActivity}` : '';
-      const statsContext = context.petStats ? 
-        `Pet stats - Happiness: ${context.petStats.happiness}%, Energy: ${context.petStats.energy}%, Health: ${context.petStats.health}%, Intelligence: ${context.petStats.intelligence}%` : '';
-      const environmentContext = context.environmentalFactors ? 
-        `Environment - Weather: ${context.environmentalFactors.weather || 'unknown'}, User stress: ${context.environmentalFactors.userStressLevel || 'medium'}` : '';
-
-      const prompt = `You are ${petPersonality.name}, a ${petPersonality.type} study companion with personality: ${petPersonality.personality}
-      ${petPersonality.level ? `You are level ${petPersonality.level}` : ''}
-      ${petPersonality.mood ? `Current mood: ${petPersonality.mood}` : ''}
+      // Simulate brief processing delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 300));
       
-      User interaction: "${interaction}"
-      
-      Context:
-      - Study time: ${context.studyTime || 0} minutes
-      - Last break: ${context.lastBreak || 0} minutes ago
-      - User mood: ${context.mood || 'neutral'}
-      ${timeContext}
-      ${activityContext}
-      ${statsContext}
-      ${environmentContext}
-      
-      As ${petPersonality.name}, respond with:
-      1. A caring, supportive message that reflects your pet type and personality
-      2. Consider the user's study patterns and current state
-      3. Provide helpful reminders based on their activity
-      4. Show personality traits specific to your type (${petPersonality.type})
-      5. Be cute and endearing while being genuinely helpful
-      
-      Respond with:
-      - A caring message (1-2 sentences) with pet-like expressions and personality
-      - A mood that matches the situation (playful/caring/energetic/sleepy/excited/concerned/proud)
-      - A health/study reminder if appropriate
-      - A helpful tip related to wellbeing or productivity
-      
-      Use pet-like expressions like *purrs*, *wags tail*, *chirps*, etc. based on your type.
-      Format as JSON with keys: message, mood, reminder, healthTip`;
-
-      const aiResponse = await this.simulateGeminiResponse(prompt);
-      return this.parsePetResponse(aiResponse.text) || this.getFallbackPetResponse(interaction, petPersonality);
+      // Use reliable local mock response
+      const response = this.getFallbackPetResponse(interaction, petPersonality);
+      console.log(`✅ Pet response generated locally`);
+      return response;
     } catch (error) {
       console.error('Error generating pet response:', error);
       return this.getFallbackPetResponse(interaction, petPersonality);
