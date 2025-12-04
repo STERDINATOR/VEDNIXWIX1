@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ReelFeed } from '@/components/ui/reel-feed';
+import { AnimeTrialReels } from '@/components/ui/anime-trial-reels';
 import { InteractiveQuiz } from '@/components/ui/interactive-quiz';
 import { MentorMonologue } from '@/components/ui/mentor-monologue';
 import { HabitTracker } from '@/components/ui/habit-tracker';
@@ -227,7 +228,7 @@ export default function AnimeReelsPage() {
 
                 {/* Main Content - Reel Feed */}
                 <div className="lg:col-span-3">
-                  <ReelFeed topicFilter={selectedCategory === 'all' ? undefined : selectedCategory} difficultyFilter={selectedDifficulty === 'all' ? undefined : selectedDifficulty} />
+                  <AnimeTrialReels topicFilter={selectedCategory === 'all' ? undefined : selectedCategory} difficultyFilter={selectedDifficulty === 'all' ? undefined : selectedDifficulty} />
                 </div>
               </div>
             </div>
