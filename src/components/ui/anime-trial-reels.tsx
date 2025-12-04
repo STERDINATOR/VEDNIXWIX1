@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { Play, Sparkles, Lock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Sparkles, Lock, X, Volume2, VolumeX, RotateCcw, Pause } from 'lucide-react';
 
 interface TrialReel {
   id: string;
@@ -14,6 +14,8 @@ interface TrialReel {
   coverColor: string;
   accentColor: string;
   icon: string;
+  videoUrl?: string;
+  description?: string;
   isLocked?: boolean;
 }
 
@@ -27,6 +29,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-cyan-500/30 to-blue-500/30',
     accentColor: 'text-cyan-400',
     icon: '📐',
+    videoUrl: 'https://www.youtube.com/embed/VLVDHc3kIEo',
+    description: 'Learn the fundamentals of algebra with clear explanations and examples.',
   },
   {
     id: 'trial-2',
@@ -37,6 +41,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-purple-500/30 to-pink-500/30',
     accentColor: 'text-purple-400',
     icon: '∑',
+    videoUrl: 'https://www.youtube.com/embed/xGi2-nqUaKE',
+    description: 'Master quadratic equations and their solutions.',
   },
   {
     id: 'trial-3',
@@ -47,6 +53,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-red-500/30 to-orange-500/30',
     accentColor: 'text-red-400',
     icon: '⚡',
+    videoUrl: 'https://www.youtube.com/embed/Ey86JyFKqVE',
+    description: 'Explore advanced polynomial operations and factoring techniques.',
   },
   {
     id: 'trial-4',
@@ -57,6 +65,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-green-500/30 to-emerald-500/30',
     accentColor: 'text-green-400',
     icon: '△',
+    videoUrl: 'https://www.youtube.com/embed/TJVrDyq-_5s',
+    description: 'Introduction to basic geometry concepts and shapes.',
   },
   {
     id: 'trial-5',
@@ -67,6 +77,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-yellow-500/30 to-amber-500/30',
     accentColor: 'text-yellow-400',
     icon: '∠',
+    videoUrl: 'https://www.youtube.com/embed/mhd9FXYdf4s',
+    description: 'Get started with trigonometry and trigonometric functions.',
   },
   {
     id: 'trial-6',
@@ -77,6 +89,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-indigo-500/30 to-purple-500/30',
     accentColor: 'text-indigo-400',
     icon: '◯',
+    videoUrl: 'https://www.youtube.com/embed/Ey86JyFKqVE',
+    description: 'Deep dive into circle theorems and properties.',
   },
   {
     id: 'trial-7',
@@ -87,6 +101,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-blue-500/30 to-cyan-500/30',
     accentColor: 'text-blue-400',
     icon: '∞',
+    videoUrl: 'https://www.youtube.com/embed/riXcZT2ICjA',
+    description: 'Understand limits and continuity in calculus.',
   },
   {
     id: 'trial-8',
@@ -97,6 +113,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-pink-500/30 to-rose-500/30',
     accentColor: 'text-pink-400',
     icon: 'd/dx',
+    videoUrl: 'https://www.youtube.com/embed/9vKqVkMQHKk',
+    description: 'Master derivatives and their applications.',
   },
   {
     id: 'trial-9',
@@ -107,6 +125,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-violet-500/30 to-purple-500/30',
     accentColor: 'text-violet-400',
     icon: '∫',
+    videoUrl: 'https://www.youtube.com/embed/rfG8ge9sSQE',
+    description: 'Learn integration techniques and applications.',
   },
   {
     id: 'trial-10',
@@ -117,6 +137,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-teal-500/30 to-cyan-500/30',
     accentColor: 'text-teal-400',
     icon: '📊',
+    videoUrl: 'https://www.youtube.com/embed/bSQl9aNYVqo',
+    description: 'Understand data distributions and statistical analysis.',
   },
   {
     id: 'trial-11',
@@ -127,6 +149,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-orange-500/30 to-yellow-500/30',
     accentColor: 'text-orange-400',
     icon: '🎲',
+    videoUrl: 'https://www.youtube.com/embed/uzkc-qNVoOk',
+    description: 'Explore probability theory and its applications.',
   },
   {
     id: 'trial-12',
@@ -137,6 +161,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-red-500/30 to-pink-500/30',
     accentColor: 'text-red-400',
     icon: '✓',
+    videoUrl: 'https://www.youtube.com/embed/0oc49DyA3hU',
+    description: 'Master hypothesis testing and statistical inference.',
   },
   {
     id: 'trial-13',
@@ -147,6 +173,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-cyan-500/30 to-blue-500/30',
     accentColor: 'text-cyan-400',
     icon: '→',
+    videoUrl: 'https://www.youtube.com/embed/mLw83m6UZH0',
+    description: 'Introduction to kinematics and motion.',
   },
   {
     id: 'trial-14',
@@ -157,6 +185,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-purple-500/30 to-indigo-500/30',
     accentColor: 'text-purple-400',
     icon: 'F=ma',
+    videoUrl: 'https://www.youtube.com/embed/kKKM8Y-u7f4',
+    description: 'Learn about forces, Newton\'s laws, and motion.',
   },
   {
     id: 'trial-15',
@@ -167,6 +197,8 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-pink-500/30 to-rose-500/30',
     accentColor: 'text-pink-400',
     icon: '⚛️',
+    videoUrl: 'https://www.youtube.com/embed/MzRCDLre1b4',
+    description: 'Dive into quantum mechanics and quantum physics.',
   },
 ];
 
@@ -175,7 +207,82 @@ interface AnimeTrialReelsProps {
   difficultyFilter?: string;
 }
 
+interface VideoPlayerModalProps {
+  reel: TrialReel;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function VideoPlayerModal({ reel, isOpen, onClose }: VideoPlayerModalProps) {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="relative w-full max-w-4xl bg-dark-gray rounded-2xl overflow-hidden border border-primary/20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Video Container */}
+            <div className="relative w-full aspect-video bg-black">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`${reel.videoUrl}?autoplay=1`}
+                title={reel.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+
+            {/* Video Info */}
+            <div className="p-6">
+              <h2 className={`text-2xl font-heading font-bold mb-2 ${reel.accentColor}`}>
+                {reel.title}
+              </h2>
+              <p className="font-paragraph text-light-gray mb-4">
+                {reel.description}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Badge className={`bg-${reel.accentColor.split('-')[1]}-500/20 text-${reel.accentColor.split('-')[1]}-400 border-${reel.accentColor.split('-')[1]}-500/30`}>
+                  {reel.topic}
+                </Badge>
+                <Badge className="bg-primary/20 text-primary border-primary/30">
+                  {reel.difficulty}
+                </Badge>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export function AnimeTrialReels({ topicFilter, difficultyFilter }: AnimeTrialReelsProps) {
+  const [selectedReel, setSelectedReel] = useState<TrialReel | null>(null);
+  
   const filteredReels = trialReels.filter((reel) => {
     const topicMatch = !topicFilter || topicFilter === 'all' || reel.topic === topicFilter;
     const difficultyMatch = !difficultyFilter || difficultyFilter === 'all' || reel.difficulty === difficultyFilter;
@@ -297,6 +404,7 @@ export function AnimeTrialReels({ topicFilter, difficultyFilter }: AnimeTrialRee
               {/* Action buttons */}
               <div className="flex gap-2 mt-auto">
                 <Button
+                  onClick={() => setSelectedReel(reel)}
                   className="flex-1 bg-primary text-black hover:bg-primary/80 font-heading"
                 >
                   <Play className="w-4 h-4 mr-1" />
@@ -316,6 +424,15 @@ export function AnimeTrialReels({ topicFilter, difficultyFilter }: AnimeTrialRee
           </Card>
         </motion.div>
       ))}
+      
+      {/* Video Player Modal */}
+      {selectedReel && (
+        <VideoPlayerModal
+          reel={selectedReel}
+          isOpen={!!selectedReel}
+          onClose={() => setSelectedReel(null)}
+        />
+      )}
     </div>
   );
 }
