@@ -47,7 +47,6 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-red-500/30 to-orange-500/30',
     accentColor: 'text-red-400',
     icon: '⚡',
-    isLocked: true,
   },
   {
     id: 'trial-4',
@@ -78,7 +77,6 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-indigo-500/30 to-purple-500/30',
     accentColor: 'text-indigo-400',
     icon: '◯',
-    isLocked: true,
   },
   {
     id: 'trial-7',
@@ -109,7 +107,6 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-violet-500/30 to-purple-500/30',
     accentColor: 'text-violet-400',
     icon: '∫',
-    isLocked: true,
   },
   {
     id: 'trial-10',
@@ -140,7 +137,6 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-red-500/30 to-pink-500/30',
     accentColor: 'text-red-400',
     icon: '✓',
-    isLocked: true,
   },
   {
     id: 'trial-13',
@@ -171,7 +167,6 @@ const trialReels: TrialReel[] = [
     coverColor: 'from-pink-500/30 to-rose-500/30',
     accentColor: 'text-pink-400',
     icon: '⚛️',
-    isLocked: true,
   },
 ];
 
@@ -301,30 +296,18 @@ export function AnimeTrialReels({ topicFilter, difficultyFilter }: AnimeTrialRee
 
               {/* Action buttons */}
               <div className="flex gap-2 mt-auto">
-                {reel.isLocked ? (
-                  <Button
-                    disabled
-                    className="flex-1 bg-dark-gray/50 text-light-gray/50 cursor-not-allowed"
-                  >
-                    <Lock className="w-4 h-4 mr-1" />
-                    Locked
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      className="flex-1 bg-primary text-black hover:bg-primary/80 font-heading"
-                    >
-                      <Play className="w-4 h-4 mr-1" />
-                      Watch
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-primary/30 text-primary hover:bg-primary/10"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                    </Button>
-                  </>
-                )}
+                <Button
+                  className="flex-1 bg-primary text-black hover:bg-primary/80 font-heading"
+                >
+                  <Play className="w-4 h-4 mr-1" />
+                  Watch
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-primary/30 text-primary hover:bg-primary/10"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </Button>
               </div>
 
               {/* Anime-style bottom accent */}
