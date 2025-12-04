@@ -7,6 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { AnimeCharacterGenerator } from '@/components/ui/anime-character-generator';
 import { AnimeMentor } from '@/components/ui/anime-mentor';
 import { AnimePet } from '@/components/ui/anime-pet';
+import { HabitTracker } from '@/components/ui/habit-tracker';
+import { EngagementDashboard } from '@/components/ui/engagement-dashboard';
 import { 
   BookOpen, 
   Zap, 
@@ -23,6 +25,7 @@ import { useState, useEffect } from 'react';
 import { Image } from '@/components/ui/image';
 import { useProgressStore, initializeProgressStore } from '@/stores/progressStore';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { useProgressStore as useNewProgressStore } from '@/stores/userProgressStore';
 
 export default function DashboardPage() {
   const { member } = useMember();
@@ -590,6 +593,37 @@ export default function DashboardPage() {
             </motion.div>
           </div>
         </div>
+
+        {/* Habit Tracker & Analytics Section */}
+        <motion.div 
+          className="mt-12"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+        >
+          <h3 className="text-2xl font-heading font-bold text-foreground mb-6">Learning Analytics</h3>
+          {useNewProgressStore().userProgress && (
+            <>
+              <HabitTracker
+                userId={member?.loginEmail || 'user'}
+                dailyStreak={useNewProgressStore().userProgress.dailyStreak}
+                lastActivityDate={useNewProgressStore().userProgress.lastActivityDate}
+                reelsWatchedToday={useNewProgressStore().userProgress.completedReels.length}
+                quizzesTakenToday={useNewProgressStore().userProgress.completedQuizzes.length}
+                xpEarnedToday={useNewProgressStore().userProgress.totalXP}
+              />
+              <div className="mt-8">
+                <EngagementDashboard
+                  totalXP={useNewProgressStore().userProgress.totalXP}
+                  level={useNewProgressStore().userProgress.level}
+                  completedReels={useNewProgressStore().userProgress.completedReels.length}
+                  completedQuizzes={useNewProgressStore().userProgress.completedQuizzes.length}
+                  achievements={useNewProgressStore().userProgress.achievements.length}
+                />
+              </div>
+            </>
+          )}
+        </motion.div>
 
         {/* Quick Actions */}
         <motion.div 
