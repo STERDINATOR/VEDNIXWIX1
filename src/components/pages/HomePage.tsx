@@ -6,6 +6,11 @@ import { Image } from '@/components/ui/image';
 import { AnimePet } from '@/components/ui/anime-pet';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { EmotionAdaptiveRealityShift } from '@/components/ui/emotion-adaptive-reality-shift';
+import { NeuralStoryCombat } from '@/components/ui/neural-story-combat';
+import { TimeSkipTrainingRoom } from '@/components/ui/time-skip-training-room';
+import { CognitiveResonanceEngine } from '@/components/ui/cognitive-resonance-engine';
+import { MultiverseLessonSelector } from '@/components/ui/multiverse-lesson-selector';
 
 // A simple hook for Intersection Observer to add animations on scroll
 const useIntersectionObserver = (options: IntersectionObserverInit) => {
@@ -387,6 +392,21 @@ export default function HomePage() {
           </AnimatedElement>
         </div>
       </section>
+
+      {/* Emotion-Adaptive Reality Shift */}
+      <EmotionAdaptiveRealityShift />
+
+      {/* Cognitive Resonance Engine */}
+      <CognitiveResonanceEngine />
+
+      {/* Multiverse Lesson Selector */}
+      <MultiverseLessonSelector />
+
+      {/* Neural Story Combat */}
+      <NeuralStoryCombat />
+
+      {/* Time-Skip Training Room */}
+      <TimeSkipTrainingRoom />
 
       {/* Anime Pet Modal */}
       <AnimePet 
