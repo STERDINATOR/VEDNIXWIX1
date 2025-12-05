@@ -1,83 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Image } from '@/components/ui/image';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Smile, Frown, Zap, Heart } from 'lucide-react';
 
-interface Mood {
-  id: string;
-  name: string;
-  color: string;
-  bgImage: string;
-  description: string;
+type Emotion = 'happy' | 'focused' | 'stressed' | 'inspired';
+
+interface EmotionState {
+  emotion: Emotion;
   emoji: string;
+  color: string;
+  worldTheme: string;
+  description: string;
+  effects: string[];
 }
 
-const moods: Mood[] = [
-  {
-    id: 'calm',
-    name: 'Calm Forest',
-    color: '#00FF00',
-    bgImage: 'https://static.wixstatic.com/media/c5b305_490d743d8ecb496da658ec88b53d728f~mv2.png?originWidth=1920&originHeight=1024',
-    description: 'Peaceful learning environment',
-    emoji: '🌲'
+const emotionStates: Record<Emotion, EmotionState> = {
+  happy: {
+    emotion: 'happy',
+    emoji: '😊',
+    color: '#FFFF00',
+    worldTheme: 'Sunny Paradise',
+    description: 'The world blooms with golden light and vibrant colors',
+    effects: ['2x XP Gain', 'Faster Learning', 'Bonus Rewards']
   },
-  {
-    id: 'battle',
-    name: 'Battle Arena',
-    color: '#FF0000',
-    bgImage: 'https://static.wixstatic.com/media/c5b305_33595e345346413ea180cd88272002e3~mv2.png?originWidth=1600&originHeight=896',
-    description: 'Intense combat training',
-    emoji: '⚔️'
-  },
-  {
-    id: 'study',
-    name: 'Study Temple',
+  focused: {
+    emotion: 'focused',
+    emoji: '🎯',
     color: '#00FFFF',
-    bgImage: 'https://static.wixstatic.com/media/c5b305_2b388092ea9449b5b7d8c824de9478eb~mv2.png?originWidth=1600&originHeight=896',
-    description: 'Sacred knowledge sanctuary',
-    emoji: '🏯'
+    worldTheme: 'Digital Matrix',
+    description: 'Reality becomes crystalline and perfectly organized',
+    effects: ['Perfect Focus', 'Enhanced Memory', 'Skill Boost']
+  },
+  stressed: {
+    emotion: 'stressed',
+    emoji: '😰',
+    color: '#FF4500',
+    worldTheme: 'Stormy Dimension',
+    description: 'The world becomes chaotic but challenges multiply',
+    effects: ['3x XP Challenge', 'Rare Drops', 'Boss Encounters']
+  },
+  inspired: {
+    emotion: 'inspired',
+    emoji: '✨',
+    color: '#FF00FF',
+    worldTheme: 'Cosmic Realm',
+    description: 'Reality transcends into pure creative energy',
+    effects: ['Unlimited Potential', 'New Abilities', 'Legendary Rewards']
   }
-];
+};
 
 export function EmotionAdaptiveRealityShift() {
-  const [currentMood, setCurrentMood] = useState<Mood>(moods[0]);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [currentEmotion, setCurrentEmotion] = useState<Emotion>('focused');
+  const [emotionHistory, setEmotionHistory] = useState<Emotion[]>(['focused']);
 
-  const handleMoodChange = (mood: Mood) => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentMood(mood);
-      setIsTransitioning(false);
-    }, 300);
+  const emotionState = emotionStates[currentEmotion];
+
+  const handleEmotionChange = (emotion: Emotion) => {
+    setCurrentEmotion(emotion);
+    setEmotionHistory(prev => [...prev.slice(-4), emotion]);
   };
 
   return (
-    <div className="w-full py-24 md:py-40 relative overflow-hidden">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentMood.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0"
-          >
-            <Image
-              src={currentMood.bgImage}
-              alt={currentMood.description}
-              width={1920}
-              height={1024}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
-            <div className="absolute inset-0 bg-black/40"></div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 max-w-[120rem] mx-auto px-4 md:px-8">
+    <div className="w-full py-24 md:py-40 bg-gradient-to-b from-background to-background/80">
+      <div className="max-w-[120rem] mx-auto px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -85,67 +72,196 @@ export function EmotionAdaptiveRealityShift() {
           className="text-center mb-16"
         >
           <h2 className="font-heading text-6xl md:text-7xl text-foreground mb-4">
-            EMOTION-ADAPTIVE <span style={{ color: currentMood.color }} className="transition-colors duration-500">REALITY SHIFT</span>
+            EMOTION-ADAPTIVE <span className="text-primary">REALITY SHIFT</span>
           </h2>
           <p className="text-lg text-light-gray max-w-2xl mx-auto">
-            Your learning environment adapts to your emotional state. Choose your mood and watch the world transform around you.
+            Your emotional state shapes the learning world around you. Choose your mood to transform reality.
           </p>
         </motion.div>
 
-        {/* Mood Selector */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {moods.map((mood, index) => (
-            <motion.button
-              key={mood.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              onClick={() => handleMoodChange(mood)}
-              className={`relative p-6 rounded-lg border-2 transition-all duration-300 group overflow-hidden ${
-                currentMood.id === mood.id
-                  ? `border-[${mood.color}] bg-background/80 backdrop-blur-sm`
-                  : 'border-primary/20 bg-background/40 hover:border-primary/50'
-              }`}
-              style={{
-                borderColor: currentMood.id === mood.id ? mood.color : undefined,
-                boxShadow: currentMood.id === mood.id ? `0 0 20px ${mood.color}40` : 'none'
-              }}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Emotion Selector */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* World Visualization */}
+            <motion.div
+              key={currentEmotion}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="relative h-80 rounded-lg overflow-hidden border-2 border-primary"
+              style={{ borderColor: emotionState.color }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-primary/5 transition-all duration-300"></div>
-              <div className="relative z-10">
-                <div className="text-5xl mb-3">{mood.emoji}</div>
-                <h3 className="font-heading text-xl text-foreground mb-2">{mood.name}</h3>
-                <p className="font-paragraph text-sm text-light-gray">{mood.description}</p>
-              </div>
-            </motion.button>
-          ))}
-        </div>
+              {/* Dynamic Background */}
+              <motion.div
+                animate={{
+                  backgroundPosition: ['0% 0%', '100% 100%'],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ duration: 8, repeat: Infinity }}
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(135deg, ${emotionState.color}20, ${emotionState.color}40)`,
+                  backgroundSize: '200% 200%'
+                }}
+              ></motion.div>
 
-        {/* Current Mood Display */}
-        <motion.div
-          key={currentMood.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="bg-background/60 backdrop-blur-md border border-primary/30 rounded-lg p-8 text-center"
-        >
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-6xl mb-4 inline-block"
-          >
-            {currentMood.emoji}
-          </motion.div>
-          <h3 className="font-heading text-3xl text-foreground mb-2">{currentMood.name}</h3>
-          <p className="font-paragraph text-light-gray">
-            Your learning environment is now optimized for {currentMood.description.toLowerCase()}
-          </p>
-          <motion.div
-            animate={{ width: ['0%', '100%', '0%'] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent mt-4"
-          ></motion.div>
-        </motion.div>
+              {/* Emotion Emoji */}
+              <motion.div
+                animate={{ y: [0, -20, 0], rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute inset-0 flex items-center justify-center text-9xl"
+              >
+                {emotionState.emoji}
+              </motion.div>
+
+              {/* Particles */}
+              {Array.from({ length: 8 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{
+                    x: Math.random() * 100 + '%',
+                    y: Math.random() * 100 + '%',
+                    opacity: 0
+                  }}
+                  animate={{
+                    y: [0, -300],
+                    opacity: [0, 1, 0]
+                  }}
+                  transition={{
+                    duration: 3 + i * 0.5,
+                    repeat: Infinity,
+                    delay: i * 0.2
+                  }}
+                  className="absolute w-2 h-2 rounded-full"
+                  style={{ backgroundColor: emotionState.color }}
+                ></motion.div>
+              ))}
+
+              {/* Text Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="font-heading text-3xl text-foreground mb-2">
+                    {emotionState.worldTheme}
+                  </p>
+                  <p className="font-paragraph text-light-gray">
+                    {emotionState.description}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Emotion Buttons */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {(Object.keys(emotionStates) as Emotion[]).map((emotion) => {
+                const state = emotionStates[emotion];
+                const isActive = currentEmotion === emotion;
+
+                return (
+                  <motion.button
+                    key={emotion}
+                    onClick={() => handleEmotionChange(emotion)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`transition-all border-2 rounded-lg p-4 text-center ${
+                      isActive
+                        ? 'bg-dark-gray'
+                        : 'bg-background/40 hover:bg-background/60'
+                    }`}
+                    style={{
+                      borderColor: isActive ? state.color : '#333333',
+                      boxShadow: isActive ? `0 0 20px ${state.color}40` : 'none'
+                    }}
+                  >
+                    <div className="text-4xl mb-2">{state.emoji}</div>
+                    <p className="font-heading text-sm text-foreground capitalize">
+                      {emotion}
+                    </p>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* Effects Display */}
+            <Card className="bg-dark-gray border-2 p-6" style={{ borderColor: emotionState.color }}>
+              <h3 className="font-heading text-xl text-foreground mb-4">Active Effects</h3>
+              <div className="grid grid-cols-3 gap-4">
+                {emotionState.effects.map((effect, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-background/40 rounded p-3 text-center border border-primary/20"
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="text-2xl mb-2"
+                    >
+                      ⚡
+                    </motion.div>
+                    <p className="font-paragraph text-xs text-light-gray">
+                      {effect}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          {/* Emotion Stats */}
+          <div className="space-y-4">
+            <Card className="bg-dark-gray border-2 border-primary p-6">
+              <h3 className="font-heading text-lg text-foreground mb-4">Current State</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-2">
+                    Emotion
+                  </p>
+                  <p className="font-heading text-2xl" style={{ color: emotionState.color }}>
+                    {emotionState.emoji} {currentEmotion.toUpperCase()}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-2">
+                    World Theme
+                  </p>
+                  <p className="font-paragraph text-foreground">
+                    {emotionState.worldTheme}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-2">
+                    Emotion History
+                  </p>
+                  <div className="flex gap-2">
+                    {emotionHistory.map((emotion, index) => (
+                      <div
+                        key={index}
+                        className="w-8 h-8 rounded flex items-center justify-center text-sm border border-primary/30"
+                        style={{ backgroundColor: emotionStates[emotion].color + '20' }}
+                      >
+                        {emotionStates[emotion].emoji}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="bg-background/40 border border-primary/20 p-6">
+              <h3 className="font-heading text-lg text-foreground mb-4">Emotion Tips</h3>
+              <ul className="space-y-2 text-sm font-paragraph text-light-gray">
+                <li>• Happy: Best for casual learning</li>
+                <li>• Focused: Ideal for difficult topics</li>
+                <li>• Stressed: Challenge mode unlocked</li>
+                <li>• Inspired: Maximum potential</li>
+              </ul>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

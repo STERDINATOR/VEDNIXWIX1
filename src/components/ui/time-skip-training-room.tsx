@@ -1,83 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Zap, Clock } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 interface TrainingSession {
+  id: string;
+  name: string;
+  emoji: string;
   duration: number;
-  label: string;
-  xpReward: number;
+  xpGain: number;
+  difficulty: string;
+  description: string;
 }
 
 const trainingSessions: TrainingSession[] = [
-  { duration: 30, label: '30 Seconds', xpReward: 50 },
-  { duration: 60, label: '1 Minute', xpReward: 100 },
-  { duration: 180, label: '3 Minutes', xpReward: 300 },
-  { duration: 300, label: '5 Minutes', xpReward: 500 }
+  {
+    id: 'quick-drill',
+    name: 'Quick Drill',
+    emoji: '⚡',
+    duration: 5,
+    xpGain: 100,
+    difficulty: 'Easy',
+    description: 'Fast-paced fundamental exercises'
+  },
+  {
+    id: 'intensive-training',
+    name: 'Intensive Training',
+    emoji: '💪',
+    duration: 15,
+    xpGain: 500,
+    difficulty: 'Medium',
+    description: 'Deep dive into complex concepts'
+  },
+  {
+    id: 'master-challenge',
+    name: 'Master Challenge',
+    emoji: '🏆',
+    duration: 30,
+    xpGain: 1500,
+    difficulty: 'Hard',
+    description: 'Ultimate test of mastery'
+  },
+  {
+    id: 'legendary-quest',
+    name: 'Legendary Quest',
+    emoji: '👑',
+    duration: 60,
+    xpGain: 5000,
+    difficulty: 'Extreme',
+    description: 'The ultimate learning experience'
+  }
 ];
 
 export function TimeSkipTrainingRoom() {
+  const [selectedSession, setSelectedSession] = useState<TrainingSession | null>(null);
   const [isTraining, setIsTraining] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [showBreakthrough, setShowBreakthrough] = useState(false);
-  const [mentorPhase, setMentorPhase] = useState(0);
-  const [xpGained, setXpGained] = useState(0);
+  const [trainingProgress, setTrainingProgress] = useState(0);
+  const [completedSessions, setCompletedSessions] = useState(0);
+  const [totalXpGained, setTotalXpGained] = useState(0);
 
-  useEffect(() => {
-    if (!isTraining || timeRemaining <= 0) return;
-
-    const interval = setInterval(() => {
-      setTimeRemaining(prev => {
-        const newTime = prev - 1;
-        if (newTime <= 0) {
-          setIsTraining(false);
-          setShowBreakthrough(true);
-          return 0;
-        }
-        return newTime;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isTraining, timeRemaining]);
-
-  useEffect(() => {
-    if (isTraining && selectedDuration) {
-      setProgress((1 - timeRemaining / selectedDuration) * 100);
-      
-      // Mentor transformation phases
-      if (timeRemaining / selectedDuration < 0.25) {
-        setMentorPhase(3);
-      } else if (timeRemaining / selectedDuration < 0.5) {
-        setMentorPhase(2);
-      } else if (timeRemaining / selectedDuration < 0.75) {
-        setMentorPhase(1);
-      } else {
-        setMentorPhase(0);
-      }
-    }
-  }, [timeRemaining, selectedDuration, isTraining]);
-
-  const startTraining = (duration: number) => {
-    setSelectedDuration(duration);
-    setTimeRemaining(duration);
+  const handleStartTraining = (session: TrainingSession) => {
+    setSelectedSession(session);
     setIsTraining(true);
-    setProgress(0);
-    setMentorPhase(0);
-    setShowBreakthrough(false);
-    const session = trainingSessions.find(s => s.duration === duration);
-    setXpGained(session?.xpReward || 0);
-  };
+    setTrainingProgress(0);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    // Simulate training progress
+    const interval = setInterval(() => {
+      setTrainingProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setCompletedSessions(c => c + 1);
+          setTotalXpGained(t => t + session.xpGain);
+          setIsTraining(false);
+          return 100;
+        }
+        return prev + Math.random() * 15;
+      });
+    }, 300);
   };
-
-  const mentorEmojis = ['🧙', '🧙‍♂️', '✨🧙‍♂️✨', '🌟👑🌟'];
 
   return (
     <div className="w-full py-24 md:py-40 bg-gradient-to-b from-background to-background/80">
@@ -89,205 +91,245 @@ export function TimeSkipTrainingRoom() {
           className="text-center mb-16"
         >
           <h2 className="font-heading text-6xl md:text-7xl text-foreground mb-4">
-            TIME-SKIP <span className="text-cyber-yellow">TRAINING ROOM</span>
+            TIME-SKIP <span className="text-primary">TRAINING ROOM</span>
           </h2>
           <p className="text-lg text-light-gray max-w-2xl mx-auto">
-            Rapid training sessions with real-time progress. Watch your mentor transform as you push your limits.
+            Accelerated virtual training. Learn years of knowledge in minutes through time-skip technology.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Training Arena */}
-          <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="bg-background/60 backdrop-blur-md border border-primary/30 rounded-lg p-8"
-            >
-              {!isTraining ? (
-                <>
-                  {/* Session Selection */}
-                  <div className="text-center mb-8">
-                    <h3 className="font-heading text-2xl text-foreground mb-6">Select Training Duration</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {trainingSessions.map((session, index) => (
-                        <motion.button
-                          key={session.duration}
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, delay: index * 0.1 }}
-                          onClick={() => startTraining(session.duration)}
-                          className="p-4 rounded-lg border-2 border-primary/30 bg-background/40 hover:border-primary hover:bg-primary/10 transition-all group"
-                        >
-                          <Clock className="h-6 w-6 text-cyber-yellow mx-auto mb-2 group-hover:animate-spin" />
-                          <p className="font-heading text-sm text-foreground">{session.label}</p>
-                          <p className="text-xs text-light-gray mt-1">+{session.xpReward} XP</p>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="bg-background/40 border border-primary/20 rounded-lg p-6 text-center">
-                    <p className="font-paragraph text-light-gray">
-                      Choose a duration and watch your mentor transform as you progress through the training session.
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Training in Progress */}
-                  <div className="text-center">
-                    {/* Mentor Transformation */}
-                    <motion.div
-                      key={mentorPhase}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.4 }}
-                      className="text-9xl mb-8 inline-block"
-                    >
-                      {mentorEmojis[mentorPhase]}
-                    </motion.div>
-
-                    {/* Timer */}
-                    <motion.div
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 0.5, repeat: Infinity }}
-                      className="font-heading text-7xl text-cyber-yellow mb-8 font-black"
-                    >
-                      {formatTime(timeRemaining)}
-                    </motion.div>
-
-                    {/* Progress Bar */}
-                    <div className="mb-8">
-                      <div className="bg-background/50 rounded-full h-6 overflow-hidden border-2 border-primary/30 mb-4">
-                        <motion.div
-                          initial={false}
-                          animate={{ width: `${progress}%` }}
-                          transition={{ duration: 0.5 }}
-                          className="h-full bg-gradient-to-r from-cyber-yellow via-primary to-secondary"
-                        ></motion.div>
-                      </div>
-                      <p className="text-light-gray text-sm">{Math.round(progress)}% Complete</p>
-                    </div>
-
-                    {/* Meter Fill Animation */}
-                    <div className="grid grid-cols-5 gap-2 mb-8">
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ height: 0 }}
-                          animate={{
-                            height: progress > index * 20 ? '100%' : '0%',
-                            backgroundColor: progress > index * 20 ? '#00FF00' : '#333333'
-                          }}
-                          transition={{ duration: 0.3 }}
-                          className="h-12 rounded-lg border border-primary/30"
-                        ></motion.div>
-                      ))}
-                    </div>
-
-                    {/* Motivational Text */}
-                    <motion.p
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="text-light-gray font-paragraph mb-6"
-                    >
-                      {mentorPhase === 0 && 'Keep pushing!'}
-                      {mentorPhase === 1 && 'You\'re getting stronger!'}
-                      {mentorPhase === 2 && 'Almost there!'}
-                      {mentorPhase === 3 && 'BREAKTHROUGH INCOMING!'}
-                    </motion.p>
-
-                    {/* Cancel Button */}
-                    <Button
-                      onClick={() => setIsTraining(false)}
-                      variant="outline"
-                      className="border-primary/50 text-primary hover:bg-primary/10"
-                    >
-                      Cancel Training
-                    </Button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </div>
-
-          {/* Stats Panel */}
-          <div className="space-y-6">
-            {/* Session Info */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="bg-background/60 backdrop-blur-md border border-primary/30 rounded-lg p-6"
-            >
-              <h3 className="font-heading text-xl text-foreground mb-4">Session Info</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-light-gray uppercase tracking-widest">Status</p>
-                  <p className="font-heading text-lg text-primary">
-                    {isTraining ? 'TRAINING...' : 'READY'}
-                  </p>
-                </div>
-                {isTraining && (
-                  <div>
-                    <p className="text-xs text-light-gray uppercase tracking-widest">Time Remaining</p>
-                    <p className="font-heading text-lg text-cyber-yellow">{formatTime(timeRemaining)}</p>
-                  </div>
-                )}
-                {selectedDuration && (
-                  <div>
-                    <p className="text-xs text-light-gray uppercase tracking-widest">XP Reward</p>
-                    <p className="font-heading text-lg text-neon-green">
-                      +{trainingSessions.find(s => s.duration === selectedDuration)?.xpReward || 0}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Breakthrough Card */}
-            <AnimatePresence>
-              {showBreakthrough && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.6 }}
-                  className="bg-gradient-to-br from-cyber-yellow/20 via-primary/20 to-secondary/20 backdrop-blur-md border-2 border-cyber-yellow rounded-lg p-6 text-center"
-                >
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="text-6xl mb-4 inline-block"
+          {/* Training Sessions */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Session Selection */}
+            {!isTraining && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {trainingSessions.map((session, index) => (
+                  <motion.button
+                    key={session.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    onClick={() => handleStartTraining(session)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="border-2 border-primary/30 rounded-lg p-6 bg-background/40 hover:bg-background/60 transition-all text-left"
                   >
-                    ⚡
-                  </motion.div>
-                  <h3 className="font-heading text-2xl text-cyber-yellow mb-2">BREAKTHROUGH ACHIEVED!</h3>
-                  <p className="font-paragraph text-light-gray mb-4">
-                    You've completed the training session and unlocked new power!
-                  </p>
+                    <div className="text-5xl mb-3">{session.emoji}</div>
+                    <h3 className="font-heading text-lg text-foreground mb-2">
+                      {session.name}
+                    </h3>
+                    <p className="text-sm text-light-gray mb-3">
+                      {session.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="border-primary text-primary">
+                        {session.difficulty}
+                      </Badge>
+                      <span className="text-xs text-light-gray">
+                        ⏱️ {session.duration}m
+                      </span>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            )}
+
+            {/* Training in Progress */}
+            {isTraining && selectedSession && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-6"
+              >
+                <Card className="bg-dark-gray border-2 border-cyber-yellow p-8 text-center">
+                  {/* Training Animation */}
                   <motion.div
+                    animate={{ scale: [1, 1.2, 1], rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="text-8xl mb-6"
+                  >
+                    {selectedSession.emoji}
+                  </motion.div>
+
+                  <h3 className="font-heading text-3xl text-foreground mb-2">
+                    {selectedSession.name}
+                  </h3>
+                  <p className="text-lg text-cyber-yellow mb-8 font-heading">
+                    TIME-SKIP IN PROGRESS
+                  </p>
+
+                  {/* Progress Bar */}
+                  <div className="mb-6">
+                    <div className="flex justify-between mb-2">
+                      <span className="text-xs text-light-gray uppercase tracking-widest">
+                        Training Progress
+                      </span>
+                      <span className="text-sm font-heading text-cyber-yellow">
+                        {Math.round(trainingProgress)}%
+                      </span>
+                    </div>
+                    <Progress value={trainingProgress} className="h-4" />
+                  </div>
+
+                  {/* Time Remaining */}
+                  <motion.p
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
-                    className="text-4xl mb-4"
+                    className="text-2xl font-heading text-primary mb-8"
                   >
-                    ✨
+                    ⏰ {Math.round((100 - trainingProgress) / 10)} seconds remaining
+                  </motion.p>
+
+                  {/* Training Stats */}
+                  <div className="grid grid-cols-3 gap-4 mb-8">
+                    <div className="bg-background/40 rounded p-3">
+                      <p className="text-xs text-light-gray mb-1">XP Gain</p>
+                      <p className="font-heading text-xl text-primary">
+                        +{selectedSession.xpGain}
+                      </p>
+                    </div>
+                    <div className="bg-background/40 rounded p-3">
+                      <p className="text-xs text-light-gray mb-1">Duration</p>
+                      <p className="font-heading text-xl text-secondary">
+                        {selectedSession.duration}m
+                      </p>
+                    </div>
+                    <div className="bg-background/40 rounded p-3">
+                      <p className="text-xs text-light-gray mb-1">Difficulty</p>
+                      <p className="font-heading text-xl text-cyber-yellow">
+                        {selectedSession.difficulty}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Particle Effects */}
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{
+                        x: 0,
+                        y: 0,
+                        opacity: 1
+                      }}
+                      animate={{
+                        x: Math.cos((i / 6) * Math.PI * 2) * 100,
+                        y: Math.sin((i / 6) * Math.PI * 2) * 100,
+                        opacity: 0
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity
+                      }}
+                      className="absolute w-2 h-2 rounded-full bg-cyber-yellow"
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                        marginLeft: '-4px',
+                        marginTop: '-4px'
+                      }}
+                    ></motion.div>
+                  ))}
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Training Complete */}
+            {!isTraining && selectedSession && trainingProgress === 100 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-4"
+              >
+                <Card className="bg-dark-gray border-2 border-neon-green p-8 text-center">
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="text-8xl mb-6"
+                  >
+                    🎉
                   </motion.div>
+
+                  <h3 className="font-heading text-3xl text-neon-green mb-4">
+                    TRAINING COMPLETE!
+                  </h3>
+
+                  <div className="bg-background/40 rounded p-6 mb-6 border border-neon-green/30">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-light-gray mb-2">XP Gained</p>
+                        <p className="font-heading text-3xl text-neon-green">
+                          +{selectedSession.xpGain}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-light-gray mb-2">Time Saved</p>
+                        <p className="font-heading text-3xl text-cyber-yellow">
+                          {selectedSession.duration * 10}h
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <Button
                     onClick={() => {
-                      setShowBreakthrough(false);
-                      setSelectedDuration(null);
+                      setSelectedSession(null);
+                      setTrainingProgress(0);
                     }}
-                    className="w-full bg-cyber-yellow text-dark-gray hover:bg-cyber-yellow/90 font-heading uppercase"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
                   >
-                    Claim Reward
+                    Start Another Session
                   </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </Card>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Training Stats */}
+          <div className="space-y-4">
+            <Card className="bg-dark-gray border-2 border-primary p-6">
+              <h3 className="font-heading text-lg text-foreground mb-4">Training Stats</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-2">
+                    Sessions Completed
+                  </p>
+                  <p className="font-heading text-3xl text-primary">
+                    {completedSessions}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-2">
+                    Total XP Gained
+                  </p>
+                  <p className="font-heading text-3xl text-secondary">
+                    {totalXpGained.toLocaleString()}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-2">
+                    Time Saved
+                  </p>
+                  <p className="font-heading text-3xl text-cyber-yellow">
+                    {completedSessions * 50}h
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="bg-background/40 border border-primary/20 p-6">
+              <h3 className="font-heading text-lg text-foreground mb-4">How It Works</h3>
+              <ul className="space-y-2 text-sm font-paragraph text-light-gray">
+                <li>✓ Select a training session</li>
+                <li>✓ Time-skip technology accelerates learning</li>
+                <li>✓ Gain massive XP rewards</li>
+                <li>✓ Complete in minutes, not hours</li>
+              </ul>
+            </Card>
           </div>
         </div>
       </div>

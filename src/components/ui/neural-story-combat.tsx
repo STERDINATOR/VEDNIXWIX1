@@ -1,155 +1,171 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Zap, Heart, Shield } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+
+interface CombatMove {
+  id: string;
+  name: string;
+  emoji: string;
+  damage: number;
+  accuracy: number;
+  cooldown: number;
+  description: string;
+}
 
 interface Enemy {
   id: string;
   name: string;
   emoji: string;
-  health: number;
-  maxHealth: number;
-  dialogue: string[];
-  weaknessHint: string;
+  hp: number;
+  maxHp: number;
+  level: number;
+  moves: CombatMove[];
 }
 
-interface Question {
-  id: string;
-  text: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-}
-
-const enemies: Enemy[] = [
+const playerMoves: CombatMove[] = [
   {
-    id: 'ignorance',
-    name: 'Ignorance Wraith',
-    emoji: '👻',
-    health: 100,
-    maxHealth: 100,
-    dialogue: [
-      'You dare challenge me?',
-      'Your knowledge is weak!',
-      'I feed on confusion!',
-      'Impossible... I am fading...'
-    ],
-    weaknessHint: 'Answer questions correctly to weaken this foe'
+    id: 'logic-strike',
+    name: 'Logic Strike',
+    emoji: '⚡',
+    damage: 25,
+    accuracy: 95,
+    cooldown: 0,
+    description: 'A precise strike using pure logic'
   },
   {
-    id: 'confusion',
-    name: 'Confusion Phantom',
-    emoji: '🌀',
-    health: 80,
-    maxHealth: 80,
-    dialogue: [
-      'Everything is unclear!',
-      'You cannot understand!',
-      'Chaos reigns supreme!',
-      'No... clarity defeats me...'
-    ],
-    weaknessHint: 'Solve the puzzle to dispel the chaos'
+    id: 'knowledge-burst',
+    name: 'Knowledge Burst',
+    emoji: '💥',
+    damage: 40,
+    accuracy: 80,
+    cooldown: 2,
+    description: 'Unleash accumulated knowledge'
+  },
+  {
+    id: 'shield-spell',
+    name: 'Shield Spell',
+    emoji: '🛡️',
+    damage: 0,
+    accuracy: 100,
+    cooldown: 1,
+    description: 'Reduce incoming damage'
+  },
+  {
+    id: 'ultimate-wisdom',
+    name: 'Ultimate Wisdom',
+    emoji: '✨',
+    damage: 60,
+    accuracy: 70,
+    cooldown: 3,
+    description: 'Devastating attack with all knowledge'
   }
 ];
 
-const questions: Question[] = [
+const enemies: Enemy[] = [
   {
-    id: '1',
-    text: 'What is the capital of Japan?',
-    options: ['Seoul', 'Tokyo', 'Beijing', 'Bangkok'],
-    correctIndex: 1,
-    explanation: 'Tokyo is the capital and largest city of Japan.'
+    id: 'confusion-demon',
+    name: 'Confusion Demon',
+    emoji: '😵',
+    hp: 80,
+    maxHp: 80,
+    level: 5,
+    moves: [
+      { id: 'confuse', name: 'Confuse', emoji: '🌀', damage: 15, accuracy: 85, cooldown: 0, description: 'Confuses the player' }
+    ]
   },
   {
-    id: '2',
-    text: 'Which planet is closest to the Sun?',
-    options: ['Venus', 'Mercury', 'Earth', 'Mars'],
-    correctIndex: 1,
-    explanation: 'Mercury is the closest planet to the Sun in our solar system.'
+    id: 'procrastination-boss',
+    name: 'Procrastination Boss',
+    emoji: '😴',
+    hp: 120,
+    maxHp: 120,
+    level: 8,
+    moves: [
+      { id: 'delay', name: 'Delay Attack', emoji: '⏰', damage: 20, accuracy: 90, cooldown: 1, description: 'Delays your actions' }
+    ]
   },
   {
-    id: '3',
-    text: 'What is the chemical symbol for Gold?',
-    options: ['Go', 'Gd', 'Au', 'Ag'],
-    correctIndex: 2,
-    explanation: 'Au is the chemical symbol for Gold, derived from its Latin name "aurum".'
+    id: 'doubt-shadow',
+    name: 'Doubt Shadow',
+    emoji: '👻',
+    hp: 100,
+    maxHp: 100,
+    level: 7,
+    moves: [
+      { id: 'doubt', name: 'Doubt Strike', emoji: '❓', damage: 25, accuracy: 80, cooldown: 0, description: 'Shakes your confidence' }
+    ]
   }
 ];
 
 export function NeuralStoryCombat() {
-  const [currentEnemyIndex, setCurrentEnemyIndex] = useState(0);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [enemy, setEnemy] = useState<Enemy>(JSON.parse(JSON.stringify(enemies[0])));
-  const [playerHealth, setPlayerHealth] = useState(100);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showResult, setShowResult] = useState(false);
-  const [dialogueIndex, setDialogueIndex] = useState(0);
-  const [combatLog, setCombatLog] = useState<string[]>(['Battle started!']);
-  const [isAttacking, setIsAttacking] = useState(false);
+  const [selectedEnemy, setSelectedEnemy] = useState<Enemy>(enemies[0]);
+  const [playerHp, setPlayerHp] = useState(100);
+  const [maxPlayerHp] = useState(100);
+  const [enemyHp, setEnemyHp] = useState(selectedEnemy.hp);
+  const [battleLog, setBattleLog] = useState<string[]>(['Battle started!']);
+  const [inBattle, setInBattle] = useState(false);
+  const [selectedMove, setSelectedMove] = useState<CombatMove | null>(null);
+  const [battleResult, setBattleResult] = useState<'win' | 'loss' | null>(null);
 
-  const currentQuestion = questions[currentQuestionIndex];
-
-  const handleAnswerSelect = (index: number) => {
-    if (selectedAnswer !== null) return;
-    
-    setSelectedAnswer(index);
-    setShowResult(true);
-    setIsAttacking(true);
-
-    const isCorrect = index === currentQuestion.correctIndex;
-    const damage = isCorrect ? 30 : 10;
-    const newHealth = Math.max(0, enemy.health - damage);
-
-    if (isCorrect) {
-      setCombatLog(prev => [...prev, `✓ Correct! ${currentQuestion.explanation}`]);
-      setCombatLog(prev => [...prev, `⚡ ${enemy.name} takes ${damage} damage!`]);
-    } else {
-      setCombatLog(prev => [...prev, `✗ Incorrect. ${currentQuestion.explanation}`]);
-      setCombatLog(prev => [...prev, `💥 You take ${damage} damage!`]);
-      setPlayerHealth(prev => Math.max(0, prev - damage));
-    }
-
-    setEnemy(prev => ({
-      ...prev,
-      health: newHealth
-    }));
-
-    // Update dialogue
-    if (newHealth <= 0) {
-      setDialogueIndex(prev => Math.min(prev + 1, enemy.dialogue.length - 1));
-    } else {
-      setDialogueIndex(prev => Math.min(prev + 1, enemy.dialogue.length - 2));
-    }
-
-    setTimeout(() => {
-      setIsAttacking(false);
-    }, 600);
+  const handleSelectEnemy = (enemy: Enemy) => {
+    setSelectedEnemy(enemy);
+    setEnemyHp(enemy.hp);
+    setPlayerHp(maxPlayerHp);
+    setBattleLog(['Battle started!']);
+    setInBattle(true);
+    setBattleResult(null);
   };
 
-  const handleNextRound = () => {
-    if (enemy.health <= 0) {
-      // Enemy defeated
-      if (currentEnemyIndex < enemies.length - 1) {
-        setCurrentEnemyIndex(prev => prev + 1);
-        setEnemy(JSON.parse(JSON.stringify(enemies[currentEnemyIndex + 1])));
-        setCurrentQuestionIndex(0);
-        setPlayerHealth(100);
-        setSelectedAnswer(null);
-        setShowResult(false);
-        setDialogueIndex(0);
-        setCombatLog(['New battle started!']);
-      } else {
-        setCombatLog(prev => [...prev, '🏆 All enemies defeated! Victory!']);
-      }
-    } else {
-      // Next question
-      setCurrentQuestionIndex(prev => (prev + 1) % questions.length);
-      setSelectedAnswer(null);
-      setShowResult(false);
-    }
-  };
+  const handleAttack = (move: CombatMove) => {
+    if (!inBattle || battleResult) return;
 
-  const allEnemiesDefeated = currentEnemyIndex === enemies.length - 1 && enemy.health <= 0;
+    setSelectedMove(move);
+    const hitChance = Math.random() * 100;
+    const hit = hitChance <= move.accuracy;
+    const damage = hit ? move.damage : 0;
+
+    const newEnemyHp = Math.max(0, enemyHp - damage);
+    setEnemyHp(newEnemyHp);
+
+    const newLog = [
+      ...battleLog,
+      hit
+        ? `You used ${move.name}! Dealt ${damage} damage!`
+        : `${move.name} missed!`
+    ];
+
+    if (newEnemyHp <= 0) {
+      newLog.push(`Victory! You defeated ${selectedEnemy.name}!`);
+      setBattleResult('win');
+      setBattleLog(newLog);
+      return;
+    }
+
+    // Enemy counter attack
+    const enemyMove = selectedEnemy.moves[0];
+    const enemyHit = Math.random() * 100 <= enemyMove.accuracy;
+    const enemyDamage = enemyHit ? enemyMove.damage : 0;
+    const newPlayerHp = Math.max(0, playerHp - enemyDamage);
+
+    newLog.push(
+      enemyHit
+        ? `${selectedEnemy.name} used ${enemyMove.name}! You took ${enemyDamage} damage!`
+        : `${selectedEnemy.name}'s attack missed!`
+    );
+
+    setPlayerHp(newPlayerHp);
+
+    if (newPlayerHp <= 0) {
+      newLog.push(`Defeat! You were defeated by ${selectedEnemy.name}...`);
+      setBattleResult('loss');
+    }
+
+    setBattleLog(newLog);
+    setSelectedMove(null);
+  };
 
   return (
     <div className="w-full py-24 md:py-40 bg-gradient-to-b from-background to-background/80">
@@ -161,175 +177,212 @@ export function NeuralStoryCombat() {
           className="text-center mb-16"
         >
           <h2 className="font-heading text-6xl md:text-7xl text-foreground mb-4">
-            NEURAL STORY <span className="text-secondary">COMBAT</span>
+            NEURAL <span className="text-primary">STORY COMBAT</span>
           </h2>
           <p className="text-lg text-light-gray max-w-2xl mx-auto">
-            Battle knowledge enemies. Answer questions correctly to weaken them. Watch epic attack sequences unfold.
+            Battle knowledge demons using your learned skills. Defeat enemies to unlock new abilities.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Combat Arena */}
-          <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="bg-background/60 backdrop-blur-md border border-primary/30 rounded-lg p-8"
-            >
-              {/* Enemy Display */}
-              <div className="text-center mb-8">
-                <motion.div
-                  animate={isAttacking ? { scale: [1, 1.2, 1], rotate: [0, -5, 5, 0] } : {}}
-                  transition={{ duration: 0.6 }}
-                  className="text-8xl mb-4 inline-block"
-                >
-                  {enemy.emoji}
-                </motion.div>
-                <h3 className="font-heading text-3xl text-foreground mb-2">{enemy.name}</h3>
-                <p className="text-light-gray mb-4">{enemy.dialogue[dialogueIndex]}</p>
-
-                {/* Enemy Health Bar */}
-                <div className="bg-background/50 rounded-full h-4 overflow-hidden border border-primary/20 mb-2">
-                  <motion.div
-                    initial={false}
-                    animate={{ width: `${(enemy.health / enemy.maxHealth) * 100}%` }}
-                    transition={{ duration: 0.5 }}
-                    className="h-full bg-gradient-to-r from-secondary to-destructive"
-                  ></motion.div>
-                </div>
-                <p className="text-sm text-light-gray">
-                  HP: {Math.max(0, enemy.health)} / {enemy.maxHealth}
-                </p>
-              </div>
-
-              {/* Question */}
-              <div className="bg-background/40 border border-primary/20 rounded-lg p-6 mb-6">
-                <p className="font-heading text-xl text-foreground mb-4">{currentQuestion.text}</p>
-                <div className="space-y-3">
-                  {currentQuestion.options.map((option, index) => (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleAnswerSelect(index)}
-                      disabled={selectedAnswer !== null}
-                      className={`w-full p-4 rounded-lg border-2 transition-all text-left font-paragraph ${
-                        selectedAnswer === null
-                          ? 'border-primary/30 bg-background/30 hover:border-primary hover:bg-primary/5 cursor-pointer'
-                          : selectedAnswer === index
-                          ? index === currentQuestion.correctIndex
-                            ? 'border-neon-green bg-neon-green/10'
-                            : 'border-destructive bg-destructive/10'
-                          : index === currentQuestion.correctIndex
-                          ? 'border-neon-green bg-neon-green/10'
-                          : 'border-primary/20 bg-background/30 opacity-50'
-                      }`}
-                    >
-                      <span className="font-heading text-lg mr-3">
-                        {String.fromCharCode(65 + index)}.
-                      </span>
-                      {option}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Attack Animation */}
-              <AnimatePresence>
-                {isAttacking && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="text-center mb-4"
+          {/* Battle Arena */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Enemy Selection */}
+            {!inBattle && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {enemies.map((enemy) => (
+                  <motion.button
+                    key={enemy.id}
+                    onClick={() => handleSelectEnemy(enemy)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="border-2 border-primary/30 rounded-lg p-6 text-center bg-background/40 hover:bg-background/60 transition-all"
                   >
-                    <motion.div
-                      animate={{ y: [0, -20, 0] }}
-                      transition={{ duration: 0.6 }}
-                      className="text-4xl"
-                    >
-                      ⚡ ATTACK! ⚡
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Action Buttons */}
-              {showResult && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex gap-4"
-                >
-                  {enemy.health <= 0 && currentEnemyIndex === enemies.length - 1 ? (
-                    <Button className="w-full bg-neon-green text-dark-gray hover:bg-neon-green/90 font-heading uppercase">
-                      🏆 Victory! Return Home
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleNextRound}
-                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
-                    >
-                      {enemy.health <= 0 ? 'Next Battle' : 'Next Question'}
-                    </Button>
-                  )}
-                </motion.div>
-              )}
-            </motion.div>
-          </div>
-
-          {/* Combat Log & Stats */}
-          <div className="space-y-6">
-            {/* Player Stats */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="bg-background/60 backdrop-blur-md border border-primary/30 rounded-lg p-6"
-            >
-              <h3 className="font-heading text-xl text-foreground mb-4">Your Stats</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-light-gray mb-2">Health</p>
-                  <div className="bg-background/50 rounded-full h-3 overflow-hidden border border-primary/20">
-                    <motion.div
-                      initial={false}
-                      animate={{ width: `${playerHealth}%` }}
-                      transition={{ duration: 0.5 }}
-                      className="h-full bg-gradient-to-r from-primary to-cyber-yellow"
-                    ></motion.div>
-                  </div>
-                  <p className="text-xs text-light-gray mt-1">{playerHealth} / 100</p>
-                </div>
-                <div className="flex items-center gap-2 text-light-gray">
-                  <Zap className="h-4 w-4 text-cyber-yellow" />
-                  <span className="text-sm">Correct Answers: {currentQuestionIndex}</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Combat Log */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-background/60 backdrop-blur-md border border-primary/30 rounded-lg p-6 max-h-96 overflow-y-auto"
-            >
-              <h3 className="font-heading text-xl text-foreground mb-4">Battle Log</h3>
-              <div className="space-y-2">
-                {combatLog.map((log, index) => (
-                  <motion.p
-                    key={index}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="text-sm font-paragraph text-light-gray"
-                  >
-                    {log}
-                  </motion.p>
+                    <div className="text-6xl mb-3">{enemy.emoji}</div>
+                    <h3 className="font-heading text-lg text-foreground mb-1">
+                      {enemy.name}
+                    </h3>
+                    <p className="text-xs text-light-gray">Level {enemy.level}</p>
+                  </motion.button>
                 ))}
               </div>
-            </motion.div>
+            )}
+
+            {/* Battle Screen */}
+            {inBattle && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-6"
+              >
+                {/* Battle Arena */}
+                <Card className="bg-dark-gray border-2 border-primary p-8">
+                  <div className="grid grid-cols-2 gap-8 mb-8">
+                    {/* Player */}
+                    <div className="text-center">
+                      <motion.div
+                        animate={playerHp <= 30 ? { x: [-5, 5, -5, 5, 0] } : {}}
+                        transition={{ duration: 0.5 }}
+                        className="text-6xl mb-4"
+                      >
+                        🧙‍♂️
+                      </motion.div>
+                      <h3 className="font-heading text-lg text-foreground mb-2">You</h3>
+                      <div className="mb-2">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs text-light-gray">HP</span>
+                          <span className="text-sm font-heading text-primary">
+                            {playerHp} / {maxPlayerHp}
+                          </span>
+                        </div>
+                        <Progress value={(playerHp / maxPlayerHp) * 100} className="h-3" />
+                      </div>
+                    </div>
+
+                    {/* Enemy */}
+                    <div className="text-center">
+                      <motion.div
+                        animate={enemyHp <= 30 ? { x: [-5, 5, -5, 5, 0] } : {}}
+                        transition={{ duration: 0.5 }}
+                        className="text-6xl mb-4"
+                      >
+                        {selectedEnemy.emoji}
+                      </motion.div>
+                      <h3 className="font-heading text-lg text-foreground mb-2">
+                        {selectedEnemy.name}
+                      </h3>
+                      <div className="mb-2">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs text-light-gray">HP</span>
+                          <span className="text-sm font-heading text-secondary">
+                            {enemyHp} / {selectedEnemy.maxHp}
+                          </span>
+                        </div>
+                        <Progress value={(enemyHp / selectedEnemy.maxHp) * 100} className="h-3" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Battle Log */}
+                  <div className="bg-background/60 rounded p-4 h-32 overflow-y-auto mb-4 border border-primary/20">
+                    <div className="space-y-2">
+                      {battleLog.slice(-5).map((log, index) => (
+                        <motion.p
+                          key={index}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="font-paragraph text-sm text-light-gray"
+                        >
+                          {log}
+                        </motion.p>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Battle Result */}
+                  <AnimatePresence>
+                    {battleResult && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className={`text-center p-6 rounded-lg mb-4 border-2 ${
+                          battleResult === 'win'
+                            ? 'bg-neon-green/20 border-neon-green'
+                            : 'bg-destructive/20 border-destructive'
+                        }`}
+                      >
+                        <p className="font-heading text-2xl mb-2">
+                          {battleResult === 'win' ? '🎉 VICTORY!' : '💔 DEFEAT'}
+                        </p>
+                        <p className="font-paragraph text-light-gray">
+                          {battleResult === 'win'
+                            ? `You defeated ${selectedEnemy.name} and gained 500 XP!`
+                            : 'Try again to overcome this challenge!'}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+
+                {/* Move Selection */}
+                {!battleResult && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {playerMoves.map((move) => (
+                      <motion.button
+                        key={move.id}
+                        onClick={() => handleAttack(move)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="border-2 border-primary/30 rounded-lg p-4 bg-background/40 hover:bg-background/60 transition-all text-center"
+                      >
+                        <div className="text-3xl mb-2">{move.emoji}</div>
+                        <p className="font-heading text-sm text-foreground mb-1">
+                          {move.name}
+                        </p>
+                        <p className="text-xs text-light-gray">
+                          {move.damage > 0 ? `${move.damage} DMG` : 'Defend'}
+                        </p>
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Battle End */}
+                {battleResult && (
+                  <Button
+                    onClick={() => setInBattle(false)}
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+                  >
+                    Return to Selection
+                  </Button>
+                )}
+              </motion.div>
+            )}
+          </div>
+
+          {/* Combat Stats */}
+          <div className="space-y-4">
+            <Card className="bg-dark-gray border-2 border-primary p-6">
+              <h3 className="font-heading text-lg text-foreground mb-4">Combat Stats</h3>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-1">
+                    Battles Won
+                  </p>
+                  <p className="font-heading text-2xl text-primary">12</p>
+                </div>
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-1">
+                    Win Rate
+                  </p>
+                  <p className="font-heading text-2xl text-secondary">85%</p>
+                </div>
+                <div>
+                  <p className="text-xs text-light-gray uppercase tracking-widest mb-1">
+                    Total Damage
+                  </p>
+                  <p className="font-heading text-2xl text-cyber-yellow">2,450</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="bg-background/40 border border-primary/20 p-6">
+              <h3 className="font-heading text-lg text-foreground mb-4">Move Guide</h3>
+              <div className="space-y-3 text-sm">
+                {playerMoves.map((move) => (
+                  <div key={move.id} className="border-l-2 border-primary/30 pl-3">
+                    <p className="font-heading text-foreground">
+                      {move.emoji} {move.name}
+                    </p>
+                    <p className="text-xs text-light-gray">
+                      {move.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
         </div>
       </div>

@@ -25,6 +25,15 @@ import { EpisodeProgressionTimeline } from '@/components/ui/episode-progression-
 import { MultiversePortal } from '@/components/ui/multiverse-portal';
 import { CharacterFlashbackScenes } from '@/components/ui/character-flashback-scenes';
 import { MangaStoryMode } from '@/components/ui/manga-story-mode';
+import { EmotionAdaptiveRealityShift } from '@/components/ui/emotion-adaptive-reality-shift';
+import { KnowledgeGenomeMapping } from '@/components/ui/knowledge-genome-mapping';
+import { NeuralStoryCombat } from '@/components/ui/neural-story-combat';
+import { MultiMentorCollaboration } from '@/components/ui/multi-mentor-collaboration';
+import { AdaptiveAnimeEmotionActing } from '@/components/ui/adaptive-anime-emotion-acting';
+import { TimeSkipTrainingRoom } from '@/components/ui/time-skip-training-room';
+import { QuantumLearningShard } from '@/components/ui/quantum-learning-shards';
+import { MultiverseLearningRoutes } from '@/components/ui/multiverse-learning-routes';
+import { SpiritPowerMeter } from '@/components/ui/spirit-power-meter';
 
 export default function ProfilePage() {
   const { member } = useMember();
@@ -287,6 +296,35 @@ export default function ProfilePage() {
 
           {/* Manga Story Mode */}
           <MangaStoryMode />
+
+          {/* Advanced Anime-Inspired Learning Features */}
+          
+          {/* Emotion-Adaptive Reality Shift */}
+          <EmotionAdaptiveRealityShift />
+
+          {/* Knowledge Genome Mapping */}
+          <KnowledgeGenomeMapping />
+
+          {/* Neural Story Combat */}
+          <NeuralStoryCombat />
+
+          {/* Multi-Mentor Collaboration AI */}
+          <MultiMentorCollaboration />
+
+          {/* Adaptive Anime Emotion Acting */}
+          <AdaptiveAnimeEmotionActing />
+
+          {/* Time-Skip Training Room */}
+          <TimeSkipTrainingRoom />
+
+          {/* Quantum Learning Shards */}
+          <QuantumLearningShard />
+
+          {/* Multiverse Learning Routes */}
+          <MultiverseLearningRoutes />
+
+          {/* Spirit Power Meter */}
+          <SpiritPowerMeter />
         </div>
       </div>
     </div>
