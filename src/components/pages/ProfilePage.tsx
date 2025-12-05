@@ -19,6 +19,12 @@ import {
   Award
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AnimeWorldMap } from '@/components/ui/anime-world-map';
+import { StoryArcSelector } from '@/components/ui/story-arc-selector';
+import { EpisodeProgressionTimeline } from '@/components/ui/episode-progression-timeline';
+import { MultiversePortal } from '@/components/ui/multiverse-portal';
+import { CharacterFlashbackScenes } from '@/components/ui/character-flashback-scenes';
+import { MangaStoryMode } from '@/components/ui/manga-story-mode';
 
 export default function ProfilePage() {
   const { member } = useMember();
@@ -260,6 +266,27 @@ export default function ProfilePage() {
               </Card>
             </motion.div>
           </div>
+        </div>
+
+        {/* Anime Universe & Story Features */}
+        <div className="mt-20 space-y-20">
+          {/* Anime World Map */}
+          <AnimeWorldMap />
+
+          {/* Story Arc Selector */}
+          <StoryArcSelector />
+
+          {/* Episode Progression Timeline */}
+          <EpisodeProgressionTimeline />
+
+          {/* Multiverse Portal */}
+          <MultiversePortal />
+
+          {/* Character Flashback Scenes */}
+          <CharacterFlashbackScenes />
+
+          {/* Manga Story Mode */}
+          <MangaStoryMode />
         </div>
       </div>
     </div>
