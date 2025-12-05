@@ -9,6 +9,11 @@ import { InteractiveQuiz } from '@/components/ui/interactive-quiz';
 import { MentorMonologue } from '@/components/ui/mentor-monologue';
 import { HabitTracker } from '@/components/ui/habit-tracker';
 import { EngagementDashboard } from '@/components/ui/engagement-dashboard';
+import { PersonalizedReelFeed } from '@/components/ui/personalized-reel-feed';
+import { InteractiveReelOverlay } from '@/components/ui/interactive-reel-overlay';
+import { ReelPlaylistSystem } from '@/components/ui/reel-playlist-system';
+import { ReelTimeVariants } from '@/components/ui/reel-time-variants';
+import { MentorReelReminders } from '@/components/ui/mentor-reel-reminders';
 import { 
   Film, 
   Play, 
@@ -21,7 +26,10 @@ import {
   Search,
   BookOpen,
   Trophy,
-  Target
+  Target,
+  Heart,
+  Layers,
+  Bell
 } from 'lucide-react';
 import { useMember } from '@/integrations';
 import { useProgressStore } from '@/stores/userProgressStore';
@@ -31,7 +39,7 @@ export default function AnimeReelsPage() {
   const { userProgress } = useProgressStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'feed' | 'quiz' | 'mentor' | 'analytics'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'personalized' | 'interactive' | 'playlists' | 'timeVariants' | 'reminders' | 'quiz' | 'mentor' | 'analytics'>('feed');
 
   const categories = [
     { id: 'all', name: 'All Topics', count: 15 },
@@ -106,12 +114,17 @@ export default function AnimeReelsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex gap-4 mb-8 overflow-x-auto pb-2"
+          className="flex gap-4 mb-8 overflow-x-auto pb-2 flex-wrap"
         >
           {[
             { id: 'feed', label: 'Reel Feed', icon: Film },
-            { id: 'quiz', label: 'Interactive Quiz', icon: Target },
-            { id: 'mentor', label: 'Mentor Guidance', icon: BookOpen },
+            { id: 'personalized', label: 'Personalized', icon: Heart },
+            { id: 'interactive', label: 'Interactive', icon: Zap },
+            { id: 'playlists', label: 'Playlists', icon: Layers },
+            { id: 'timeVariants', label: 'Time Variants', icon: Clock },
+            { id: 'reminders', label: 'Reminders', icon: Bell },
+            { id: 'quiz', label: 'Quiz', icon: Target },
+            { id: 'mentor', label: 'Mentor', icon: BookOpen },
             { id: 'analytics', label: 'Analytics', icon: TrendingUp }
           ].map(tab => {
             const Icon = tab.icon;
@@ -232,6 +245,31 @@ export default function AnimeReelsPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Personalized Feed Tab */}
+          {activeTab === 'personalized' && (
+            <PersonalizedReelFeed />
+          )}
+
+          {/* Interactive Overlay Tab */}
+          {activeTab === 'interactive' && (
+            <InteractiveReelOverlay />
+          )}
+
+          {/* Playlists Tab */}
+          {activeTab === 'playlists' && (
+            <ReelPlaylistSystem />
+          )}
+
+          {/* Time Variants Tab */}
+          {activeTab === 'timeVariants' && (
+            <ReelTimeVariants />
+          )}
+
+          {/* Reminders Tab */}
+          {activeTab === 'reminders' && (
+            <MentorReelReminders />
           )}
 
           {/* Interactive Quiz Tab */}
