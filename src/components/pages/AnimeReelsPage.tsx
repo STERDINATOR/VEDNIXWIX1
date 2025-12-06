@@ -31,6 +31,8 @@ import {
   Layers,
   Bell
 } from 'lucide-react';
+import { InstagramStyleReels } from '@/components/ui/instagram-style-reels';
+import { getTopicCoverImage, getTopicIcon } from '@/lib/reel-cover-images';
 import { useMember } from '@/integrations';
 import { useProgressStore } from '@/stores/userProgressStore';
 
@@ -39,7 +41,7 @@ export default function AnimeReelsPage() {
   const { userProgress } = useProgressStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'feed' | 'personalized' | 'interactive' | 'playlists' | 'timeVariants' | 'reminders' | 'quiz' | 'mentor' | 'analytics'>('feed');
+  const [activeTab, setActiveTab] = useState<'instagram' | 'personalized' | 'interactive' | 'playlists' | 'timeVariants' | 'reminders' | 'quiz' | 'mentor' | 'analytics'>('instagram');
 
   const categories = [
     { id: 'all', name: 'All Topics', count: 15 },
@@ -117,7 +119,7 @@ export default function AnimeReelsPage() {
           className="flex gap-4 mb-8 overflow-x-auto pb-2 flex-wrap"
         >
           {[
-            { id: 'feed', label: 'Reel Feed', icon: Film },
+            { id: 'instagram', label: 'Instagram Reels', icon: Film },
             { id: 'personalized', label: 'Personalized', icon: Heart },
             { id: 'interactive', label: 'Interactive', icon: Zap },
             { id: 'playlists', label: 'Playlists', icon: Layers },
@@ -151,102 +153,240 @@ export default function AnimeReelsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          {/* Reel Feed Tab */}
-          {activeTab === 'feed' && (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Sidebar - Filters */}
-                <div className="lg:col-span-1 space-y-6">
-                  {/* Category Filter */}
-                  <Card className="bg-dark-gray border-primary/20 p-6">
-                    <h3 className="text-lg font-heading font-bold text-foreground mb-4 flex items-center gap-2">
-                      <Filter className="h-5 w-5 text-primary" />
-                      Topics
-                    </h3>
-                    <div className="space-y-2">
-                      {categories.map((category) => (
-                        <Button
-                          key={category.id}
-                          variant={selectedCategory === category.id ? 'default' : 'ghost'}
-                          onClick={() => setSelectedCategory(category.id)}
-                          className={`w-full justify-between ${
-                            selectedCategory === category.id 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'text-light-gray hover:text-foreground'
-                          }`}
-                        >
-                          <span>{category.name}</span>
-                          <Badge variant="outline" className="border-primary/30 text-primary">
-                            {category.count}
-                          </Badge>
-                        </Button>
-                      ))}
-                    </div>
-                  </Card>
-
-                  {/* Difficulty Filter */}
-                  <Card className="bg-dark-gray border-primary/20 p-6">
-                    <h3 className="text-lg font-heading font-bold text-foreground mb-4 flex items-center gap-2">
-                      <Target className="h-5 w-5 text-secondary" />
-                      Difficulty
-                    </h3>
-                    <div className="space-y-2">
-                      {difficulties.map((difficulty) => (
-                        <Button
-                          key={difficulty.id}
-                          variant={selectedDifficulty === difficulty.id ? 'default' : 'ghost'}
-                          onClick={() => setSelectedDifficulty(difficulty.id)}
-                          className={`w-full justify-start ${
-                            selectedDifficulty === difficulty.id 
-                              ? 'bg-secondary text-secondary-foreground' 
-                              : 'text-light-gray hover:text-foreground'
-                          }`}
-                        >
-                          <span className={difficulty.color || 'text-foreground'}>
-                            {difficulty.name}
-                          </span>
-                        </Button>
-                      ))}
-                    </div>
-                  </Card>
-
-                  {/* Quick Stats */}
-                  <Card className="bg-dark-gray border-primary/20 p-6">
-                    <h3 className="text-lg font-heading font-bold text-foreground mb-4 flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-neon-green" />
-                      Your Progress
-                    </h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="font-paragraph text-light-gray text-sm">Reels Watched:</span>
-                        <span className="font-heading font-bold text-primary">
-                          {userProgress?.completedReels.length || 0}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-paragraph text-light-gray text-sm">XP Earned:</span>
-                        <span className="font-heading font-bold text-neon-green">
-                          {userProgress?.totalXP || 0}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-paragraph text-light-gray text-sm">Quizzes Completed:</span>
-                        <span className="font-heading font-bold text-secondary">
-                          {userProgress?.completedQuizzes.length || 0}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-
-                {/* Main Content - Reel Feed */}
-                <div className="lg:col-span-3">
-                  <AnimeTrialReels topicFilter={selectedCategory === 'all' ? undefined : selectedCategory} difficultyFilter={selectedDifficulty === 'all' ? undefined : selectedDifficulty} />
-                </div>
-              </div>
-            </div>
+          {/* Instagram Style Reels Tab */}
+          {activeTab === 'instagram' && (
+            <InstagramStyleReels
+              reels={[
+                {
+                  id: 'reel-1',
+                  title: 'Algebra Fundamentals',
+                  topic: 'Algebra',
+                  difficulty: 'Easy',
+                  duration: 420,
+                  coverImage: getTopicCoverImage('Algebra'),
+                  topicIcon: getTopicIcon('Algebra'),
+                  description: 'Learn the fundamentals of algebra with clear explanations and examples.',
+                  viewCount: 1250,
+                  likeCount: 340,
+                  commentCount: 45,
+                  saveCount: 120,
+                  xpReward: 7
+                },
+                {
+                  id: 'reel-2',
+                  title: 'Quadratic Equations',
+                  topic: 'Algebra',
+                  difficulty: 'Medium',
+                  duration: 540,
+                  coverImage: getTopicCoverImage('Algebra'),
+                  topicIcon: getTopicIcon('Algebra'),
+                  description: 'Master quadratic equations and their solutions.',
+                  viewCount: 980,
+                  likeCount: 280,
+                  commentCount: 32,
+                  saveCount: 95,
+                  xpReward: 9
+                },
+                {
+                  id: 'reel-3',
+                  title: 'Advanced Polynomials',
+                  topic: 'Algebra',
+                  difficulty: 'Hard',
+                  duration: 720,
+                  coverImage: getTopicCoverImage('Algebra'),
+                  topicIcon: getTopicIcon('Algebra'),
+                  description: 'Explore advanced polynomial operations and factoring techniques.',
+                  viewCount: 650,
+                  likeCount: 190,
+                  commentCount: 28,
+                  saveCount: 75,
+                  xpReward: 12
+                },
+                {
+                  id: 'reel-4',
+                  title: 'Geometry Basics',
+                  topic: 'Geometry',
+                  difficulty: 'Easy',
+                  duration: 480,
+                  coverImage: getTopicCoverImage('Geometry'),
+                  topicIcon: getTopicIcon('Geometry'),
+                  description: 'Introduction to basic geometry concepts and shapes.',
+                  viewCount: 1450,
+                  likeCount: 420,
+                  commentCount: 52,
+                  saveCount: 140,
+                  xpReward: 8
+                },
+                {
+                  id: 'reel-5',
+                  title: 'Trigonometry Intro',
+                  topic: 'Geometry',
+                  difficulty: 'Medium',
+                  duration: 600,
+                  coverImage: getTopicCoverImage('Geometry'),
+                  topicIcon: getTopicIcon('Geometry'),
+                  description: 'Get started with trigonometry and trigonometric functions.',
+                  viewCount: 890,
+                  likeCount: 260,
+                  commentCount: 35,
+                  saveCount: 85,
+                  xpReward: 10
+                },
+                {
+                  id: 'reel-6',
+                  title: 'Circle Theorems',
+                  topic: 'Geometry',
+                  difficulty: 'Hard',
+                  duration: 660,
+                  coverImage: getTopicCoverImage('Geometry'),
+                  topicIcon: getTopicIcon('Geometry'),
+                  description: 'Deep dive into circle theorems and properties.',
+                  viewCount: 720,
+                  likeCount: 210,
+                  commentCount: 30,
+                  saveCount: 80,
+                  xpReward: 11
+                },
+                {
+                  id: 'reel-7',
+                  title: 'Limits & Continuity',
+                  topic: 'Calculus',
+                  difficulty: 'Medium',
+                  duration: 720,
+                  coverImage: getTopicCoverImage('Calculus'),
+                  topicIcon: getTopicIcon('Calculus'),
+                  description: 'Understand limits and continuity in calculus.',
+                  viewCount: 1100,
+                  likeCount: 320,
+                  commentCount: 48,
+                  saveCount: 110,
+                  xpReward: 12
+                },
+                {
+                  id: 'reel-8',
+                  title: 'Derivatives Explained',
+                  topic: 'Calculus',
+                  difficulty: 'Hard',
+                  duration: 840,
+                  coverImage: getTopicCoverImage('Calculus'),
+                  topicIcon: getTopicIcon('Calculus'),
+                  description: 'Master derivatives and their applications.',
+                  viewCount: 850,
+                  likeCount: 240,
+                  commentCount: 38,
+                  saveCount: 95,
+                  xpReward: 14
+                },
+                {
+                  id: 'reel-9',
+                  title: 'Integrals Mastery',
+                  topic: 'Calculus',
+                  difficulty: 'Hard',
+                  duration: 900,
+                  coverImage: getTopicCoverImage('Calculus'),
+                  topicIcon: getTopicIcon('Calculus'),
+                  description: 'Learn integration techniques and applications.',
+                  viewCount: 920,
+                  likeCount: 270,
+                  commentCount: 42,
+                  saveCount: 105,
+                  xpReward: 15
+                },
+                {
+                  id: 'reel-10',
+                  title: 'Data Distribution',
+                  topic: 'Statistics',
+                  difficulty: 'Easy',
+                  duration: 480,
+                  coverImage: getTopicCoverImage('Statistics'),
+                  topicIcon: getTopicIcon('Statistics'),
+                  description: 'Understand data distributions and statistical analysis.',
+                  viewCount: 1320,
+                  likeCount: 380,
+                  commentCount: 50,
+                  saveCount: 125,
+                  xpReward: 8
+                },
+                {
+                  id: 'reel-11',
+                  title: 'Probability Theory',
+                  topic: 'Statistics',
+                  difficulty: 'Medium',
+                  duration: 600,
+                  coverImage: getTopicCoverImage('Statistics'),
+                  topicIcon: getTopicIcon('Statistics'),
+                  description: 'Master probability concepts and applications.',
+                  viewCount: 1050,
+                  likeCount: 300,
+                  commentCount: 44,
+                  saveCount: 100,
+                  xpReward: 10
+                },
+                {
+                  id: 'reel-12',
+                  title: 'Hypothesis Testing',
+                  topic: 'Statistics',
+                  difficulty: 'Hard',
+                  duration: 780,
+                  coverImage: getTopicCoverImage('Statistics'),
+                  topicIcon: getTopicIcon('Statistics'),
+                  description: 'Learn hypothesis testing and statistical inference.',
+                  viewCount: 780,
+                  likeCount: 220,
+                  commentCount: 36,
+                  saveCount: 88,
+                  xpReward: 13
+                },
+                {
+                  id: 'reel-13',
+                  title: 'Motion & Forces',
+                  topic: 'Physics',
+                  difficulty: 'Easy',
+                  duration: 540,
+                  coverImage: getTopicCoverImage('Physics'),
+                  topicIcon: getTopicIcon('Physics'),
+                  description: 'Understand motion, forces, and Newton\'s laws.',
+                  viewCount: 1180,
+                  likeCount: 340,
+                  commentCount: 46,
+                  saveCount: 115,
+                  xpReward: 9
+                },
+                {
+                  id: 'reel-14',
+                  title: 'Energy & Work',
+                  topic: 'Physics',
+                  difficulty: 'Medium',
+                  duration: 660,
+                  coverImage: getTopicCoverImage('Physics'),
+                  topicIcon: getTopicIcon('Physics'),
+                  description: 'Explore energy, work, and power concepts.',
+                  viewCount: 950,
+                  likeCount: 280,
+                  commentCount: 40,
+                  saveCount: 98,
+                  xpReward: 11
+                },
+                {
+                  id: 'reel-15',
+                  title: 'Quantum Mechanics',
+                  topic: 'Physics',
+                  difficulty: 'Epic',
+                  duration: 900,
+                  coverImage: getTopicCoverImage('Physics'),
+                  topicIcon: getTopicIcon('Physics'),
+                  description: 'Introduction to quantum mechanics and wave-particle duality.',
+                  viewCount: 680,
+                  likeCount: 200,
+                  commentCount: 32,
+                  saveCount: 75,
+                  xpReward: 16
+                }
+              ]}
+              onPlayReel={(reelId) => console.log(`Playing reel: ${reelId}`)}
+              onMentorAccess={(reelId) => console.log(`Mentor access for reel: ${reelId}`)}
+            />
           )}
-
           {/* Personalized Feed Tab */}
           {activeTab === 'personalized' && (
             <PersonalizedReelFeed />
