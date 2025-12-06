@@ -7,9 +7,16 @@
   }
 }
 
+/* Apply scan animation only to placeholder images, not to actual cover images */
 img[src*='12d367_71ebdd7141d041e4be3d91d80d4578dd'] {
   mask-image: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 1) 50%, transparent 100%);
   mask-size: 100% 200%;
   mask-repeat: no-repeat;
   animation: scanMask 2s linear infinite;
+}
+
+/* Ensure real cover images display normally without animation */
+img[src*='c5b305'] {
+  animation: none;
+  mask-image: none;
 }

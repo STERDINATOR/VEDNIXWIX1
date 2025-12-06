@@ -18,7 +18,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '📐',
     gradientFrom: 'from-cyan-500/30',
     gradientTo: 'to-blue-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=algebra-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_b9e52984a4764ded9a100c3de8c0b3fe~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-cyan-400'
   },
   'Geometry': {
@@ -26,7 +26,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '△',
     gradientFrom: 'from-green-500/30',
     gradientTo: 'to-emerald-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=geometry-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_443f3b42afd5479e9e3e07396d11d1b0~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-green-400'
   },
   'Calculus': {
@@ -34,7 +34,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '∞',
     gradientFrom: 'from-purple-500/30',
     gradientTo: 'to-pink-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=calculus-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_c43e742485b6413b8f21f1d9e6c96e22~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-purple-400'
   },
   'Statistics': {
@@ -42,7 +42,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '📊',
     gradientFrom: 'from-yellow-500/30',
     gradientTo: 'to-amber-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=statistics-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_2644f04ad3c84f70bdfd1bc5688c5fbb~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-yellow-400'
   },
   'Physics': {
@@ -50,7 +50,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '⚡',
     gradientFrom: 'from-red-500/30',
     gradientTo: 'to-orange-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=physics-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_8c1022bac04a4c18b3e45f9ccd4cd96e~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-red-400'
   },
   'Chemistry': {
@@ -58,7 +58,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '⚗️',
     gradientFrom: 'from-violet-500/30',
     gradientTo: 'to-purple-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=chemistry-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_b9e52984a4764ded9a100c3de8c0b3fe~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-violet-400'
   },
   'Biology': {
@@ -66,7 +66,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '🧬',
     gradientFrom: 'from-teal-500/30',
     gradientTo: 'to-cyan-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=biology-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_443f3b42afd5479e9e3e07396d11d1b0~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-teal-400'
   },
   'History': {
@@ -74,7 +74,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '📜',
     gradientFrom: 'from-orange-500/30',
     gradientTo: 'to-yellow-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=history-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_2644f04ad3c84f70bdfd1bc5688c5fbb~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-orange-400'
   },
   'Literature': {
@@ -82,7 +82,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '📚',
     gradientFrom: 'from-pink-500/30',
     gradientTo: 'to-rose-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=literature-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_c43e742485b6413b8f21f1d9e6c96e22~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-pink-400'
   },
   'Languages': {
@@ -90,7 +90,7 @@ export const REEL_COVER_IMAGES: Record<string, ReelCoverConfig> = {
     icon: '🌍',
     gradientFrom: 'from-indigo-500/30',
     gradientTo: 'to-blue-500/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=languages-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_8c1022bac04a4c18b3e45f9ccd4cd96e~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-indigo-400'
   }
 };
@@ -104,7 +104,7 @@ export function getCoverImageForTopic(topic: string): ReelCoverConfig {
     icon: '📖',
     gradientFrom: 'from-primary/30',
     gradientTo: 'to-secondary/30',
-    coverImage: 'https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png?id=default-cover',
+    coverImage: 'https://static.wixstatic.com/media/c5b305_b9e52984a4764ded9a100c3de8c0b3fe~mv2.png?originWidth=384&originHeight=448',
     accentColor: 'text-primary'
   };
 }
