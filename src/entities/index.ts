@@ -81,6 +81,31 @@ export interface LearningTopics {
 
 
 /**
+ * Collection ID: quests
+ * Interface for Quests
+ */
+export interface Quests {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  title?: string;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType text */
+  objectives?: string;
+  /** @wixFieldType number */
+  xpReward?: number;
+  /** @wixFieldType text */
+  itemRewardName?: string;
+  /** @wixFieldType text */
+  difficulty?: string;
+  /** @wixFieldType image */
+  questImage?: string;
+}
+
+
+/**
  * Collection ID: reelquizzes
  * Interface for ReelQuizzes
  */
@@ -106,4 +131,129 @@ export interface ReelQuizzes {
   difficulty?: string;
   /** @wixFieldType number */
   pointsValue?: number;
+}
+
+
+/**
+ * Collection ID: studyguilds
+ * Interface for StudyGuilds
+ */
+export interface StudyGuilds {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  guildName?: string;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType number */
+  memberCount?: number;
+  /** @wixFieldType text */
+  goals?: string;
+  /** @wixFieldType text */
+  announcements?: string;
+  /** @wixFieldType datetime */
+  creationDate?: Date | string;
+  /** @wixFieldType image */
+  guildImage?: string;
+}
+
+
+/**
+ * Collection ID: shopitems
+ * Interface for ShopItems
+ */
+export interface ShopItems {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  itemName?: string;
+  /** @wixFieldType text */
+  itemDescription?: string;
+  /** @wixFieldType image */
+  itemImage?: string;
+  /** @wixFieldType number */
+  itemCost?: number;
+  /** @wixFieldType text */
+  itemCategory?: string;
+  /** @wixFieldType text */
+  acquisitionMethod?: string;
+  /** @wixFieldType boolean */
+  isLimitedEdition?: boolean;
+}
+
+
+/**
+ * Collection ID: quests
+ * Interface for Quests
+ */
+export interface Quests {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  title?: string;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType text */
+  objectives?: string;
+  /** @wixFieldType number */
+  xpReward?: number;
+  /** @wixFieldType text */
+  itemRewardName?: string;
+  /** @wixFieldType text */
+  difficulty?: string;
+  /** @wixFieldType image */
+  questImage?: string;
+}
+
+
+/**
+ * Collection ID: shopitems
+ * Interface for ShopItems
+ */
+export interface ShopItems {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  itemName?: string;
+  /** @wixFieldType text */
+  itemDescription?: string;
+  /** @wixFieldType image */
+  itemImage?: string;
+  /** @wixFieldType number */
+  itemCost?: number;
+  /** @wixFieldType text */
+  itemCategory?: string;
+  /** @wixFieldType text */
+  acquisitionMethod?: string;
+  /** @wixFieldType boolean */
+  isLimitedEdition?: boolean;
+}
+
+
+/**
+ * Collection ID: studyguilds
+ * Interface for StudyGuilds
+ */
+export interface StudyGuilds {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  guildName?: string;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType number */
+  memberCount?: number;
+  /** @wixFieldType text */
+  goals?: string;
+  /** @wixFieldType text */
+  announcements?: string;
+  /** @wixFieldType datetime */
+  creationDate?: Date | string;
+  /** @wixFieldType image */
+  guildImage?: string;
 }
