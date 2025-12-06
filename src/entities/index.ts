@@ -106,6 +106,53 @@ export interface Quests {
 
 
 /**
+ * Collection ID: userprogress
+ * Interface for UserProgress
+ */
+export interface UserProgress {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType number */
+  totalXP?: number;
+  /** @wixFieldType number */
+  level?: number;
+  /** @wixFieldType number */
+  currentLevelXP?: number;
+  /** @wixFieldType number */
+  maxLevelXP?: number;
+  /** @wixFieldType number */
+  dailyStreak?: number;
+  /** @wixFieldType datetime */
+  lastActivityDate?: Date | string;
+  /** @wixFieldType text */
+  completedReels?: string;
+  /** @wixFieldType text */
+  completedQuizzes?: string;
+  /** @wixFieldType text */
+  completedQuests?: string;
+  /** @wixFieldType text */
+  bookmarkedReels?: string;
+  /** @wixFieldType text */
+  weakTopics?: string;
+  /** @wixFieldType text */
+  achievements?: string;
+  /** @wixFieldType text */
+  inventory?: string;
+  /** @wixFieldType text */
+  guildId?: string;
+  /** @wixFieldType text */
+  battleStats?: string;
+  /** @wixFieldType text */
+  habitTracker?: string;
+  /** @wixFieldType text */
+  petStats?: string;
+}
+
+
+/**
  * Collection ID: reelquizzes
  * Interface for ReelQuizzes
  */
@@ -131,81 +178,6 @@ export interface ReelQuizzes {
   difficulty?: string;
   /** @wixFieldType number */
   pointsValue?: number;
-}
-
-
-/**
- * Collection ID: studyguilds
- * Interface for StudyGuilds
- */
-export interface StudyGuilds {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType text */
-  guildName?: string;
-  /** @wixFieldType text */
-  description?: string;
-  /** @wixFieldType number */
-  memberCount?: number;
-  /** @wixFieldType text */
-  goals?: string;
-  /** @wixFieldType text */
-  announcements?: string;
-  /** @wixFieldType datetime */
-  creationDate?: Date | string;
-  /** @wixFieldType image */
-  guildImage?: string;
-}
-
-
-/**
- * Collection ID: shopitems
- * Interface for ShopItems
- */
-export interface ShopItems {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType text */
-  itemName?: string;
-  /** @wixFieldType text */
-  itemDescription?: string;
-  /** @wixFieldType image */
-  itemImage?: string;
-  /** @wixFieldType number */
-  itemCost?: number;
-  /** @wixFieldType text */
-  itemCategory?: string;
-  /** @wixFieldType text */
-  acquisitionMethod?: string;
-  /** @wixFieldType boolean */
-  isLimitedEdition?: boolean;
-}
-
-
-/**
- * Collection ID: quests
- * Interface for Quests
- */
-export interface Quests {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType text */
-  title?: string;
-  /** @wixFieldType text */
-  description?: string;
-  /** @wixFieldType text */
-  objectives?: string;
-  /** @wixFieldType number */
-  xpReward?: number;
-  /** @wixFieldType text */
-  itemRewardName?: string;
-  /** @wixFieldType text */
-  difficulty?: string;
-  /** @wixFieldType image */
-  questImage?: string;
 }
 
 

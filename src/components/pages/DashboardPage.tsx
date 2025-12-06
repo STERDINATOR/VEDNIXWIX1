@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useMember } from '@/integrations';
 import { useUserDataStore } from '@/stores/userDataStore';
 import { NeonCityBackground } from '@/components/ui/neon-city-background';
+import { DashboardTestControls } from '@/components/ui/dashboard-test-controls';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -11,7 +12,7 @@ import { Link } from 'react-router-dom';
 
 export default function DashboardPage() {
   const { member } = useMember();
-  const { userData, loadUserData, startAutoSync } = useUserDataStore();
+  const { userData, loadUserData, startAutoSync, stopAutoSync } = useUserDataStore();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -20,11 +21,18 @@ export default function DashboardPage() {
         await loadUserData(member.contact.firstName);
         startAutoSync(30000); // Auto-sync every 30 seconds
         setIsInitializing(false);
+      } else {
+        setIsInitializing(false);
       }
     };
 
     initializeUser();
-  }, [member]);
+
+    // Cleanup on unmount
+    return () => {
+      stopAutoSync();
+    };
+  }, [member, loadUserData, startAutoSync, stopAutoSync]);
 
   if (isInitializing || !userData) {
     return (
@@ -38,6 +46,9 @@ export default function DashboardPage() {
               className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"
             />
             <p className="text-light-gray">Initializing your academy profile...</p>
+            {!member && (
+              <p className="text-xs text-light-gray mt-4">Please sign in to continue</p>
+            )}
           </div>
         </div>
       </div>
@@ -259,6 +270,9 @@ export default function DashboardPage() {
               </div>
             </Card>
           </motion.div>
+
+          {/* Test Controls */}
+          <DashboardTestControls />
         </div>
       </div>
     </div>
