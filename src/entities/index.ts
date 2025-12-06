@@ -106,53 +106,6 @@ export interface Quests {
 
 
 /**
- * Collection ID: userprogress
- * Interface for UserProgress
- */
-export interface UserProgress {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType text */
-  userId?: string;
-  /** @wixFieldType number */
-  totalXP?: number;
-  /** @wixFieldType number */
-  level?: number;
-  /** @wixFieldType number */
-  currentLevelXP?: number;
-  /** @wixFieldType number */
-  maxLevelXP?: number;
-  /** @wixFieldType number */
-  dailyStreak?: number;
-  /** @wixFieldType datetime */
-  lastActivityDate?: Date | string;
-  /** @wixFieldType text */
-  completedReels?: string;
-  /** @wixFieldType text */
-  completedQuizzes?: string;
-  /** @wixFieldType text */
-  completedQuests?: string;
-  /** @wixFieldType text */
-  bookmarkedReels?: string;
-  /** @wixFieldType text */
-  weakTopics?: string;
-  /** @wixFieldType text */
-  achievements?: string;
-  /** @wixFieldType text */
-  inventory?: string;
-  /** @wixFieldType text */
-  guildId?: string;
-  /** @wixFieldType text */
-  battleStats?: string;
-  /** @wixFieldType text */
-  habitTracker?: string;
-  /** @wixFieldType text */
-  petStats?: string;
-}
-
-
-/**
  * Collection ID: reelquizzes
  * Interface for ReelQuizzes
  */
