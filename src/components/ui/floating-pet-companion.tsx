@@ -1,15 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePetStore } from '@/stores/petStore';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, X, Bell } from 'lucide-react';
+import { Heart, MessageCircle, X, Bell, Settings, Gift, Zap, Sparkles, Palette, Send } from 'lucide-react';
 import { Image } from '@/components/ui/image';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
 export function FloatingPetCompanion() {
-  const { pet, stats, isVisible, setVisible, notifications } = usePetStore();
+  const { pet, stats, isVisible, setVisible, notifications, updateStats, setPet, addNotification } = usePetStore();
   const [isMinimized, setIsMinimized] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [petAnimation, setPetAnimation] = useState<'idle' | 'happy' | 'alert'>('idle');
+  const [showQuickMenu, setShowQuickMenu] = useState(false);
+  const [showCustomization, setShowCustomization] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [petAnimation, setPetAnimation] = useState<'idle' | 'happy' | 'alert' | 'excited'>('idle');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState<Array<{ sender: 'user' | 'pet'; message: string }>>([]);
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState(pet?.name || '');
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Pet animation cycle
   useEffect(() => {
@@ -21,14 +38,167 @@ export function FloatingPetCompanion() {
     return () => clearInterval(interval);
   }, []);
 
+  // Handle dragging
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isMinimized && containerRef.current) {
+      setIsDragging(true);
+      const rect = containerRef.current.getBoundingClientRect();
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging && containerRef.current) {
+        setPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragOffset]);
+
   if (!pet || !isVisible) return null;
+
+  // Pet interactions
+  const feedPet = () => {
+    updateStats({
+      happiness: Math.min(100, stats.happiness + 15),
+      energy: Math.min(100, stats.energy + 8)
+    });
+    setPetAnimation('excited');
+    setTimeout(() => setPetAnimation('happy'), 2000);
+    addNotification({
+      type: 'motivation',
+      message: `${pet.name} is happy after eating! 😋`,
+      icon: '😋'
+    });
+  };
+
+  const playWithPet = () => {
+    updateStats({
+      happiness: Math.min(100, stats.happiness + 20),
+      energy: Math.max(0, stats.energy - 15),
+      intelligence: Math.min(100, stats.intelligence + 5)
+    });
+    setPetAnimation('excited');
+    setTimeout(() => setPetAnimation('happy'), 3000);
+    addNotification({
+      type: 'motivation',
+      message: `${pet.name} had so much fun playing with you! 🎮`,
+      icon: '🎮'
+    });
+  };
+
+  const generateAIPetImage = async () => {
+    setIsGeneratingImage(true);
+    setPetAnimation('alert');
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const petImages = {
+        cat: 'https://static.wixstatic.com/media/c5b305_b9df0ad6afab410f863521c8d8673a09~mv2.png?originWidth=192&originHeight=192',
+        dragon: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192',
+        robot: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192',
+        phoenix: 'https://static.wixstatic.com/media/c5b305_250ce96b9d044dd39f26c8889a4be084~mv2.png?originWidth=192&originHeight=192',
+        wolf: 'https://static.wixstatic.com/media/c5b305_64b1f78e7d084df480fb0b1f510cd2f2~mv2.png?originWidth=384&originHeight=384',
+        fox: 'https://static.wixstatic.com/media/c5b305_b9df0ad6afab410f863521c8d8673a09~mv2.png?originWidth=192&originHeight=192',
+        bunny: 'https://static.wixstatic.com/media/c5b305_3531d235a875473592f8fa71a02a4ea2~mv2.png?originWidth=192&originHeight=192',
+        panda: 'https://static.wixstatic.com/media/c5b305_83b9d1450c8f424d841cbd52c4ab153f~mv2.png?originWidth=192&originHeight=192'
+      };
+      
+      const generatedImage = petImages[pet.type as keyof typeof petImages] || petImages.cat;
+      
+      setPet({
+        ...pet,
+        image: generatedImage
+      });
+      
+      setPetAnimation('happy');
+      addNotification({
+        type: 'achievement',
+        message: `${pet.name} got a new look! ✨`,
+        icon: '✨'
+      });
+    } catch (error) {
+      console.error('Error generating pet image:', error);
+      setPetAnimation('idle');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const handleSendMessage = (message: string) => {
+    if (!message.trim()) return;
+
+    setChatHistory(prev => [...prev, { sender: 'user', message }]);
+    setChatMessage('');
+    setPetAnimation('alert');
+
+    setTimeout(() => {
+      const responses = [
+        `${pet.name}: That's awesome! Keep it up! 🌟`,
+        `${pet.name}: I'm so proud of you! 💪`,
+        `${pet.name}: You're doing great! Let's keep learning! 📚`,
+        `${pet.name}: Remember to take breaks! Your health matters! 💚`,
+        `${pet.name}: You've got this! Never give up! 🚀`,
+        `${pet.name}: I believe in you! 🎯`,
+        `${pet.name}: Your dedication is inspiring! 🔥`,
+        `${pet.name}: Let's achieve great things together! ✨`
+      ];
+      
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      setChatHistory(prev => [...prev, { sender: 'pet', message: response }]);
+      setPetAnimation('happy');
+      
+      updateStats({
+        happiness: Math.min(100, stats.happiness + 3),
+        intelligence: Math.min(100, stats.intelligence + 2)
+      });
+    }, 1000);
+  };
+
+  const savePetName = () => {
+    if (newName.trim()) {
+      setPet({
+        ...pet,
+        name: newName
+      });
+      setEditingName(false);
+      addNotification({
+        type: 'achievement',
+        message: `Your pet is now called ${newName}! 🎉`,
+        icon: '🎉'
+      });
+    }
+  };
 
   const getAnimationClass = () => {
     switch (petAnimation) {
       case 'happy':
         return 'animate-bounce';
-      case 'alert':
+      case 'excited':
         return 'animate-pulse';
+      case 'alert':
+        return 'animate-ping';
       default:
         return '';
     }
@@ -54,14 +224,22 @@ export function FloatingPetCompanion() {
     <AnimatePresence>
       {isVisible && (
         <motion.div
+          ref={containerRef}
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
+          animate={{ 
+            opacity: 1, 
+            scale: 1, 
+            x: isMinimized ? position.x : 0,
+            y: isMinimized ? position.y : 0
+          }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
-          className="fixed bottom-6 right-6 z-40"
+          className={`fixed z-40 ${isMinimized ? 'cursor-grab active:cursor-grabbing' : 'bottom-6 right-6'}`}
+          style={isMinimized ? { left: `${position.x}px`, top: `${position.y}px` } : {}}
+          onMouseDown={handleMouseDown}
         >
           {/* Notifications Panel */}
           <AnimatePresence>
-            {showNotifications && (
+            {showNotifications && !isMinimized && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -87,7 +265,7 @@ export function FloatingPetCompanion() {
                   </p>
                 ) : (
                   <div className="space-y-3">
-                    {notifications.map((notif) => (
+                    {notifications.slice(0, 5).map((notif) => (
                       <motion.div
                         key={notif.id}
                         initial={{ opacity: 0, x: -10 }}
@@ -104,15 +282,238 @@ export function FloatingPetCompanion() {
                             <p className="text-sm font-paragraph text-foreground">
                               {notif.message}
                             </p>
-                            <p className="text-xs text-light-gray mt-1">
-                              {notif.timestamp.toLocaleTimeString()}
-                            </p>
                           </div>
                         </div>
                       </motion.div>
                     ))}
                   </div>
                 )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Quick Menu Panel */}
+          <AnimatePresence>
+            {showQuickMenu && !isMinimized && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                className="absolute bottom-24 right-0 w-72 bg-dark-gray border-2 border-primary/30 rounded-2xl p-4 shadow-2xl"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-bold text-foreground">Quick Actions</h3>
+                  <button
+                    onClick={() => setShowQuickMenu(false)}
+                    className="text-light-gray hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <Button
+                    onClick={feedPet}
+                    className="w-full bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground hover:from-secondary/90 hover:to-secondary/70"
+                  >
+                    <Gift className="h-4 w-4 mr-2" />
+                    Feed Pet 🍰
+                  </Button>
+
+                  <Button
+                    onClick={playWithPet}
+                    className="w-full bg-gradient-to-r from-neon-green to-neon-green/80 text-black hover:from-neon-green/90 hover:to-neon-green/70"
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Play with Pet 🎮
+                  </Button>
+
+                  <Button
+                    onClick={generateAIPetImage}
+                    disabled={isGeneratingImage}
+                    className="w-full bg-gradient-to-r from-cyber-yellow to-cyber-yellow/80 text-black hover:from-cyber-yellow/90 hover:to-cyber-yellow/70"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isGeneratingImage ? 'Generating...' : 'Generate AI Image'} ✨
+                  </Button>
+
+                  <Button
+                    onClick={() => {
+                      setShowChat(true);
+                      setShowQuickMenu(false);
+                    }}
+                    variant="outline"
+                    className="w-full border-primary text-primary hover:bg-primary/10"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Chat
+                  </Button>
+
+                  <Button
+                    onClick={() => {
+                      setShowCustomization(true);
+                      setShowQuickMenu(false);
+                    }}
+                    variant="outline"
+                    className="w-full border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10"
+                  >
+                    <Palette className="h-4 w-4 mr-2" />
+                    Customize
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Chat Panel */}
+          <AnimatePresence>
+            {showChat && !isMinimized && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                className="absolute bottom-24 right-0 w-80 bg-dark-gray border-2 border-primary/30 rounded-2xl p-4 shadow-2xl flex flex-col max-h-96"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-bold text-foreground">Chat with {pet.name}</h3>
+                  <button
+                    onClick={() => setShowChat(false)}
+                    className="text-light-gray hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto mb-4 space-y-3 max-h-48">
+                  {chatHistory.length === 0 ? (
+                    <p className="text-sm text-light-gray text-center py-4">
+                      Start a conversation with {pet.name}! 💬
+                    </p>
+                  ) : (
+                    chatHistory.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[80%] p-2 rounded-lg text-sm ${
+                            msg.sender === 'user'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-background text-foreground'
+                          }`}
+                        >
+                          {msg.message}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <Input
+                    value={chatMessage}
+                    onChange={(e) => setChatMessage(e.target.value)}
+                    placeholder="Say something..."
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSendMessage(chatMessage);
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={() => handleSendMessage(chatMessage)}
+                    size="sm"
+                    className="bg-primary text-primary-foreground"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Customization Panel */}
+          <AnimatePresence>
+            {showCustomization && !isMinimized && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                className="absolute bottom-24 right-0 w-80 bg-dark-gray border-2 border-primary/30 rounded-2xl p-4 shadow-2xl max-h-96 overflow-y-auto"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-bold text-foreground">Customize {pet.name}</h3>
+                  <button
+                    onClick={() => setShowCustomization(false)}
+                    className="text-light-gray hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Pet Name */}
+                  <div>
+                    <Label className="text-sm">Pet Name</Label>
+                    {editingName ? (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          value={newName}
+                          onChange={(e) => setNewName(e.target.value)}
+                          placeholder="Enter new name..."
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={savePetName}
+                          size="sm"
+                          className="bg-primary text-primary-foreground"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between mt-2 p-2 bg-background rounded border border-primary/20">
+                        <span className="text-foreground">{pet.name}</span>
+                        <Button
+                          onClick={() => {
+                            setEditingName(true);
+                            setNewName(pet.name);
+                          }}
+                          size="sm"
+                          variant="ghost"
+                          className="text-primary"
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pet Stats */}
+                  <div className="space-y-3">
+                    <Label className="text-sm">Pet Stats</Label>
+                    {Object.entries(stats).map(([stat, value]) => (
+                      <div key={stat}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-light-gray capitalize">{stat}</span>
+                          <span className="text-primary font-bold">{value}%</span>
+                        </div>
+                        <Progress value={value} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Pet Info */}
+                  <div className="p-3 bg-background rounded border border-primary/20">
+                    <p className="text-xs text-light-gray mb-2">
+                      <span className="text-primary font-bold">Type:</span> {pet.type}
+                    </p>
+                    <p className="text-xs text-light-gray">
+                      <span className="text-primary font-bold">Personality:</span> {pet.personality}
+                    </p>
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -129,7 +530,7 @@ export function FloatingPetCompanion() {
             {/* Pet Display */}
             <div
               className={`relative z-10 w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full border-2 border-primary/50 flex items-center justify-center cursor-pointer transition-all ${getAnimationClass()}`}
-              onClick={() => setIsMinimized(!isMinimized)}
+              onClick={() => !isMinimized && setShowQuickMenu(!showQuickMenu)}
             >
               {pet.image ? (
                 <Image
