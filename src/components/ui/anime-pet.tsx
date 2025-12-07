@@ -543,7 +543,7 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-y-auto"
+            className="bg-dark-gray border border-primary/20 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-y-auto z-50"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-primary/20">
