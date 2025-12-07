@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
-import { Zap, Trophy, Flame, TrendingUp } from 'lucide-react';
+import { Zap, Trophy, Flame, TrendingUp, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function DashboardPage() {
@@ -152,7 +152,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
           >
             <Link to="/reels">
               <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-16 text-lg font-heading">
@@ -193,6 +193,20 @@ export default function DashboardPage() {
               <Button className="w-full border-2 border-secondary text-secondary hover:bg-secondary/10 h-16 text-lg font-heading">
                 <span className="mr-3">🏅</span>
                 Achievements
+              </Button>
+            </Link>
+
+            <Link to="/profile">
+              <Button className="w-full border-2 border-neon-green text-neon-green hover:bg-neon-green/10 h-16 text-lg font-heading">
+                <span className="mr-3">👤</span>
+                Profile
+              </Button>
+            </Link>
+
+            <Link to="/settings">
+              <Button className="w-full border-2 border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 h-16 text-lg font-heading">
+                <Settings className="h-5 w-5 mr-2" />
+                Settings
               </Button>
             </Link>
           </motion.div>

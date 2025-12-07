@@ -20,6 +20,7 @@ import MultiversePage from '@/components/pages/MultiversePage';
 import CharacterFlashbackPage from '@/components/pages/CharacterFlashbackPage';
 import MangaStoryPage from '@/components/pages/MangaStoryPage';
 import AdvancedLearningPage from '@/components/pages/AdvancedLearningPage';
+import SettingsPage from '@/components/pages/SettingsPage';
 
 const router = createBrowserRouter([
   {
@@ -160,6 +161,14 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to access advanced learning features">
             <AdvancedLearningPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "settings",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access settings">
+            <SettingsPage />
           </MemberProtectedRoute>
         ),
       },
