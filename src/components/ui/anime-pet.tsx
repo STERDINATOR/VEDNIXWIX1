@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Image } from '@/components/ui/image';
 import { geminiAI, type PetResponse } from '@/lib/gemini-ai';
+import { usePetStore } from '@/stores/petStore';
 import { 
   Heart, 
   Droplets, 
@@ -89,7 +90,9 @@ interface PetCustomizationProps {
 }
 
 export function AnimePet({ isOpen, onClose }: AnimePetProps) {
-  const [pet, setPet] = useState<PetPersonality>({
+  const { pet: storePet, setPet: setStorePet, updateStats, addNotification } = usePetStore();
+  
+  const [pet, setPet] = useState<PetPersonality>(storePet || {
     name: 'Neko-chan',
     type: 'cat',
     color: '#FF6B9D',
@@ -153,8 +156,16 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
   const handleCustomizePet = (newPet: PetPersonality) => {
     setPet(newPet);
     setShowCustomization(false);
-    // Save to localStorage
+    // Save to both localStorage and Zustand store
     localStorage.setItem('userPet', JSON.stringify(newPet));
+    setStorePet(newPet);
+    
+    // Add achievement notification
+    addNotification({
+      type: 'achievement',
+      message: `${newPet.name} has been customized! 🎨`,
+      icon: '🎨'
+    });
   };
 
   // Load pet from localStorage on mount

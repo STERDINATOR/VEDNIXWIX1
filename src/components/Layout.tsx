@@ -7,6 +7,9 @@ import { BackgroundMusic } from '@/components/ui/background-music';
 import { AnimeMentor } from '@/components/ui/anime-mentor';
 import { AnimePet } from '@/components/ui/anime-pet';
 import { AnimeBackground } from '@/components/ui/anime-background';
+import { FloatingPetCompanion } from '@/components/ui/floating-pet-companion';
+import { PetNotificationSystem } from '@/components/ui/pet-notification-system';
+import { usePetStore } from '@/stores/petStore';
 import { 
   Home, 
   User, 
@@ -27,6 +30,7 @@ import { useState, useEffect } from 'react';
 
 export default function Layout() {
   const { member, isAuthenticated, isLoading, actions } = useMember();
+  const { loadFromLocalStorage } = usePetStore();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mentorOpen, setMentorOpen] = useState(false);
@@ -43,7 +47,10 @@ export default function Layout() {
         console.error('Error loading user character:', error);
       }
     }
-  }, []);
+    
+    // Load pet from localStorage
+    loadFromLocalStorage();
+  }, [loadFromLocalStorage]);
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home, authRequired: true },
@@ -339,6 +346,12 @@ export default function Layout() {
 
       {/* Pet Modal */}
       <AnimePet isOpen={petOpen} onClose={() => setPetOpen(false)} />
+
+      {/* Floating Pet Companion - visible across all pages */}
+      {isAuthenticated && <FloatingPetCompanion />}
+
+      {/* Pet Notification System - manages health reminders and motivational messages */}
+      {isAuthenticated && <PetNotificationSystem />}
       </div>
     </div>
   );
