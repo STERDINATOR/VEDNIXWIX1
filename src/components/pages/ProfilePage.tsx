@@ -6,11 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  User, 
   Trophy, 
-  Zap, 
-  Star, 
-  Crown, 
   Target, 
   Calendar,
   Settings,
@@ -19,21 +15,6 @@ import {
   Award
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { AnimeWorldMap } from '@/components/ui/anime-world-map';
-import { StoryArcSelector } from '@/components/ui/story-arc-selector';
-import { EpisodeProgressionTimeline } from '@/components/ui/episode-progression-timeline';
-import { MultiversePortal } from '@/components/ui/multiverse-portal';
-import { CharacterFlashbackScenes } from '@/components/ui/character-flashback-scenes';
-import { MangaStoryMode } from '@/components/ui/manga-story-mode';
-import { EmotionAdaptiveRealityShift } from '@/components/ui/emotion-adaptive-reality-shift';
-import { KnowledgeGenomeMapping } from '@/components/ui/knowledge-genome-mapping';
-import { NeuralStoryCombat } from '@/components/ui/neural-story-combat';
-import { MultiMentorCollaboration } from '@/components/ui/multi-mentor-collaboration';
-import { AdaptiveAnimeEmotionActing } from '@/components/ui/adaptive-anime-emotion-acting';
-import { TimeSkipTrainingRoom } from '@/components/ui/time-skip-training-room';
-import { QuantumLearningShard } from '@/components/ui/quantum-learning-shards';
-import { MultiverseLearningRoutes } from '@/components/ui/multiverse-learning-routes';
-import { SpiritPowerMeter } from '@/components/ui/spirit-power-meter';
 
 export default function ProfilePage() {
   const { member } = useMember();
@@ -68,6 +49,78 @@ export default function ProfilePage() {
     { action: 'Joined', subject: 'Code Ninjas Guild', xp: 50, time: '3 days ago' }
   ];
 
+  const animeFeatures = [
+    {
+      title: 'Anime World Map',
+      description: 'Explore vast learning territories',
+      icon: '🗺️',
+      path: '/anime-world'
+    },
+    {
+      title: 'Story Arcs',
+      description: 'Choose your narrative journey',
+      icon: '📖',
+      path: '/story-arcs'
+    },
+    {
+      title: 'Episode Progression',
+      description: 'Track your learning episodes',
+      icon: '📺',
+      path: '/episode-progression'
+    },
+    {
+      title: 'Multiverse Portal',
+      description: 'Explore alternate dimensions',
+      icon: '🌀',
+      path: '/multiverse'
+    },
+    {
+      title: 'Character Flashbacks',
+      description: 'Dive into character backstories',
+      icon: '⚡',
+      path: '/character-flashback'
+    },
+    {
+      title: 'Manga Story Mode',
+      description: 'Experience manga-style learning',
+      icon: '📚',
+      path: '/manga-story'
+    }
+  ];
+
+  const advancedFeatures = [
+    {
+      title: 'Emotion-Adaptive Reality',
+      icon: '✨',
+      description: 'Content adapts to your emotional state'
+    },
+    {
+      title: 'Knowledge Genome Mapping',
+      icon: '🧬',
+      description: 'Visualize your knowledge structure'
+    },
+    {
+      title: 'Neural Story Combat',
+      icon: '⚔️',
+      description: 'Battle knowledge challenges'
+    },
+    {
+      title: 'Multi-Mentor Collaboration',
+      icon: '👥',
+      description: 'Learn from multiple AI mentors'
+    },
+    {
+      title: 'Time-Skip Training',
+      icon: '⏱️',
+      description: 'Accelerated learning sessions'
+    },
+    {
+      title: 'Spirit Power Meter',
+      icon: '⚡',
+      description: 'Track your learning energy'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-[120rem] mx-auto">
@@ -94,7 +147,6 @@ export default function ProfilePage() {
               </p>
               <div className="flex items-center gap-4 mt-2">
                 <Badge variant="outline" className="border-secondary text-secondary">
-                  <Crown className="h-4 w-4 mr-1" />
                   Rank #{Math.floor(Math.random() * 100) + 1}
                 </Badge>
                 <Badge variant="outline" className="border-neon-green text-neon-green">
@@ -278,54 +330,66 @@ export default function ProfilePage() {
         </div>
 
         {/* Anime Universe & Story Features */}
-        <div className="mt-20 space-y-20">
-          {/* Anime World Map */}
-          <AnimeWorldMap />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-20"
+        >
+          <h2 className="text-3xl font-heading font-bold text-primary mb-8">
+            Anime Universe Features
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {animeFeatures.map((feature, index) => (
+              <Link key={index} to={feature.path}>
+                <Card className="bg-dark-gray border-primary/20 p-6 hover:border-primary/50 transition-all cursor-pointer h-full hover:scale-105 transform duration-300">
+                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <h3 className="text-lg font-heading font-bold text-foreground mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm font-paragraph text-light-gray">
+                    {feature.description}
+                  </p>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
 
-          {/* Story Arc Selector */}
-          <StoryArcSelector />
-
-          {/* Episode Progression Timeline */}
-          <EpisodeProgressionTimeline />
-
-          {/* Multiverse Portal */}
-          <MultiversePortal />
-
-          {/* Character Flashback Scenes */}
-          <CharacterFlashbackScenes />
-
-          {/* Manga Story Mode */}
-          <MangaStoryMode />
-
-          {/* Advanced Anime-Inspired Learning Features */}
-          
-          {/* Emotion-Adaptive Reality Shift */}
-          <EmotionAdaptiveRealityShift />
-
-          {/* Knowledge Genome Mapping */}
-          <KnowledgeGenomeMapping />
-
-          {/* Neural Story Combat */}
-          <NeuralStoryCombat />
-
-          {/* Multi-Mentor Collaboration AI */}
-          <MultiMentorCollaboration />
-
-          {/* Adaptive Anime Emotion Acting */}
-          <AdaptiveAnimeEmotionActing />
-
-          {/* Time-Skip Training Room */}
-          <TimeSkipTrainingRoom />
-
-          {/* Quantum Learning Shards */}
-          <QuantumLearningShard />
-
-          {/* Multiverse Learning Routes */}
-          <MultiverseLearningRoutes />
-
-          {/* Spirit Power Meter */}
-          <SpiritPowerMeter />
-        </div>
+        {/* Advanced Learning Features */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-20"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-heading font-bold text-primary">
+              Advanced Learning Features
+            </h2>
+            <Link to="/advanced-learning">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                View All Features
+              </Button>
+            </Link>
+          </div>
+          <Card className="bg-dark-gray border-primary/20 p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {advancedFeatures.map((feature, index) => (
+                <div key={index} className="p-4 bg-background rounded border border-primary/10 hover:border-primary/30 transition-all">
+                  <div className="text-3xl mb-2">{feature.icon}</div>
+                  <h4 className="font-heading font-bold text-foreground mb-1">{feature.title}</h4>
+                  <p className="text-xs font-paragraph text-light-gray">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+            <Link to="/advanced-learning" className="mt-6 block">
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                Explore All Advanced Features
+              </Button>
+            </Link>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

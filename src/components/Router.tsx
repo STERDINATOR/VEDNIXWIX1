@@ -13,6 +13,13 @@ import ShopPage from '@/components/pages/ShopPage';
 import LeaderboardPage from '@/components/pages/LeaderboardPage';
 import AchievementsPage from '@/components/pages/AchievementsPage';
 import AnimeReelsPage from '@/components/pages/AnimeReelsPage';
+import AnimeWorldPage from '@/components/pages/AnimeWorldPage';
+import StoryArcsPage from '@/components/pages/StoryArcsPage';
+import EpisodeProgressionPage from '@/components/pages/EpisodeProgressionPage';
+import MultiversePage from '@/components/pages/MultiversePage';
+import CharacterFlashbackPage from '@/components/pages/CharacterFlashbackPage';
+import MangaStoryPage from '@/components/pages/MangaStoryPage';
+import AdvancedLearningPage from '@/components/pages/AdvancedLearningPage';
 
 const router = createBrowserRouter([
   {
@@ -97,6 +104,62 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to watch anime reels">
             <AnimeReelsPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "anime-world",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to explore the anime world">
+            <AnimeWorldPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "story-arcs",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to explore story arcs">
+            <StoryArcsPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "episode-progression",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to view episode progression">
+            <EpisodeProgressionPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "multiverse",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access the multiverse">
+            <MultiversePage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "character-flashback",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to view character flashbacks">
+            <CharacterFlashbackPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "manga-story",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to read manga stories">
+            <MangaStoryPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "advanced-learning",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access advanced learning features">
+            <AdvancedLearningPage />
           </MemberProtectedRoute>
         ),
       },
