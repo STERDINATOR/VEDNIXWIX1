@@ -28,10 +28,10 @@ export function FloatingPetCompanion() {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Pet animation cycle
+  // Pet animation cycle with improved variety
   useEffect(() => {
     const interval = setInterval(() => {
-      const animations = ['idle', 'happy', 'alert'] as const;
+      const animations = ['idle', 'happy', 'alert', 'excited'] as const;
       setPetAnimation(animations[Math.floor(Math.random() * animations.length)]);
     }, 4000);
 
@@ -228,14 +228,15 @@ export function FloatingPetCompanion() {
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ 
             opacity: 1, 
-            scale: 1, 
-            x: isMinimized ? position.x : 0,
-            y: isMinimized ? position.y : 0
+            scale: 1
           }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
           className={`fixed z-40 ${isMinimized ? 'cursor-grab active:cursor-grabbing' : 'bottom-6 right-6'}`}
-          style={isMinimized ? { left: `${position.x}px`, top: `${position.y}px` } : {}}
-          onMouseDown={handleMouseDown}
+          drag={isMinimized}
+          dragElastic={0.2}
+          dragMomentum={false}
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={() => setIsDragging(false)}
         >
           {/* Notifications Panel */}
           <AnimatePresence>

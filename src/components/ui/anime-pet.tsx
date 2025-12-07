@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -91,6 +91,10 @@ interface PetCustomizationProps {
 
 export function AnimePet({ isOpen, onClose }: AnimePetProps) {
   const { pet: storePet, setPet: setStorePet, updateStats, addNotification } = usePetStore();
+  const [petPosition, setPetPosition] = useState({ x: 0, y: 0 });
+  const [isDraggingPet, setIsDraggingPet] = useState(false);
+  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
+  const petDisplayRef = useRef<HTMLDivElement>(null);
   
   const [pet, setPet] = useState<PetPersonality>(storePet || {
     name: 'Neko-chan',
@@ -183,6 +187,47 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
   // Pet animations and behaviors
   const [petAnimation, setPetAnimation] = useState<'idle' | 'happy' | 'sleeping' | 'alert' | 'excited'>('idle');
 
+  // Handle pet dragging
+  const handlePetMouseDown = (e: React.MouseEvent) => {
+    if (petDisplayRef.current) {
+      setIsDraggingPet(true);
+      const rect = petDisplayRef.current.getBoundingClientRect();
+      setDragStartPos({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDraggingPet && petDisplayRef.current) {
+        const rect = petDisplayRef.current.parentElement?.getBoundingClientRect();
+        if (rect) {
+          setPetPosition({
+            x: e.clientX - rect.left - dragStartPos.x,
+            y: e.clientY - rect.top - dragStartPos.y
+          });
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingPet(false);
+    };
+
+    if (isDraggingPet) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingPet, dragStartPos]);
+
+  // Pet animations and behaviors
   useEffect(() => {
     // Simulate pet behavior changes
     const interval = setInterval(() => {
@@ -557,10 +602,24 @@ export function AnimePet({ isOpen, onClose }: AnimePetProps) {
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/20 to-cyber-yellow/30 rounded-lg blur-md"></div>
                         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/10 to-secondary/15 rounded-lg"></div>
                         
-                        {/* Main pet display area */}
-                        <div className="relative z-10 w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg p-4 flex items-center justify-center border-2 border-primary/30">
+                        {/* Main pet display area - DRAGGABLE */}
+                        <motion.div 
+                          ref={petDisplayRef}
+                          className="relative z-10 w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg p-4 flex items-center justify-center border-2 border-primary/30 cursor-grab active:cursor-grabbing"
+                          drag
+                          dragElastic={0.2}
+                          dragMomentum={false}
+                          onMouseDown={handlePetMouseDown}
+                          style={{
+                            x: petPosition.x,
+                            y: petPosition.y
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileDrag={{ scale: 1.1 }}
+                          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        >
                           {getPetDisplay()}
-                        </div>
+                        </motion.div>
                         
                         {/* Floating anime-style elements */}
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-cyber-yellow rounded-full animate-bounce flex items-center justify-center text-xs">✨</div>
