@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMember } from '@/integrations';
+import { useLanguageStore, type Language } from '@/stores/languageStore';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -66,6 +67,9 @@ interface UserSettings {
   petNotifications: boolean;
   petReminders: boolean;
   petAutoFeed: boolean;
+  
+  // Language Settings
+  language: Language;
 }
 
 const defaultSettings: UserSettings = {
@@ -91,10 +95,28 @@ const defaultSettings: UserSettings = {
   petNotifications: true,
   petReminders: true,
   petAutoFeed: false,
+  language: 'en',
 };
+
+const languages: { code: Language; name: string }[] = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'fr', name: 'Français' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'ja', name: '日本語' },
+  { code: 'zh', name: '中文' },
+  { code: 'pt', name: 'Português' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'ko', name: '한국어' },
+  { code: 'th', name: 'ไทย' },
+  { code: 'vi', name: 'Tiếng Việt' },
+  { code: 'ar', name: 'العربية' },
+];
 
 export default function SettingsPage() {
   const { member, actions } = useMember();
+  const { currentLanguage, setLanguage } = useLanguageStore();
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
   const [hasChanges, setHasChanges] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -119,13 +141,25 @@ export default function SettingsPage() {
         email: member.loginEmail || '',
       }));
     }
-  }, [member]);
+    
+    // Set language from store
+    setSettings(prev => ({
+      ...prev,
+      language: currentLanguage,
+    }));
+  }, [member, currentLanguage]);
 
   const handleSettingChange = (key: keyof UserSettings, value: any) => {
     setSettings(prev => ({
       ...prev,
       [key]: value
     }));
+    
+    // If language is being changed, update the language store
+    if (key === 'language') {
+      setLanguage(value as Language);
+    }
+    
     setHasChanges(true);
     setSaveSuccess(false);
   };
@@ -581,6 +615,24 @@ export default function SettingsPage() {
                 <h2 className="text-2xl font-heading font-bold text-foreground mb-6">Learning Preferences</h2>
                 
                 <div className="space-y-6">
+                  {/* Language Selection */}
+                  <div>
+                    <Label className="text-foreground font-heading mb-3 block">Language</Label>
+                    <Select value={settings.language} onValueChange={(value) => handleSettingChange('language', value as Language)}>
+                      <SelectTrigger className="bg-background border-primary/20 text-foreground">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-dark-gray border-primary/20">
+                        {languages.map((lang) => (
+                          <SelectItem key={lang.code} value={lang.code}>
+                            {lang.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-light-gray mt-2">Choose your preferred language for the entire platform</p>
+                  </div>
+
                   {/* Difficulty Level */}
                   <div>
                     <Label className="text-foreground font-heading mb-3 block">Difficulty Level</Label>
