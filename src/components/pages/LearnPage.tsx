@@ -17,8 +17,11 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useLanguageStore } from '@/stores/languageStore';
+import { getTranslation } from '@/lib/translations';
 
 export default function LearnPage() {
+  const currentLanguage = useLanguageStore((state) => state.currentLanguage);
   const [viewMode, setViewMode] = useState<'grid' | 'courses' | 'reels' | 'quests'>('grid');
   const [enrolledCourses, setEnrolledCourses] = useState<string[]>(['1', '3']);
   const [completedLessons, setCompletedLessons] = useState<{[key: string]: string[]}>({
@@ -209,7 +212,7 @@ export default function LearnPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-5xl font-heading font-black text-primary mb-4">
-                Learning Academy
+                {getTranslation(currentLanguage, 'learn.title')}
               </h1>
               <p className="text-xl font-paragraph text-light-gray">
                 Choose your path and begin your cyberpunk education journey
@@ -225,7 +228,7 @@ export default function LearnPage() {
                 className={viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-light-gray'}
               >
                 <span className="mr-2 text-lg">📚</span>
-                Subjects
+                {getTranslation(currentLanguage, 'learn.topics')}
               </Button>
               <Button
                 variant={viewMode === 'courses' ? 'default' : 'ghost'}
@@ -243,7 +246,7 @@ export default function LearnPage() {
                 className={viewMode === 'reels' ? 'bg-secondary text-secondary-foreground' : 'text-light-gray'}
               >
                 <span className="mr-2 text-lg">🎬</span>
-                Anime Reels
+                {getTranslation(currentLanguage, 'reels.title')}
               </Button>
               <Button
                 variant={viewMode === 'quests' ? 'default' : 'ghost'}
