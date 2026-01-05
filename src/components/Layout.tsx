@@ -9,6 +9,7 @@ import { AnimePet } from '@/components/ui/anime-pet';
 import { AnimeBackground } from '@/components/ui/anime-background';
 import { FloatingPetCompanion } from '@/components/ui/floating-pet-companion';
 import { PetNotificationSystem } from '@/components/ui/pet-notification-system';
+import { LanguageSelector } from '@/components/ui/language-selector';
 import { usePetStore } from '@/stores/petStore';
 import { 
   Home, 
@@ -109,6 +110,8 @@ export default function Layout() {
 
             {/* User Menu */}
             <div className="flex items-center gap-4">
+              <LanguageSelector />
+              
               {isLoading && <LoadingSpinner />}
               
               {!isAuthenticated && !isLoading && (
