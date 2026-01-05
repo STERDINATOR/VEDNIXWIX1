@@ -17,6 +17,11 @@ const languages: { code: Language; name: string }[] = [
   { code: 'zh', name: '中文' },
   { code: 'pt', name: 'Português' },
   { code: 'ru', name: 'Русский' },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'ko', name: '한국어' },
+  { code: 'th', name: 'ไทย' },
+  { code: 'vi', name: 'Tiếng Việt' },
+  { code: 'ar', name: 'العربية' },
 ];
 
 export function LanguageSelector() {
