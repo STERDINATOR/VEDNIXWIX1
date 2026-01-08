@@ -21,6 +21,7 @@ import CharacterFlashbackPage from '@/components/pages/CharacterFlashbackPage';
 import MangaStoryPage from '@/components/pages/MangaStoryPage';
 import AdvancedLearningPage from '@/components/pages/AdvancedLearningPage';
 import SettingsPage from '@/components/pages/SettingsPage';
+import MentorPage from '@/components/pages/MentorPage';
 
 const router = createBrowserRouter([
   {
@@ -169,6 +170,14 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to access settings">
             <SettingsPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "mentor",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access AI mentors">
+            <MentorPage />
           </MemberProtectedRoute>
         ),
       },
