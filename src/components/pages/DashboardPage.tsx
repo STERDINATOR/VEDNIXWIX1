@@ -182,6 +182,13 @@ export default function DashboardPage() {
               </Button>
             </Link>
 
+            <Link to="/mentor">
+              <Button className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:opacity-90 h-16 text-lg font-heading">
+                <span className="mr-3">🧙‍♂️</span>
+                AI Mentor
+              </Button>
+            </Link>
+
             <Link to="/shop">
               <Button className="w-full border-2 border-primary text-primary hover:bg-primary/10 h-16 text-lg font-heading">
                 <span className="mr-3">🛍️</span>
