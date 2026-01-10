@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { AnimeReelFeed } from '@/components/ui/anime-reel';
 import { QuestSystem, sampleQuests } from '@/components/ui/quest-system';
 import { CourseSystem, sampleCourses } from '@/components/ui/course-system';
+import { CognitiveResonanceEngine } from '@/components/ui/cognitive-resonance-engine';
+import { MultiverseLessonSelector } from '@/components/ui/multiverse-lesson-selector';
 import { 
   BookOpen, 
   Play, 
@@ -608,6 +610,28 @@ export default function LearnPage() {
             </motion.div>
           </div>
         </div>
+
+        {/* Cognitive Resonance Engine - Learning Mode Selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-20"
+        >
+          <h2 className="text-3xl font-heading font-bold text-primary mb-8">Optimize Your Learning Style</h2>
+          <CognitiveResonanceEngine />
+        </motion.div>
+
+        {/* Multiverse Lesson Selector - Alternative Learning Paths */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-20"
+        >
+          <h2 className="text-3xl font-heading font-bold text-secondary mb-8">Explore Multiverse Learning Routes</h2>
+          <MultiverseLessonSelector />
+        </motion.div>
       </div>
     </div>
   );

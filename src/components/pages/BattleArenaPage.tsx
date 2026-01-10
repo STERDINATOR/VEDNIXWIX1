@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Image } from '@/components/ui/image';
+import { NeuralStoryCombat } from '@/components/ui/neural-story-combat';
 import { 
   Sword, 
   Shield, 
@@ -630,6 +631,20 @@ export default function BattleArenaPage() {
               Start Quick Battle
             </Button>
           </Card>
+        </motion.div>
+
+        {/* Neural Story Combat - Battle Mechanics */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-20"
+        >
+          <h2 className="text-3xl font-heading font-bold text-primary mb-8">Neural Story Combat System</h2>
+          <p className="text-lg font-paragraph text-light-gray mb-8 max-w-3xl">
+            Experience epic battles where knowledge is your greatest weapon. Face off against AI opponents in real-time combat scenarios that test your understanding and strategic thinking.
+          </p>
+          <NeuralStoryCombat />
         </motion.div>
       </div>
     </div>

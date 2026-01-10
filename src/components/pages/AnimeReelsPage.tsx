@@ -14,6 +14,8 @@ import { InteractiveReelOverlay } from '@/components/ui/interactive-reel-overlay
 import { ReelPlaylistSystem } from '@/components/ui/reel-playlist-system';
 import { ReelTimeVariants } from '@/components/ui/reel-time-variants';
 import { MentorReelReminders } from '@/components/ui/mentor-reel-reminders';
+import { EmotionAdaptiveRealityShift } from '@/components/ui/emotion-adaptive-reality-shift';
+import { TimeSkipTrainingRoom } from '@/components/ui/time-skip-training-room';
 import { 
   Film, 
   Play, 
@@ -469,6 +471,34 @@ export default function AnimeReelsPage() {
               )}
             </div>
           )}
+        </motion.div>
+
+        {/* Emotion-Adaptive Reality Shift - Mood-Based Learning */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-20"
+        >
+          <h2 className="text-3xl font-heading font-bold text-primary mb-8">Emotion-Adaptive Learning Experience</h2>
+          <p className="text-lg font-paragraph text-light-gray mb-8 max-w-3xl">
+            Your emotional state shapes your learning world. The system adapts content difficulty, pacing, and rewards based on how you're feeling, creating a personalized learning environment that responds to your mood.
+          </p>
+          <EmotionAdaptiveRealityShift />
+        </motion.div>
+
+        {/* Time-Skip Training Room - Accelerated Learning */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="mt-20"
+        >
+          <h2 className="text-3xl font-heading font-bold text-secondary mb-8">Time-Skip Training Room</h2>
+          <p className="text-lg font-paragraph text-light-gray mb-8 max-w-3xl">
+            Accelerate your learning with compressed time progression. Complete weeks of study in hours with our advanced training methodology that maintains retention while maximizing efficiency.
+          </p>
+          <TimeSkipTrainingRoom />
         </motion.div>
       </div>
     </div>
