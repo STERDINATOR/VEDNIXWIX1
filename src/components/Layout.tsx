@@ -282,61 +282,6 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-dark-gray border-t border-primary/20 mt-20">
-        <div className="max-w-[120rem] mx-auto px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                  <Zap className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <span className="text-xl font-heading font-black text-primary">VEDNIX</span>
-              </div>
-              <p className="font-paragraph text-light-gray">
-                The ultimate cyberpunk learning academy where education meets anime adventure.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="font-heading font-bold text-foreground mb-4">Learn</h3>
-              <ul className="space-y-2 font-paragraph text-light-gray">
-                <li><Link to="/learn" className="hover:text-primary transition-colors">Courses</Link></li>
-                <li><Link to="/battle" className="hover:text-primary transition-colors">Boss Battles</Link></li>
-                <li><Link to="/quests" className="hover:text-primary transition-colors">Quests</Link></li>
-                <li><Link to="/achievements" className="hover:text-primary transition-colors">Achievements</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="font-heading font-bold text-foreground mb-4">Community</h3>
-              <ul className="space-y-2 font-paragraph text-light-gray">
-                <li><Link to="/guilds" className="hover:text-primary transition-colors">Guilds</Link></li>
-                <li><Link to="/leaderboard" className="hover:text-primary transition-colors">Leaderboard</Link></li>
-                <li><Link to="/events" className="hover:text-primary transition-colors">Events</Link></li>
-                <li><Link to="/forums" className="hover:text-primary transition-colors">Forums</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="font-heading font-bold text-foreground mb-4">Support</h3>
-              <ul className="space-y-2 font-paragraph text-light-gray">
-                <li><Link to="/help" className="hover:text-primary transition-colors">Help Center</Link></li>
-                <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
-                <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link></li>
-                <li><Link to="/terms" className="hover:text-primary transition-colors">Terms</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-primary/20 mt-8 pt-8 text-center">
-            <p className="font-paragraph text-light-gray">
-              © 2024 VEDNIX. All rights reserved. Level up your learning.
-            </p>
-          </div>
-        </div>
-      </footer>
-
       {/* Background Music Player */}
       <BackgroundMusic />
 
