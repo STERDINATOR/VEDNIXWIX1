@@ -205,26 +205,3 @@ export interface StudyGuilds {
   /** @wixFieldType image */
   guildImage?: string;
 }
-
-
-/**
- * Collection ID: mentors
- * Interface for Mentors
- */
-export interface Mentors {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType text */
-  name?: string;
-  /** @wixFieldType text */
-  specialty?: string;
-  /** @wixFieldType image */
-  avatarImage?: string;
-  /** @wixFieldType text */
-  bio?: string;
-  /** @wixFieldType text */
-  personalityType?: string;
-  /** @wixFieldType text */
-  experienceLevel?: string;
-}
