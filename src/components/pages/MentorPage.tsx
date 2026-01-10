@@ -1,11 +1,9 @@
 /**
- * Unified Mentor Page
- * Complete AI mentor system combining:
- * - AI Mentor System (video calls, chat, emotion detection)
- * - AI Learning Mentor (character generation, mood detection, personalized guidance)
+ * AI Mentor Academy Page
+ * Connect with personalized AI mentors, generate learning characters, and receive mood-adaptive guidance
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Mentors, AnimeEducationalReels, Quests, LearningTopics } from '@/entities';
 import { BaseCrudService } from '@/integrations';
 import { MentorSelector } from '@/components/ui/mentor-selector';
@@ -29,9 +27,8 @@ import {
   Brain,
   Heart,
   TrendingUp,
-  Settings,
-  Palette,
-  ArrowLeft
+  ArrowLeft,
+  X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -56,7 +53,6 @@ export default function MentorPage() {
   const [generatedCharacter, setGeneratedCharacter] = useState<any>(null);
   const [currentMood, setCurrentMood] = useState<MoodDetectionResult | null>(null);
   const [moodHistory, setMoodHistory] = useState<MoodDetectionResult[]>([]);
-  const [isMoodDetectionActive, setIsMoodDetectionActive] = useState(true);
   const [activeTab, setActiveTab] = useState<'mentor' | 'character' | 'mood' | 'insights'>('mentor');
 
   useEffect(() => {
@@ -95,27 +91,7 @@ export default function MentorPage() {
 
   const handleMoodDetected = (mood: MoodDetectionResult) => {
     setCurrentMood(mood);
-    setMoodHistory(prev => [...prev, mood].slice(-10)); // Keep last 10 moods
-  };
-
-  const handleEmotionDetected = (emotion: 'happy' | 'sad' | 'neutral' | 'confused' | 'excited') => {
-    // Convert simple emotion string to MoodDetectionResult
-    const moodMap: Record<typeof emotion, MoodDetectionResult['mood']> = {
-      'happy': 'happy',
-      'sad': 'sad',
-      'neutral': 'neutral',
-      'confused': 'confused',
-      'excited': 'excited'
-    };
-    
-    const moodResult: MoodDetectionResult = {
-      mood: moodMap[emotion],
-      confidence: 0.85, // Default confidence for emotion detector
-      indicators: [`Detected ${emotion} emotion`],
-      timestamp: new Date()
-    };
-    
-    handleMoodDetected(moodResult);
+    setMoodHistory(prev => [...prev, mood].slice(-10));
   };
 
   const getMoodTrend = () => {
@@ -126,69 +102,61 @@ export default function MentorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
-      <div className="max-w-[120rem] mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <Link to="/dashboard">
-            <Button variant="outline" className="border-primary text-primary mb-6">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <h1 className="text-5xl font-heading font-black text-primary mb-4">
-            AI Mentor Academy
-          </h1>
-          <p className="text-xl font-paragraph text-light-gray max-w-3xl">
-            Connect with personalized AI mentors, generate your learning character, and receive mood-adaptive guidance for your educational journey.
-          </p>
-        </motion.div>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
+      <div className="border-b border-primary/20 bg-background/50 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-[120rem] mx-auto px-4 md:px-8 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <Link to="/dashboard">
+              <Button variant="ghost" className="text-primary hover:bg-primary/10">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <div className="text-right">
+              <h1 className="text-3xl font-heading font-black text-primary">AI Mentor Academy</h1>
+            </div>
+          </div>
 
-        {/* API Toggle */}
+          {/* API Toggle */}
+          <div className="flex items-center gap-3 bg-dark-gray/50 p-3 rounded-lg border border-primary/20 max-w-md">
+            <input
+              type="checkbox"
+              id="gemini-toggle"
+              checked={useGeminiAPI}
+              onChange={(e) => setUseGeminiAPI(e.target.checked)}
+              className="w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="gemini-toggle" className="text-xs text-light-gray cursor-pointer flex-1">
+              AI Enhanced (requires backend endpoint and API key)
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-[120rem] mx-auto px-4 md:px-8 py-8">
+        {/* Tab Navigation */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 flex items-center gap-3 bg-dark-gray/50 p-4 rounded-lg border border-primary/20"
-        >
-          <input
-            type="checkbox"
-            id="gemini-toggle"
-            checked={useGeminiAPI}
-            onChange={(e) => setUseGeminiAPI(e.target.checked)}
-            className="w-4 h-4 cursor-pointer"
-          />
-          <label htmlFor="gemini-toggle" className="text-sm text-light-gray cursor-pointer flex-1">
-            Use Gemini API for advanced AI responses (requires backend endpoint and API key)
-          </label>
-        </motion.div>
-
-        {/* Main Navigation Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
           className="mb-8"
         >
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-dark-gray border border-primary/20">
-              <TabsTrigger value="mentor" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-4 bg-dark-gray border border-primary/20 h-auto p-1">
+              <TabsTrigger value="mentor" className="flex items-center gap-2 py-3">
                 <Brain className="w-4 h-4" />
                 <span className="hidden sm:inline">Mentor</span>
               </TabsTrigger>
-              <TabsTrigger value="character" className="flex items-center gap-2">
+              <TabsTrigger value="character" className="flex items-center gap-2 py-3">
                 <Sparkles className="w-4 h-4" />
                 <span className="hidden sm:inline">Character</span>
               </TabsTrigger>
-              <TabsTrigger value="mood" className="flex items-center gap-2">
+              <TabsTrigger value="mood" className="flex items-center gap-2 py-3">
                 <Heart className="w-4 h-4" />
                 <span className="hidden sm:inline">Mood</span>
               </TabsTrigger>
-              <TabsTrigger value="insights" className="flex items-center gap-2">
+              <TabsTrigger value="insights" className="flex items-center gap-2 py-3">
                 <TrendingUp className="w-4 h-4" />
                 <span className="hidden sm:inline">Insights</span>
               </TabsTrigger>
@@ -196,14 +164,14 @@ export default function MentorPage() {
 
             {/* Mentor Tab */}
             <TabsContent value="mentor" className="space-y-6 mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Mentor Selection */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Mentor Selection Sidebar */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="lg:col-span-1"
                 >
-                  <Card className="border-primary/30 p-6 sticky top-4">
+                  <Card className="border-primary/30 p-6 sticky top-24">
                     <h3 className="text-lg font-heading font-bold text-primary mb-4">Select Your Mentor</h3>
                     <MentorSelector
                       selectedMentorId={selectedMentor?._id}
@@ -212,11 +180,11 @@ export default function MentorPage() {
                   </Card>
                 </motion.div>
 
-                {/* Mentor Interaction */}
+                {/* Mentor Interaction Area */}
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="lg:col-span-2 space-y-6"
+                  className="lg:col-span-3 space-y-6"
                 >
                   {selectedMentor ? (
                     <>
@@ -227,25 +195,30 @@ export default function MentorPage() {
                             <h2 className="text-2xl font-heading font-bold text-foreground mb-2">
                               {selectedMentor.name}
                             </h2>
-                            <p className="text-primary text-sm font-paragraph mb-2">
-                              {selectedMentor.specialty}
-                            </p>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Badge className="bg-primary text-primary-foreground">
+                                {selectedMentor.specialty}
+                              </Badge>
+                              <Badge className="bg-secondary text-secondary-foreground">
+                                AI Enhanced
+                              </Badge>
+                            </div>
                             <p className="text-light-gray text-sm font-paragraph">
                               {selectedMentor.bio}
                             </p>
                           </div>
-                          <div className="text-right">
-                            <div className="mb-4">
-                              <p className="text-xs text-light-gray mb-1">Personality</p>
-                              <Badge className="bg-secondary text-secondary-foreground">
+                          <div className="text-right space-y-3">
+                            <div>
+                              <p className="text-xs text-light-gray uppercase tracking-widest mb-1">Personality</p>
+                              <p className="text-sm font-heading font-bold text-secondary">
                                 {selectedMentor.personalityType}
-                              </Badge>
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-light-gray mb-1">Experience</p>
-                              <Badge className="bg-primary text-primary-foreground">
+                              <p className="text-xs text-light-gray uppercase tracking-widest mb-1">Experience</p>
+                              <p className="text-sm font-heading font-bold text-primary">
                                 {selectedMentor.experienceLevel}
-                              </Badge>
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -294,7 +267,7 @@ export default function MentorPage() {
                           {!isCallActive && (
                             <Button
                               onClick={() => setIsCallActive(true)}
-                              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading"
+                              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading py-3"
                             >
                               <Video className="w-4 h-4 mr-2" />
                               Start Video Call
@@ -345,7 +318,7 @@ export default function MentorPage() {
               </div>
             </TabsContent>
 
-            {/* Character Generator Tab */}
+            {/* Character Tab */}
             <TabsContent value="character" className="space-y-6 mt-6">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -361,7 +334,7 @@ export default function MentorPage() {
                         Create a personalized anime character that represents your learning identity
                       </p>
                     </div>
-                    <Sparkles className="w-8 h-8 text-primary" />
+                    <Sparkles className="w-8 h-8 text-primary flex-shrink-0" />
                   </div>
 
                   {generatedCharacter ? (
@@ -432,7 +405,7 @@ export default function MentorPage() {
                           </Card>
 
                           <Card className="border-primary/20 p-4 bg-secondary/5">
-                            <h4 className="font-heading font-bold text-secondary mb-3">Recommended Focus Areas</h4>
+                            <h4 className="font-heading font-bold text-secondary mb-3">Recommended Focus</h4>
                             <ul className="space-y-2 text-sm font-paragraph text-light-gray">
                               <li>• Interactive learning modules</li>
                               <li>• Real-time mentor sessions</li>
@@ -458,7 +431,7 @@ export default function MentorPage() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12">
-                      <Palette className="w-16 h-16 text-primary/50 mb-4" />
+                      <Sparkles className="w-16 h-16 text-primary/50 mb-4" />
                       <p className="text-light-gray font-paragraph mb-6 text-center max-w-md">
                         Click the button below to generate your unique learning character powered by AI
                       </p>
@@ -499,7 +472,7 @@ export default function MentorPage() {
                               onClick={() => setShowCharacterGenerator(false)}
                               className="text-light-gray hover:text-foreground"
                             >
-                              ✕
+                              <X className="h-5 w-5" />
                             </Button>
                           </div>
                           <AnimeCharacterGenerator
@@ -516,7 +489,7 @@ export default function MentorPage() {
               </motion.div>
             </TabsContent>
 
-            {/* Mood Detection Tab */}
+            {/* Mood Tab */}
             <TabsContent value="mood" className="space-y-6 mt-6">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -534,8 +507,7 @@ export default function MentorPage() {
                           <input
                             type="checkbox"
                             id="mood-toggle"
-                            checked={isMoodDetectionActive}
-                            onChange={(e) => setIsMoodDetectionActive(e.target.checked)}
+                            defaultChecked
                             className="w-4 h-4 cursor-pointer"
                           />
                           <label htmlFor="mood-toggle" className="text-sm text-light-gray cursor-pointer">
@@ -546,7 +518,16 @@ export default function MentorPage() {
 
                       <EmotionDetector
                         showWebcamPlaceholder={true}
-                        onEmotionDetected={handleEmotionDetected}
+                        onEmotionDetected={(emotion) => {
+                          // Convert DetectedEmotion to MoodDetectionResult
+                          const moodResult: MoodDetectionResult = {
+                            mood: emotion === 'neutral' ? 'neutral' : emotion === 'confused' ? 'confused' : emotion === 'excited' ? 'excited' : emotion === 'happy' ? 'happy' : 'sad',
+                            confidence: 0.85,
+                            indicators: [`User selected ${emotion}`],
+                            timestamp: new Date()
+                          };
+                          handleMoodDetected(moodResult);
+                        }}
                       />
 
                       {currentMood && (
@@ -674,43 +655,6 @@ export default function MentorPage() {
               </motion.div>
             </TabsContent>
           </Tabs>
-        </motion.div>
-
-        {/* Features Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          <Card className="border-primary/20 p-6">
-            <MessageSquare className="w-8 h-8 text-primary mb-3" />
-            <h4 className="font-heading font-bold text-foreground mb-2">AI Chat</h4>
-            <p className="text-sm text-light-gray font-paragraph">
-              Real-time conversations with AI mentors about any topic
-            </p>
-          </Card>
-          <Card className="border-primary/20 p-6">
-            <Video className="w-8 h-8 text-secondary mb-3" />
-            <h4 className="font-heading font-bold text-foreground mb-2">Video Calls</h4>
-            <p className="text-sm text-light-gray font-paragraph">
-              Interactive video sessions for personalized guidance
-            </p>
-          </Card>
-          <Card className="border-primary/20 p-6">
-            <Sparkles className="w-8 h-8 text-cyber-yellow mb-3" />
-            <h4 className="font-heading font-bold text-foreground mb-2">Character Gen</h4>
-            <p className="text-sm text-light-gray font-paragraph">
-              Create your unique learning character with AI
-            </p>
-          </Card>
-          <Card className="border-primary/20 p-6">
-            <Heart className="w-8 h-8 text-neon-green mb-3" />
-            <h4 className="font-heading font-bold text-foreground mb-2">Mood Tracking</h4>
-            <p className="text-sm text-light-gray font-paragraph">
-              Adaptive learning based on emotional state
-            </p>
-          </Card>
         </motion.div>
       </div>
     </div>
