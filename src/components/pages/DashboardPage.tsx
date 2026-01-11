@@ -253,6 +253,70 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
 
+          {/* Anime Universe Features Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mt-20"
+          >
+            <h2 className="text-3xl font-heading font-bold text-primary mb-8">
+              Anime Universe Features
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  title: 'Anime World Map',
+                  description: 'Explore vast learning territories',
+                  icon: '🗺️',
+                  path: '/anime-world'
+                },
+                {
+                  title: 'Story Arcs',
+                  description: 'Choose your narrative journey',
+                  icon: '📖',
+                  path: '/story-arcs'
+                },
+                {
+                  title: 'Episode Progression',
+                  description: 'Track your learning episodes',
+                  icon: '📺',
+                  path: '/episode-progression'
+                },
+                {
+                  title: 'Multiverse Portal',
+                  description: 'Explore alternate dimensions',
+                  icon: '🌀',
+                  path: '/multiverse'
+                },
+                {
+                  title: 'Character Flashbacks',
+                  description: 'Dive into character backstories',
+                  icon: '⚡',
+                  path: '/character-flashback'
+                },
+                {
+                  title: 'Manga Story Mode',
+                  description: 'Experience manga-style learning',
+                  icon: '📚',
+                  path: '/manga-story'
+                }
+              ].map((feature, index) => (
+                <Link key={index} to={feature.path}>
+                  <Card className="bg-dark-gray border-primary/20 p-6 hover:border-primary/50 transition-all cursor-pointer h-full hover:scale-105 transform duration-300">
+                    <div className="text-4xl mb-4">{feature.icon}</div>
+                    <h3 className="text-lg font-heading font-bold text-foreground mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm font-paragraph text-light-gray">
+                      {feature.description}
+                    </p>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
           {/* Progress Overview */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -416,8 +416,11 @@ function getFallbackQuiz(
 function getFallbackQuestions(
   topic: string,
   count: number,
-  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Epic'
+  difficulty: string
 ): BattleQuestion[] {
+  const validDifficulty = (['Easy', 'Medium', 'Hard', 'Epic'].includes(difficulty) 
+    ? difficulty 
+    : 'Medium') as 'Easy' | 'Medium' | 'Hard' | 'Epic';
   const questions: BattleQuestion[] = [
     {
       id: 'q_1',
@@ -426,7 +429,7 @@ function getFallbackQuestions(
       options: ['Option A', 'Option B', 'Option C', 'Option D'],
       correctAnswer: 0,
       explanation: 'This is the correct answer because...',
-      difficulty,
+      difficulty: validDifficulty,
       points: getDifficultyPoints(difficulty),
       emotionalContext: 'Adapted to your current mood',
       storyElement: 'Part of your learning journey'
@@ -438,7 +441,7 @@ function getFallbackQuestions(
       options: ['Approach A', 'Approach B', 'Approach C', 'Approach D'],
       correctAnswer: 1,
       explanation: 'This approach is most effective because...',
-      difficulty,
+      difficulty: validDifficulty,
       points: getDifficultyPoints(difficulty),
       emotionalContext: 'Adapted to your current mood',
       storyElement: 'Building your understanding'
@@ -450,7 +453,7 @@ function getFallbackQuestions(
       options: ['Advanced A', 'Advanced B', 'Advanced C', 'Advanced D'],
       correctAnswer: 2,
       explanation: 'This is the most advanced concept because...',
-      difficulty,
+      difficulty: validDifficulty,
       points: getDifficultyPoints(difficulty),
       emotionalContext: 'Adapted to your current mood',
       storyElement: 'Mastering the topic'
