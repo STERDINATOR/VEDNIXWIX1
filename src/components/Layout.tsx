@@ -7,9 +7,7 @@ import { BackgroundMusic } from '@/components/ui/background-music';
 import { AnimeMentor } from '@/components/ui/anime-mentor';
 import { AnimePet } from '@/components/ui/anime-pet';
 import { AnimeBackground } from '@/components/ui/anime-background';
-import { DraggablePetButton } from '@/components/ui/draggable-pet-button';
-import { DraggableNotificationButton } from '@/components/ui/draggable-notification-button';
-import { CompanionHub } from '@/components/ui/companion-hub';
+import { FloatingPetCompanion } from '@/components/ui/floating-pet-companion';
 import { PetNotificationSystem } from '@/components/ui/pet-notification-system';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { usePetStore } from '@/stores/petStore';
@@ -38,7 +36,6 @@ export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mentorOpen, setMentorOpen] = useState(false);
   const [petOpen, setPetOpen] = useState(false);
-  const [notificationOpen, setNotificationOpen] = useState(false);
   const [userCharacter, setUserCharacter] = useState<any>(null); // Store user's character
 
   // Load user character from localStorage on component mount
@@ -299,13 +296,7 @@ export default function Layout() {
       <AnimePet isOpen={petOpen} onClose={() => setPetOpen(false)} />
 
       {/* Floating Pet Companion - visible across all pages */}
-      {isAuthenticated && <DraggablePetButton onPetOpen={() => setPetOpen(true)} />}
-
-      {/* Floating Notification Button - visible across all pages */}
-      {isAuthenticated && <DraggableNotificationButton onNotificationOpen={() => setNotificationOpen(true)} />}
-
-      {/* Companion Hub Modal - unified pet and mentor interface */}
-      {isAuthenticated && <CompanionHub isOpen={petOpen} onClose={() => setPetOpen(false)} />}
+      {isAuthenticated && <FloatingPetCompanion />}
 
       {/* Pet Notification System - manages health reminders and motivational messages */}
       {isAuthenticated && <PetNotificationSystem />}
