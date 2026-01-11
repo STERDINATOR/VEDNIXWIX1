@@ -22,6 +22,11 @@ import MangaStoryPage from '@/components/pages/MangaStoryPage';
 import AdvancedLearningPage from '@/components/pages/AdvancedLearningPage';
 import SettingsPage from '@/components/pages/SettingsPage';
 import MentorPage from '@/components/pages/MentorPage';
+import EmotionAdaptiveRealityPage from '@/components/pages/EmotionAdaptiveRealityPage';
+import CognitiveResonanceEnginePage from '@/components/pages/CognitiveResonanceEnginePage';
+import MultiverseLessonSelectorPage from '@/components/pages/MultiverseLessonSelectorPage';
+import NeuralStoryCombatPage from '@/components/pages/NeuralStoryCombatPage';
+import TimeSkipTrainingRoomPage from '@/components/pages/TimeSkipTrainingRoomPage';
 
 const router = createBrowserRouter([
   {
@@ -178,6 +183,46 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute messageToSignIn="Sign in to access AI mentors">
             <MentorPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "emotion-adaptive-reality",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access emotion-adaptive learning">
+            <EmotionAdaptiveRealityPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "cognitive-resonance",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access cognitive resonance engine">
+            <CognitiveResonanceEnginePage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "multiverse-lessons",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access multiverse lessons">
+            <MultiverseLessonSelectorPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "neural-story-combat",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access neural story combat">
+            <NeuralStoryCombatPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "time-skip-training",
+        element: (
+          <MemberProtectedRoute messageToSignIn="Sign in to access time-skip training">
+            <TimeSkipTrainingRoomPage />
           </MemberProtectedRoute>
         ),
       },

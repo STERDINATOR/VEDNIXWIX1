@@ -216,6 +216,41 @@ export default function DashboardPage() {
                 Settings
               </Button>
             </Link>
+
+            <Link to="/emotion-adaptive-reality">
+              <Button className="w-full bg-gradient-to-r from-primary/80 to-secondary/80 text-foreground hover:opacity-90 h-16 text-lg font-heading">
+                <span className="mr-3 text-xl">💭</span>
+                Emotion Adaptive
+              </Button>
+            </Link>
+
+            <Link to="/cognitive-resonance">
+              <Button className="w-full bg-gradient-to-r from-secondary/80 to-primary/80 text-foreground hover:opacity-90 h-16 text-lg font-heading">
+                <span className="mr-3 text-xl">🧠</span>
+                Cognitive Engine
+              </Button>
+            </Link>
+
+            <Link to="/multiverse-lessons">
+              <Button className="w-full bg-gradient-to-r from-neon-green/80 to-cyber-yellow/80 text-dark-gray hover:opacity-90 h-16 text-lg font-heading">
+                <span className="mr-3 text-xl">🌌</span>
+                Multiverse
+              </Button>
+            </Link>
+
+            <Link to="/neural-story-combat">
+              <Button className="w-full bg-gradient-to-r from-cyber-yellow/80 to-neon-green/80 text-dark-gray hover:opacity-90 h-16 text-lg font-heading">
+                <span className="mr-3 text-xl">⚔️</span>
+                Neural Combat
+              </Button>
+            </Link>
+
+            <Link to="/time-skip-training">
+              <Button className="w-full bg-gradient-to-r from-primary/80 to-neon-green/80 text-foreground hover:opacity-90 h-16 text-lg font-heading">
+                <span className="mr-3 text-xl">⏩</span>
+                Time-Skip
+              </Button>
+            </Link>
           </motion.div>
 
           {/* Progress Overview */}
