@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Image } from '@/components/ui/image';
 import { NeuralStoryCombat } from '@/components/ui/neural-story-combat';
+import { EmotionAdaptiveBattleSystem } from '@/components/ui/emotion-adaptive-battle-system';
 import { 
   Sword, 
   Shield, 
@@ -23,7 +24,8 @@ import {
   CheckCircle,
   XCircle,
   Play,
-  Pause
+  Pause,
+  Sparkles
 } from 'lucide-react';
 import { useMember } from '@/integrations';
 
@@ -70,7 +72,7 @@ interface BattleRoom {
 
 export default function BattleArenaPage() {
   const { member } = useMember();
-  const [selectedMode, setSelectedMode] = useState<'solo' | 'guild' | 'tournament'>('solo');
+  const [selectedMode, setSelectedMode] = useState<'solo' | 'guild' | 'tournament' | 'emotion-adaptive'>('solo');
   const [currentBattle, setCurrentBattle] = useState<BattleRoom | null>(null);
   const [battleQuestions, setBattleQuestions] = useState<BattleQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -78,7 +80,7 @@ export default function BattleArenaPage() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [battlePhase, setBattlePhase] = useState<'lobby' | 'battle' | 'results'>('lobby');
+  const [battlePhase, setBattlePhase] = useState<'lobby' | 'battle' | 'results' | 'emotion-adaptive'>('lobby');
   const [animeCharacter, setAnimeCharacter] = useState<any>(null);
 
   // Mock battle rooms
@@ -269,7 +271,38 @@ export default function BattleArenaPage() {
     setStreak(0);
   };
 
-  if (battlePhase === 'battle' && currentBattle) {
+  if (battlePhase === 'emotion-adaptive') {
+    return (
+      <div className="min-h-screen bg-background text-foreground p-8">
+        <div className="max-w-[120rem] mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12"
+          >
+            <Button 
+              onClick={() => setBattlePhase('lobby')}
+              variant="outline" 
+              className="border-primary text-primary mb-6"
+            >
+              ← Back to Arena
+            </Button>
+            <h1 className="text-5xl font-heading font-black text-primary mb-4">
+              Emotion-Adaptive Battle System
+            </h1>
+            <p className="text-xl font-paragraph text-light-gray max-w-2xl">
+              Experience personalized battles and quizzes that adapt to your emotional state. 
+              Your mood shapes your learning journey!
+            </p>
+          </motion.div>
+
+          <EmotionAdaptiveBattleSystem />
+        </div>
+      </div>
+    );
+  }
+
+  if (battlePhase === 'battle') {
     const currentQuestion = battleQuestions[currentQuestionIndex];
     
     return (
@@ -493,14 +526,19 @@ export default function BattleArenaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-8 flex-wrap gap-3"
         >
           <div className="flex bg-dark-gray rounded-lg p-1">
-            {(['solo', 'guild', 'tournament'] as const).map((mode) => (
+            {(['solo', 'guild', 'tournament', 'emotion-adaptive'] as const).map((mode) => (
               <Button
                 key={mode}
                 variant={selectedMode === mode ? 'default' : 'ghost'}
-                onClick={() => setSelectedMode(mode)}
+                onClick={() => {
+                  setSelectedMode(mode);
+                  if (mode === 'emotion-adaptive') {
+                    setBattlePhase('emotion-adaptive');
+                  }
+                }}
                 className={`px-6 py-3 ${
                   selectedMode === mode 
                     ? 'bg-primary text-primary-foreground' 
@@ -510,7 +548,11 @@ export default function BattleArenaPage() {
                 {mode === 'solo' && <Target className="h-4 w-4 mr-2" />}
                 {mode === 'guild' && <Users className="h-4 w-4 mr-2" />}
                 {mode === 'tournament' && <Crown className="h-4 w-4 mr-2" />}
-                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                {mode === 'emotion-adaptive' && <Sparkles className="h-4 w-4 mr-2" />}
+                {mode === 'solo' && 'Solo'}
+                {mode === 'guild' && 'Guild'}
+                {mode === 'tournament' && 'Tournament'}
+                {mode === 'emotion-adaptive' && 'Emotion-Adaptive'}
               </Button>
             ))}
           </div>
