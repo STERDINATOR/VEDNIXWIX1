@@ -101,6 +101,11 @@ export default function MentorPage() {
     return avgConfidence > 0.7 ? 'improving' : avgConfidence < 0.4 ? 'declining' : 'stable';
   };
 
+  const handleCharacterGenerated = (character: any) => {
+    setGeneratedCharacter(character);
+    setShowCharacterGenerator(false);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
