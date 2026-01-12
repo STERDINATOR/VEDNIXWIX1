@@ -9,6 +9,8 @@ import { AnimePet } from '@/components/ui/anime-pet';
 import { AnimeBackground } from '@/components/ui/anime-background';
 import { FloatingPetCompanion } from '@/components/ui/floating-pet-companion';
 import { PetNotificationSystem } from '@/components/ui/pet-notification-system';
+import { DraggablePetButton } from '@/components/ui/draggable-pet-button';
+import { DraggableNotificationButton } from '@/components/ui/draggable-notification-button';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { usePetStore } from '@/stores/petStore';
 import { 
@@ -295,8 +297,15 @@ export default function Layout() {
       {/* Pet Modal */}
       <AnimePet isOpen={petOpen} onClose={() => setPetOpen(false)} />
 
-      {/* Floating Pet Companion - visible across all pages */}
-      {isAuthenticated && <FloatingPetCompanion />}
+      {/* Draggable Notification Button */}
+      {isAuthenticated && (
+        <DraggableNotificationButton onNotificationOpen={() => {}} />
+      )}
+
+      {/* Draggable Pet Button */}
+      {isAuthenticated && (
+        <DraggablePetButton onPetOpen={() => setPetOpen(true)} />
+      )}
 
       {/* Pet Notification System - manages health reminders and motivational messages */}
       {isAuthenticated && <PetNotificationSystem />}
