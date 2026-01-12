@@ -37,6 +37,7 @@ export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mentorOpen, setMentorOpen] = useState(false);
   const [petOpen, setPetOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userCharacter, setUserCharacter] = useState<any>(null); // Store user's character
 
   // Load user character from localStorage on component mount
@@ -298,7 +299,10 @@ export default function Layout() {
 
       {/* Draggable Notification Button */}
       {isAuthenticated && (
-        <DraggableNotificationButton onNotificationOpen={() => {}} />
+        <DraggableNotificationButton 
+          isOpen={notificationsOpen}
+          onOpenChange={setNotificationsOpen}
+        />
       )}
 
       {/* Floating Pet Companion Window */}
