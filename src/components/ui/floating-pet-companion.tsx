@@ -231,7 +231,7 @@ export function FloatingPetCompanion() {
             scale: 1
           }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
-          className={`fixed z-40 ${isMinimized ? 'cursor-grab active:cursor-grabbing' : 'bottom-6 left-6'}`}
+          className={`fixed z-40 ${isMinimized ? 'cursor-grab active:cursor-grabbing' : 'bottom-6 right-6'}`}
           drag={isMinimized}
           dragElastic={0.2}
           dragMomentum={false}
