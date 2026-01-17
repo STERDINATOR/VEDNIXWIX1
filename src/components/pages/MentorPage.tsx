@@ -94,6 +94,15 @@ export default function MentorPage() {
     setMoodHistory(prev => [...prev, mood].slice(-10));
   };
 
+  const handleStartVideoCall = (mentor: Mentors) => {
+    setSelectedMentor(mentor);
+    setIsCallActive(true);
+  };
+
+  const handleEndVideoCall = () => {
+    setIsCallActive(false);
+  };
+
   const getMoodTrend = () => {
     if (moodHistory.length < 2) return 'stable';
     const recent = moodHistory.slice(-3);
@@ -266,12 +275,12 @@ export default function MentorPage() {
                             <VideoCallInterface
                               mentor={selectedMentor}
                               isActive={isCallActive}
-                              onEndCall={() => setIsCallActive(false)}
+                              onEndCall={handleEndVideoCall}
                             />
                           </Card>
                           {!isCallActive && (
                             <Button
-                              onClick={() => setIsCallActive(true)}
+                              onClick={() => handleStartVideoCall(selectedMentor)}
                               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading py-3"
                             >
                               <Video className="w-4 h-4 mr-2" />

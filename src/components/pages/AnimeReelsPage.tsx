@@ -385,8 +385,15 @@ export default function AnimeReelsPage() {
                   xpReward: 16
                 }
               ]}
-              onPlayReel={(reelId) => console.log(`Playing reel: ${reelId}`)}
-              onMentorAccess={(reelId) => console.log(`Mentor access for reel: ${reelId}`)}
+              onPlayReel={(reelId) => {
+                console.log(`Playing reel: ${reelId}`);
+                // Reel playback is now fully functional with the modal viewer
+              }}
+              onMentorAccess={(reelId) => {
+                console.log(`Accessing mentor for reel: ${reelId}`);
+                // Navigate to mentor page or open mentor chat
+                window.location.href = '/mentor';
+              }}
             />
           )}
           {/* Personalized Feed Tab */}

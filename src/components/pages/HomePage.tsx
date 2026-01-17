@@ -330,9 +330,11 @@ export default function HomePage() {
                 <AnimatedElement>
                     <h2 className="font-heading text-6xl md:text-7xl text-foreground mb-6">CHOOSE YOUR <span className="text-secondary">PATH</span>.</h2>
                     <p className="text-lg text-light-gray leading-lg mb-8">Unlock new abilities and watch your knowledge tree grow. Specialize as a Code Ronin, mastering languages and frameworks. Become a Data Ghost, manipulating information flows. Or rise as a Network Templar, defending digital frontiers. Your curriculum is your arsenal.</p>
-                    <Button variant="outline" className="border-secondary text-secondary hover:bg-secondary/10 px-8 py-3 text-base font-heading uppercase tracking-widest">
-                        View Skill Trees
-                    </Button>
+                    <Link to="/advanced-learning">
+                      <Button variant="outline" className="border-secondary text-secondary hover:bg-secondary/10 px-8 py-3 text-base font-heading uppercase tracking-widest">
+                          View Skill Trees
+                      </Button>
+                    </Link>
                 </AnimatedElement>
             </div>
             <div className="relative h-[400px] md:h-[600px]">
