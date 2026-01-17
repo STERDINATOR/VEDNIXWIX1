@@ -15,7 +15,7 @@ export interface AchievementDefinitions {
   title?: string;
   /** @wixFieldType text */
   description?: string;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   icon?: string;
   /** @wixFieldType text */
   unlockRequirement?: string;
@@ -69,7 +69,7 @@ export interface LearningTopics {
   topicName?: string;
   /** @wixFieldType text */
   topicDescription?: string;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   topicIcon?: string;
   /** @wixFieldType text */
   topicColor?: string;
@@ -92,7 +92,7 @@ export interface Mentors {
   name?: string;
   /** @wixFieldType text */
   specialty?: string;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   avatarImage?: string;
   /** @wixFieldType text */
   bio?: string;
@@ -123,7 +123,7 @@ export interface Quests {
   itemRewardName?: string;
   /** @wixFieldType text */
   difficulty?: string;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   questImage?: string;
 }
 
@@ -169,7 +169,7 @@ export interface ShopItems {
   itemName?: string;
   /** @wixFieldType text */
   itemDescription?: string;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   itemImage?: string;
   /** @wixFieldType number */
   itemCost?: number;
@@ -202,6 +202,6 @@ export interface StudyGuilds {
   announcements?: string;
   /** @wixFieldType datetime */
   creationDate?: Date | string;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   guildImage?: string;
 }

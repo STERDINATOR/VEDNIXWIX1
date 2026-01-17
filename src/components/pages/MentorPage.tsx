@@ -368,7 +368,7 @@ export default function MentorPage() {
                             <div>
                               <p className="text-xs text-light-gray uppercase tracking-widest mb-1">Personality</p>
                               <p className="text-sm font-paragraph text-light-gray">
-                                {generatedCharacter.personality}
+                                {generatedCharacter.personality.trait}
                               </p>
                             </div>
                             <div>
