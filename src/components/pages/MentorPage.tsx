@@ -349,14 +349,21 @@ export default function MentorPage() {
                           <h3 className="text-lg font-heading font-bold text-foreground mb-4">
                             Your Character
                           </h3>
-                          {generatedCharacter.imageUrl && (
-                            <Image
-                              src={generatedCharacter.imageUrl}
-                              alt={generatedCharacter.name}
-                              width={400}
-                              height={400}
-                              className="w-full rounded-lg border-2 border-primary/30 mb-4"
-                            />
+                          {generatedCharacter.image && (
+                            <div className="relative">
+                              <Image
+                                src={generatedCharacter.image}
+                                alt={generatedCharacter.name}
+                                width={400}
+                                height={500}
+                                className="w-full rounded-lg border-4 border-primary/50 mb-4 shadow-lg shadow-primary/20"
+                              />
+                              <div className="absolute top-4 right-4">
+                                <Badge className="bg-primary text-primary-foreground">
+                                  AI Generated
+                                </Badge>
+                              </div>
+                            </div>
                           )}
                           <div className="space-y-3">
                             <div>
@@ -370,15 +377,22 @@ export default function MentorPage() {
                               <p className="text-sm font-paragraph text-light-gray">
                                 {generatedCharacter.personality.trait}
                               </p>
+                              <p className="text-xs font-paragraph text-light-gray/70 mt-1 italic">
+                                "{generatedCharacter.personality.catchphrase}"
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-light-gray uppercase tracking-widest mb-1">Specialties</p>
+                              <p className="text-xs text-light-gray uppercase tracking-widest mb-1">Appearance</p>
                               <div className="flex flex-wrap gap-2">
-                                {generatedCharacter.specialties?.map((spec: string, idx: number) => (
-                                  <Badge key={idx} className="bg-secondary/20 text-secondary border-secondary/30">
-                                    {spec}
-                                  </Badge>
-                                ))}
+                                <Badge variant="outline" className="border-primary/30 text-primary">
+                                  {generatedCharacter.appearance.hairColor}
+                                </Badge>
+                                <Badge variant="outline" className="border-secondary/30 text-secondary">
+                                  {generatedCharacter.appearance.eyeColor}
+                                </Badge>
+                                <Badge variant="outline" className="border-neon-green/30 text-neon-green">
+                                  {generatedCharacter.appearance.outfit}
+                                </Badge>
                               </div>
                             </div>
                           </div>
@@ -386,37 +400,54 @@ export default function MentorPage() {
 
                         <div className="space-y-4">
                           <Card className="border-primary/20 p-4 bg-primary/5">
-                            <h4 className="font-heading font-bold text-primary mb-3">Character Traits</h4>
+                            <h4 className="font-heading font-bold text-primary mb-3">Character Stats</h4>
+                            <div className="space-y-3">
+                              {Object.entries(generatedCharacter.abilities.stats).map(([stat, value]) => (
+                                <div key={stat}>
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-sm font-paragraph text-light-gray capitalize">{stat}</span>
+                                    <span className="text-sm font-heading text-primary">{value}</span>
+                                  </div>
+                                  <div className="w-full bg-dark-gray rounded-full h-2">
+                                    <div 
+                                      className="bg-primary h-2 rounded-full transition-all"
+                                      style={{ width: `${value}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </Card>
+
+                          <Card className="border-primary/20 p-4 bg-secondary/5">
+                            <h4 className="font-heading font-bold text-secondary mb-3">Special Abilities</h4>
                             <div className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm font-paragraph text-light-gray">Motivation</span>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-paragraph text-light-gray">Special Move</span>
                                 <Badge className="bg-neon-green/20 text-neon-green border-neon-green/30">
-                                  High
+                                  {generatedCharacter.abilities.specialMove}
                                 </Badge>
                               </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm font-paragraph text-light-gray">Adaptability</span>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-paragraph text-light-gray">Element</span>
                                 <Badge className="bg-primary/20 text-primary border-primary/30">
-                                  Excellent
+                                  {generatedCharacter.abilities.element}
                                 </Badge>
                               </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm font-paragraph text-light-gray">Learning Style</span>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-paragraph text-light-gray">Weapon</span>
                                 <Badge className="bg-secondary/20 text-secondary border-secondary/30">
-                                  Multi-Modal
+                                  {generatedCharacter.abilities.weapon}
                                 </Badge>
                               </div>
                             </div>
                           </Card>
 
-                          <Card className="border-primary/20 p-4 bg-secondary/5">
-                            <h4 className="font-heading font-bold text-secondary mb-3">Recommended Focus</h4>
-                            <ul className="space-y-2 text-sm font-paragraph text-light-gray">
-                              <li>• Interactive learning modules</li>
-                              <li>• Real-time mentor sessions</li>
-                              <li>• Gamified challenges</li>
-                              <li>• Peer collaboration</li>
-                            </ul>
+                          <Card className="border-primary/20 p-4 bg-dark-gray/50">
+                            <h4 className="font-heading font-bold text-foreground mb-3">Backstory</h4>
+                            <p className="text-xs font-paragraph text-light-gray leading-relaxed">
+                              {generatedCharacter.backstory}
+                            </p>
                           </Card>
                         </div>
                       </div>
