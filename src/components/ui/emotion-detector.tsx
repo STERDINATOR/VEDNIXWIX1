@@ -118,8 +118,8 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover rounded-lg"
-                  style={{ transform: 'scaleX(-1)', display: 'block' }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ transform: 'scaleX(-1)' }}
                 />
                 {/* Detection overlay */}
                 {isDetecting && (
@@ -173,12 +173,6 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                       </div>
                     </div>
                   </motion.div>
-                )}
-                {/* Fallback if video doesn't load */}
-                {!streamRef.current && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400 text-sm z-30">
-                    Initializing camera...
-                  </div>
                 )}
               </div>
             ) : (
