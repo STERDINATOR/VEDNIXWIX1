@@ -39,6 +39,8 @@ export function VideoCallInterface({ mentor, onEndCall, isActive = true }: Video
   const [showEmotionDetector, setShowEmotionDetector] = useState(false);
   const [aiVolume, setAiVolume] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const userVideoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Simulate call duration
   useEffect(() => {
@@ -50,6 +52,50 @@ export function VideoCallInterface({ mentor, onEndCall, isActive = true }: Video
 
     return () => clearInterval(interval);
   }, [isActive]);
+
+  // Start user camera
+  useEffect(() => {
+    if (!isActive || !isVideoOn) {
+      stopUserCamera();
+      return;
+    }
+
+    startUserCamera();
+
+    return () => {
+      stopUserCamera();
+    };
+  }, [isActive, isVideoOn]);
+
+  const startUserCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: 'user'
+        },
+        audio: false 
+      });
+      
+      if (userVideoRef.current) {
+        userVideoRef.current.srcObject = stream;
+        streamRef.current = stream;
+      }
+    } catch (error) {
+      console.error('Camera access error:', error);
+    }
+  };
+
+  const stopUserCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (userVideoRef.current) {
+      userVideoRef.current.srcObject = null;
+    }
+  };
 
   // Auto-scroll messages
   useEffect(() => {
@@ -201,6 +247,24 @@ export function VideoCallInterface({ mentor, onEndCall, isActive = true }: Video
               <div className="text-center">
                 <div className="text-6xl mb-4">🎓</div>
                 <p className="text-gray-400">{mentor.name}</p>
+              </div>
+            )}
+
+            {/* User Video (Picture-in-Picture) */}
+            {isVideoOn && (
+              <div className="absolute bottom-4 right-4 w-32 h-24 rounded-lg overflow-hidden border-2 border-primary/50 bg-gray-900">
+                <video
+                  ref={userVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                {/* Live indicator on user video */}
+                <div className="absolute top-1 left-1 bg-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+                  YOU
+                </div>
               </div>
             )}
 
