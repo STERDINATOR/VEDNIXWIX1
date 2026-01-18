@@ -252,16 +252,17 @@ export function VideoCallInterface({ mentor, onEndCall, isActive = true }: Video
 
             {/* User Video (Picture-in-Picture) */}
             {isVideoOn && (
-              <div className="absolute bottom-4 right-4 w-32 h-24 rounded-lg overflow-hidden border-2 border-primary/50 bg-gray-900">
+              <div className="absolute bottom-4 right-4 w-40 h-32 rounded-lg overflow-hidden border-2 border-primary/50 bg-gray-900 shadow-lg">
                 <video
                   ref={userVideoRef}
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover scale-x-[-1]"
+                  style={{ transform: 'scaleX(-1)' }}
                 />
                 {/* Live indicator on user video */}
-                <div className="absolute top-1 left-1 bg-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+                <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 z-10">
                   <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
                   YOU
                 </div>
@@ -307,10 +308,12 @@ export function VideoCallInterface({ mentor, onEndCall, isActive = true }: Video
             </motion.div>
 
             {/* Current Emotion Badge */}
-            <div className="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded text-xs font-semibold">
-              <span className="text-gray-400">Mood: </span>
-              <span className="text-primary capitalize">{currentEmotion}</span>
-            </div>
+            {!isVideoOn && (
+              <div className="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded text-xs font-semibold">
+                <span className="text-gray-400">Mood: </span>
+                <span className="text-primary capitalize">{currentEmotion}</span>
+              </div>
+            )}
 
             {/* Call Duration */}
             <div className="absolute bottom-4 left-4 bg-black/70 px-3 py-1 rounded text-sm font-mono text-primary">

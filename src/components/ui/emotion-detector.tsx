@@ -108,26 +108,26 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
         <Card className="border-primary/30 bg-gray-900 p-4">
           <div className="relative w-full aspect-video rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 border border-primary/20 overflow-hidden">
             {isCameraActive ? (
-              <>
+              <div className="relative w-full h-full">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-lg scale-x-[-1]"
+                  style={{ transform: 'scaleX(-1)' }}
                 />
                 {/* Detection overlay */}
                 {isDetecting && (
                   <motion.div
-                    className="absolute inset-0 border-2 border-neon-green rounded-lg"
+                    className="absolute inset-0 border-2 border-neon-green rounded-lg pointer-events-none"
                     animate={{ opacity: [0.3, 0.8, 0.3] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
-                    style={{ pointerEvents: 'none' }}
                   />
                 )}
                 {/* Live indicator */}
                 <motion.div
-                  className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2"
+                  className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 z-10"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
@@ -136,11 +136,11 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                 </motion.div>
                 {/* Detection status */}
                 {isDetecting && (
-                  <div className="absolute top-4 right-4 bg-neon-green/90 text-black px-3 py-1 rounded-full text-xs font-bold">
+                  <div className="absolute top-4 right-4 bg-neon-green/90 text-black px-3 py-1 rounded-full text-xs font-bold z-10">
                     🔍 Detecting...
                   </div>
                 )}
-              </>
+              </div>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center">
                 <Camera className="w-16 h-16 text-gray-600 mb-4" />
