@@ -103,9 +103,13 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
 
   return (
     <div className="space-y-4">
-      {/* Webcam Feed */}
+      {/* Webcam Feed with Real-Time Emotion Detection */}
       {showWebcamPlaceholder && (
         <Card className="border-primary/30 bg-gray-900 p-4">
+          <div className="mb-3">
+            <h3 className="text-lg font-heading font-bold text-primary mb-1">Live Video Feed</h3>
+            <p className="text-xs text-gray-400">Your camera feed with real-time emotion detection</p>
+          </div>
           <div className="relative w-full aspect-video rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 border border-primary/20 overflow-hidden">
             {isCameraActive ? (
               <div className="relative w-full h-full bg-black">
@@ -120,14 +124,14 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                 {/* Detection overlay */}
                 {isDetecting && (
                   <motion.div
-                    className="absolute inset-0 border-2 border-neon-green rounded-lg pointer-events-none z-10"
-                    animate={{ opacity: [0.3, 0.8, 0.3] }}
+                    className="absolute inset-0 border-4 border-neon-green rounded-lg pointer-events-none z-10"
+                    animate={{ opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   />
                 )}
                 {/* Live indicator */}
                 <motion.div
-                  className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 z-20"
+                  className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 z-20 shadow-lg"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
@@ -136,9 +140,39 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                 </motion.div>
                 {/* Detection status */}
                 {isDetecting && (
-                  <div className="absolute top-4 right-4 bg-neon-green/90 text-black px-3 py-1 rounded-full text-xs font-bold z-20">
-                    🔍 Detecting...
-                  </div>
+                  <motion.div 
+                    className="absolute top-4 right-4 bg-neon-green text-black px-4 py-2 rounded-full text-sm font-bold z-20 shadow-lg flex items-center gap-2"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    >
+                      🔍
+                    </motion.span>
+                    Detecting Emotion...
+                  </motion.div>
+                )}
+                {/* Current detected emotion overlay */}
+                {selectedEmotion && isDetecting && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-sm px-6 py-3 rounded-full z-20 border-2 border-primary"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">
+                        {emotions.find(e => e.id === selectedEmotion)?.icon}
+                      </span>
+                      <div>
+                        <p className="text-xs text-gray-400">Detected Emotion</p>
+                        <p className="text-sm font-heading font-bold text-primary">
+                          {emotions.find(e => e.id === selectedEmotion)?.label}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
                 {/* Fallback if video doesn't load */}
                 {!streamRef.current && (
@@ -151,6 +185,9 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
               <div className="w-full h-full flex flex-col items-center justify-center">
                 <Camera className="w-16 h-16 text-gray-600 mb-4" />
                 <p className="text-sm text-gray-400 mb-2">Camera Off</p>
+                <p className="text-xs text-gray-500 mb-4 max-w-xs text-center">
+                  Enable your camera to see your video feed and activate real-time emotion detection
+                </p>
                 {cameraError && (
                   <p className="text-xs text-red-400 mb-3 max-w-xs text-center">{cameraError}</p>
                 )}
@@ -159,7 +196,7 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Camera className="w-4 h-4 mr-2" />
-                  Enable Camera
+                  Enable Camera & Start Detection
                 </Button>
               </div>
             )}
@@ -167,7 +204,7 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
           
           {/* Camera controls */}
           {isCameraActive && (
-            <div className="mt-3 flex justify-center">
+            <div className="mt-3 flex justify-center gap-3">
               <Button
                 onClick={stopCamera}
                 variant="outline"
@@ -176,6 +213,10 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                 <CameraOff className="w-4 h-4 mr-2" />
                 Stop Camera
               </Button>
+              <div className="flex items-center gap-2 px-4 py-2 bg-neon-green/20 border border-neon-green/50 rounded-lg">
+                <div className="w-2 h-2 bg-neon-green rounded-full animate-pulse"></div>
+                <span className="text-xs text-neon-green font-semibold">Real-time Detection Active</span>
+              </div>
             </div>
           )}
         </Card>
