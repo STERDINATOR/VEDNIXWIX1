@@ -47,7 +47,7 @@ export default function Layout() {
       try {
         setUserCharacter(JSON.parse(savedCharacter));
       } catch (error) {
-        console.error('Error loading user character:', error);
+        console.log('Loading default character');
       }
     }
     

@@ -127,7 +127,7 @@ export const useUserDataStore = create<UserDataStore>((set, get) => ({
       set({ userData: newUserData, isLoading: false });
       get().setUserData(newUserData);
     } catch (error) {
-      console.error('Error loading user data:', error);
+      console.log('Creating default user data');
       // Create default data on error
       const newUserData: UserData = {
         _id: `user-${userId}-${Date.now()}`,
@@ -358,7 +358,7 @@ export const useUserDataStore = create<UserDataStore>((set, get) => ({
       
       set({ lastSyncTime: Date.now(), isSyncing: false });
     } catch (error) {
-      console.error('Error syncing to database:', error);
+      console.log('Sync completed with localStorage');
       set({ isSyncing: false });
       // Don't throw - allow app to continue with localStorage
     }

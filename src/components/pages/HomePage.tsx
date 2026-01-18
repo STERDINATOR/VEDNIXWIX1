@@ -1,4 +1,3 @@
-// HPI 1.4-G
 import React, { useState, useEffect, useRef } from 'react';
 import { useMember } from '@/integrations';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,6 @@ import { Image } from '@/components/ui/image';
 import { AnimePet } from '@/components/ui/anime-pet';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-{/* ... keep existing code (imports) ... */}
 
 // A simple hook for Intersection Observer to add animations on scroll
 const useIntersectionObserver = (options: IntersectionObserverInit) => {
