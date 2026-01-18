@@ -108,26 +108,26 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
         <Card className="border-primary/30 bg-gray-900 p-4">
           <div className="relative w-full aspect-video rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 border border-primary/20 overflow-hidden">
             {isCameraActive ? (
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-full bg-black">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover rounded-lg scale-x-[-1]"
-                  style={{ transform: 'scaleX(-1)' }}
+                  className="w-full h-full object-cover rounded-lg"
+                  style={{ transform: 'scaleX(-1)', display: 'block' }}
                 />
                 {/* Detection overlay */}
                 {isDetecting && (
                   <motion.div
-                    className="absolute inset-0 border-2 border-neon-green rounded-lg pointer-events-none"
+                    className="absolute inset-0 border-2 border-neon-green rounded-lg pointer-events-none z-10"
                     animate={{ opacity: [0.3, 0.8, 0.3] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   />
                 )}
                 {/* Live indicator */}
                 <motion.div
-                  className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 z-10"
+                  className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 z-20"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
@@ -136,8 +136,14 @@ export function EmotionDetector({ onEmotionDetected, showWebcamPlaceholder = tru
                 </motion.div>
                 {/* Detection status */}
                 {isDetecting && (
-                  <div className="absolute top-4 right-4 bg-neon-green/90 text-black px-3 py-1 rounded-full text-xs font-bold z-10">
+                  <div className="absolute top-4 right-4 bg-neon-green/90 text-black px-3 py-1 rounded-full text-xs font-bold z-20">
                     🔍 Detecting...
+                  </div>
+                )}
+                {/* Fallback if video doesn't load */}
+                {!streamRef.current && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400 text-sm z-30">
+                    Initializing camera...
                   </div>
                 )}
               </div>

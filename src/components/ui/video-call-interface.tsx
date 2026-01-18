@@ -252,20 +252,26 @@ export function VideoCallInterface({ mentor, onEndCall, isActive = true }: Video
 
             {/* User Video (Picture-in-Picture) */}
             {isVideoOn && (
-              <div className="absolute bottom-4 right-4 w-40 h-32 rounded-lg overflow-hidden border-2 border-primary/50 bg-gray-900 shadow-lg">
+              <div className="absolute bottom-4 right-4 w-48 h-36 rounded-lg overflow-hidden border-2 border-primary/50 bg-gray-800 shadow-lg z-20">
                 <video
                   ref={userVideoRef}
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover scale-x-[-1]"
-                  style={{ transform: 'scaleX(-1)' }}
+                  className="w-full h-full object-cover"
+                  style={{ transform: 'scaleX(-1)', display: 'block' }}
                 />
                 {/* Live indicator on user video */}
-                <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 z-10">
+                <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 z-30">
                   <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
                   YOU
                 </div>
+                {/* Fallback if video doesn't load */}
+                {!streamRef.current && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400 text-xs">
+                    Loading camera...
+                  </div>
+                )}
               </div>
             )}
 
