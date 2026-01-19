@@ -3,17 +3,24 @@ import { useMember } from '@/integrations';
 import { useUserDataStore } from '@/stores/userDataStore';
 import { NeonCityBackground } from '@/components/ui/neon-city-background';
 import { DashboardTestControls } from '@/components/ui/dashboard-test-controls';
+import { AIRecommendationsDisplay } from '@/components/ui/ai-recommendations-display';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
-import { Zap, Trophy, Flame, TrendingUp, Settings } from 'lucide-react';
+import { Zap, Trophy, Flame, TrendingUp, Settings, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { BaseCrudService } from '@/integrations';
+import { AnimeEducationalReels, Quests, LearningTopics } from '@/entities';
 
 export default function DashboardPage() {
   const { member } = useMember();
   const { userData, loadUserData, startAutoSync, stopAutoSync } = useUserDataStore();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [reels, setReels] = useState<AnimeEducationalReels[]>([]);
+  const [quests, setQuests] = useState<Quests[]>([]);
+  const [topics, setTopics] = useState<LearningTopics[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(true);
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -33,6 +40,28 @@ export default function DashboardPage() {
       stopAutoSync();
     };
   }, [member, loadUserData, startAutoSync, stopAutoSync]);
+
+  useEffect(() => {
+    loadRecommendationData();
+  }, []);
+
+  async function loadRecommendationData() {
+    try {
+      const [reelsData, questsData, topicsData] = await Promise.all([
+        BaseCrudService.getAll<AnimeEducationalReels>('animeeducationalreels'),
+        BaseCrudService.getAll<Quests>('quests'),
+        BaseCrudService.getAll<LearningTopics>('learningtopics'),
+      ]);
+
+      setReels(reelsData.items);
+      setQuests(questsData.items);
+      setTopics(topicsData.items);
+    } catch (error) {
+      console.error('Failed to load recommendation data:', error);
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  }
 
   if (isInitializing || !userData) {
     return (
@@ -253,12 +282,56 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
 
-          {/* Anime Universe Features Section */}
+          {/* AI Recommendations Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-20"
+            className="mt-12 mb-12"
+          >
+            <Card className="bg-background/50 border-primary/30 backdrop-blur-sm p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Sparkles className="w-8 h-8 text-primary" />
+                <h2 className="text-3xl font-heading font-bold text-primary">
+                  AI-Powered Recommendations
+                </h2>
+              </div>
+              {loadingRecommendations ? (
+                <div className="flex items-center justify-center py-12">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+                  />
+                </div>
+              ) : (
+                <AIRecommendationsDisplay
+                  reels={reels}
+                  quests={quests}
+                  topics={topics}
+                  userLevel={userData.level < 5 ? 'beginner' : userData.level < 10 ? 'intermediate' : 'advanced'}
+                  completedTopics={userData.completedReels.slice(0, 5)}
+                  recentActivity={[...userData.completedReels, ...userData.completedQuests].slice(-10)}
+                  onSelectItem={(item, type) => {
+                    if (type === 'reel') {
+                      window.location.href = '/reels';
+                    } else if (type === 'quest') {
+                      window.location.href = '/learn';
+                    } else if (type === 'topic') {
+                      window.location.href = '/learn';
+                    }
+                  }}
+                />
+              )}
+            </Card>
+          </motion.div>
+
+          {/* Anime Universe Features Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-12"
           >
             <h2 className="text-3xl font-heading font-bold text-primary mb-8">
               Anime Universe Features

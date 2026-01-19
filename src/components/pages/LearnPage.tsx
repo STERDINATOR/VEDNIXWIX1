@@ -8,6 +8,7 @@ import { QuestSystem, sampleQuests } from '@/components/ui/quest-system';
 import { CourseSystem, sampleCourses } from '@/components/ui/course-system';
 import { CognitiveResonanceEngine } from '@/components/ui/cognitive-resonance-engine';
 import { MultiverseLessonSelector } from '@/components/ui/multiverse-lesson-selector';
+import { AIRecommendationsDisplay } from '@/components/ui/ai-recommendations-display';
 import { 
   BookOpen, 
   Play, 
@@ -15,12 +16,15 @@ import {
   Clock,
   Users,
   Target,
-  GraduationCap
+  GraduationCap,
+  Sparkles
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguageStore } from '@/stores/languageStore';
 import { getTranslation } from '@/lib/translations';
+import { BaseCrudService } from '@/integrations';
+import { AnimeEducationalReels, Quests, LearningTopics } from '@/entities';
 
 export default function LearnPage() {
   const currentLanguage = useLanguageStore((state) => state.currentLanguage);
@@ -31,6 +35,11 @@ export default function LearnPage() {
     '3': ['3-1']
   });
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+  const [reels, setReels] = useState<any[]>([]);
+  const [questsData, setQuestsData] = useState<any[]>([]);
+  const [topics, setTopics] = useState<any[]>([]);
+  
   // Handler functions for course interactions
   const handleEnrollCourse = (courseId: string) => {
     setEnrolledCourses(prev => [...prev, courseId]);
@@ -259,6 +268,15 @@ export default function LearnPage() {
                 <span className="mr-2 text-lg">⚔️</span>
                 Quests
               </Button>
+              <Button
+                variant={viewMode === 'ai-recs' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('ai-recs')}
+                className={viewMode === 'ai-recs' ? 'bg-gradient-to-r from-primary to-secondary text-white' : 'text-light-gray'}
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                AI Recs
+              </Button>
             </div>
           </div>
         </motion.div>
@@ -482,7 +500,7 @@ export default function LearnPage() {
                   </div>
                 </div>
               </motion.div>
-            ) : (
+            ) : viewMode === 'quests' ? (
               /* Quest System View */
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -500,6 +518,50 @@ export default function LearnPage() {
                   onStartQuest={handleStartQuest}
                   onCompleteQuest={handleCompleteQuest}
                 />
+              </motion.div>
+            ) : (
+              /* AI Recommendations View */
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="text-center mb-6">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Sparkles className="w-8 h-8 text-primary" />
+                    <h2 className="text-3xl font-heading font-bold text-primary">AI-Powered Recommendations</h2>
+                  </div>
+                  <p className="font-paragraph text-light-gray">
+                    Personalized learning suggestions based on your progress and preferences
+                  </p>
+                </div>
+                {loadingRecommendations ? (
+                  <div className="flex items-center justify-center py-12">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+                    />
+                  </div>
+                ) : (
+                  <AIRecommendationsDisplay
+                    reels={reels}
+                    quests={questsData}
+                    topics={topics}
+                    userLevel="intermediate"
+                    completedTopics={completedQuests.slice(0, 5)}
+                    recentActivity={[...completedQuests, ...Object.values(completedLessons).flat()].slice(-10)}
+                    onSelectItem={(item, type) => {
+                      if (type === 'reel') {
+                        setViewMode('reels');
+                      } else if (type === 'quest') {
+                        setViewMode('quests');
+                      } else if (type === 'topic') {
+                        setViewMode('courses');
+                      }
+                    }}
+                  />
+                )}
               </motion.div>
             )}
           </div>
